@@ -66,7 +66,7 @@ export const galleries: GalleryEntry[] = [
     cover: '/img/gallery/moca-shi-yan-shi-wai-jing.webp',
     coverRatio: ratio(1500, 2000),
     intro:
-      '这是我在中科院深圳先进院待得最久的一个地方 —— 一年半，从打标软件的第一版到三家医院的临床试用。这组照片记的是那些不在代码里的部分：病房的走廊、被打断的组会、实验室楼下的傍晚。',
+      '这是我做过最长的项目，一年半，从拿到原始量表和数据，到最后的实验结果下载。这组照片记的是那些不在代码里的部分：病房的走廊、听不懂的组会、实验室楼下的傍晚。',
     photos: [
       {
         src: '/img/gallery/moca-shen-zhi-di-er-ren-min-yi-yuan-cai-ji.webp',
@@ -93,7 +93,7 @@ export const galleries: GalleryEntry[] = [
         caption: '打标组件与下位机的连接',
         note: '自研打标设备通过串口直连 EEG 采集设备，实测端到端打标延迟在 20ms 量级。',
         story:
-          '这块硬件是我和硬件组的同学一起接的。第一版接线用杜邦线，插拔一次抖一下；后来专门做了固定卡扣和屏蔽，走线问题才彻底消失。20ms 不是靠算法优化来的，是靠把物理连接做扎实。',
+          '刚开始打标不稳定，数值乱飞，后来调整了好久才发现是线的问题，才额外做了映射系统。',
         place: '神经接口实验室',
         date: '2026-05',
         ratio: ratio(2000, 1500),
@@ -132,7 +132,7 @@ export const galleries: GalleryEntry[] = [
         caption: '行政楼阶梯',
         note: '研究所行政楼前的台阶，中午休息时最热闹。',
         story:
-          '午饭时间这里会坐满人。做脑电信号的人普遍话少，但吃饭的时候反而很健谈 —— 大概是信号之外总得有点别的话题。',
+          '在这里上班的都是各行各业的翘楚人物，我希望我也是。',
         place: '深圳 · 西丽',
         date: '2026-07',
         ratio: ratio(2000, 1500),
@@ -142,7 +142,7 @@ export const galleries: GalleryEntry[] = [
         caption: '中科院先进院',
         note: '研究院的咖啡角，午后总有人在这里讨论。',
         story:
-          '第一次来这里是面试，走错了两次电梯。咖啡角后来成了我改代码的地方 —— 会议改不动的东西，边喝咖啡边改反而能想通。',
+          '时不时困了，路过来杯咖啡，我最爱喝的是拿铁。',
         place: '深圳 · 西丽',
         date: '2026-05',
         ratio: ratio(2000, 1500),
@@ -152,7 +152,7 @@ export const galleries: GalleryEntry[] = [
         caption: '听组会',
         note: '实验室的周组会，轮流汇报进展。',
         story:
-          '第一次轮到我讲的时候紧张到把时序图画反了。师父没打断我，等我自己发现。那次之后我做每一张图都会先确认坐标轴方向 —— 这个习惯是从那儿留下的。',
+          '根本听不懂博士们在讲什么，有时候觉得自己真的很笨。',
         place: '神经接口实验室',
         date: '2026-07',
         ratio: ratio(1500, 2000),
@@ -162,7 +162,7 @@ export const galleries: GalleryEntry[] = [
         caption: '学术海报',
         note: '实验室墙上的学术海报，师兄做的那版范式。',
         story:
-          '这张海报是师兄做 MoCA 范式时贴的，也是我第一次看到「一个量表怎么变成 EEG 可分析的实验」的过程。后来我的打标系统里那 43 个码表，有一半的思路是从这张海报来的。',
+          '有时候看到这些宣传标语，才发觉，自己正在走一条伟大而艰巨的路。',
         place: '神经接口实验室',
         date: '2026-08',
         ratio: ratio(1500, 2000),
@@ -172,7 +172,7 @@ export const galleries: GalleryEntry[] = [
         caption: '我的工位',
         note: '两台显示器、一台采集设备、一堆杜邦线的工作台。',
         story:
-          '工位上最占地方的不是屏幕，是那台被拆开过的采集设备。半年下来它被我拆装过四次，每次都多出一堆说不清用途的零件。',
+          '每个人都有自己的小黄鸭来 debug，而我的，是奶龙师兄。',
         place: '神经接口实验室',
         date: '2026-09',
         ratio: ratio(2000, 1500),
@@ -201,7 +201,7 @@ export const galleries: GalleryEntry[] = [
         src: '/img/gallery/moca-jian-shen-fang.webp',
         caption: '健身房',
         note: '所里的健身房，器材不多但够用。',
-        story: '一次在实验室通宵后直接睡在工位，第二天被师父赶去健身房洗澡。这张照片是那天留下的。',
+        story: '时不时中午吃完饭来练一下力量，我最喜欢练胸。',
         place: '深圳 · 西丽',
         date: '2026-11',
         ratio: ratio(1500, 2000),
@@ -265,7 +265,7 @@ export const galleries: GalleryEntry[] = [
         src: '/img/gallery/cga-guang-zhou-gang-kang-yi-yang-yuan.webp',
         caption: '广州港康颐养医院',
         note: '另一家合作机构的院区环境。',
-        story: '同一套系统要跑在不同的院子里，环境差异比想象中大。有的院区网络只有 4G，有的 WiFi 覆盖不全。这直接决定了系统必须支持离线运行。',
+        story: '为了解决平板和服务器的协作问题，我们最后决定用上 4G CPE，直接移动部署就好了。',
         place: '广州 · 港康颐养医院',
         date: '2026-09',
         ratio: ratio(1500, 2000),
@@ -274,8 +274,7 @@ export const galleries: GalleryEntry[] = [
         src: '/img/gallery/cga-kang-yi-yang-nei-bu-zou-lang.webp',
         caption: '康颐养内部走廊',
         note: '住院区走廊，评估动线的实际场景。',
-        story:
-          '我在这条走廊上走了很多次，主要是测 WiFi 覆盖和设备摆放位置。评估的时候老人需要安静环境，而走廊是整个院区最吵的地方 —— 这个约束在办公室是想不到的。',
+        story: '第一次来，感觉到非常奢华。',
         place: '广州 · 康颐养医院',
         date: '2026-09',
         ratio: ratio(1500, 2000),
@@ -313,14 +312,14 @@ export const galleries: GalleryEntry[] = [
     cover: '/img/gallery/fupan-hai-dao-wan-xia.webp',
     coverRatio: ratio(2000, 1500),
     intro:
-      '这是我第一次被派驻到外地。两个月里大部分时间在工位和会议室，但海南的光线、椰子和傍晚的海风留下来了 —— 那些不需要写进周报的部分。',
+      '这是我第一次在热带岛屿工作，时常被天气多变和凉爽的海风感动。这组照片记的是那两个月的日常 —— 工位、海滩、老街，和不需要写进周报的部分。',
     photos: [
       {
         src: '/img/gallery/fupan-hai-dao-wan-xia.webp',
         caption: '海岛晚霞',
         note: '公司外的海滩，傍晚退潮后的天空。',
         story:
-          '加班到八点出门就能看到这个。有一天改 Agent 的工具注册改到崩溃，出来站在海边吹了十分钟风，回去居然把问题想通了 —— 之后我偶尔会主动让自己在傍晚停一下。',
+          '改到 7 点，出门就能看到这个。',
         place: '海口',
         date: '2026-07',
         ratio: ratio(2000, 1500),
@@ -367,7 +366,7 @@ export const galleries: GalleryEntry[] = [
         caption: '研发部门牌',
         note: '数智科技研发部门所在楼层的门牌。',
         story:
-          '第一次刷工牌进门的位置。实习结束那天我在这里拍的最后一张照片 —— 门牌换过一次，后来又搬了楼层，但照片里这块牌子还在。',
+          '第一次来的时候觉得很有意思，最后一次走的时候已经被工作麻木了。',
         place: '海口 · 数智科技',
         date: '2026-07',
         ratio: ratio(1500, 2000),
@@ -376,7 +375,7 @@ export const galleries: GalleryEntry[] = [
         src: '/img/gallery/fupan-ban-gong-lou-wai-jing.webp',
         caption: '办公楼外景',
         note: '办公园区的一角。',
-        story: '驻外的两个月里，这个地方就是我的日常坐标。',
+        story: '仿照美式的建筑，当地人叫做小白宫。',
         place: '海口',
         date: '2026-07',
         ratio: ratio(2000, 1500),
