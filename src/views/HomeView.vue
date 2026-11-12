@@ -4,6 +4,7 @@ import { asset } from '@/utils/asset'
 import ParallaxBackdrop from '@/components/ParallaxBackdrop.vue'
 import StackGraph from '@/components/StackGraph.vue'
 import StackOverview from '@/components/StackOverview.vue'
+import GallerySection from '@/components/GallerySection.vue'
 import WeChatModal from '@/components/WeChatModal.vue'
 import DeliveryFlow from '@/components/DeliveryFlow.vue'
 import {
@@ -749,11 +750,14 @@ const internships = [
       </div>
     </section>
 
-    <!-- ============ 05 CONTACT ============ -->
+    <!-- ============ 05 GALLERY ============ -->
+    <GallerySection />
+
+    <!-- ============ 06 CONTACT ============ -->
     <section id="contact" class="scroll-mt-20">
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
-          <span class="claude-num">05</span>
+          <span class="claude-num">06</span>
           <span class="eyebrow">{{ t('contact.eyebrow') }}</span>
           <span class="rule flex-1" />
         </div>

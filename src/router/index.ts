@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import ProjectView from '@/views/ProjectView.vue'
 import ResearchView from '@/views/ResearchView.vue'
+import GalleryView from '@/views/GalleryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,6 +10,7 @@ const router = createRouter({
     { path: '/', name: 'home', component: HomeView },
     { path: '/project/:slug', name: 'project', component: ProjectView },
     { path: '/research', name: 'research', component: ResearchView },
+    { path: '/gallery/:slug', name: 'gallery', component: GalleryView },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
   scrollBehavior(to, _from, savedPosition) {

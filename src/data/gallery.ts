@@ -1,0 +1,481 @@
+/**
+ * 生活画廊（Gallery）。
+ *
+ * 定位：不属于任何一个项目的「项目技术之外」的记录。
+ * 包含两类内容：
+ *   1. 项目相关但没进正文的现场照片（实习现场、调研、测试环境）
+ *   2. 完全独立于项目的个人记录（风景、日常、校园）
+ *
+ * 每个画廊（Gallery）是一组有共同主题的照片，
+ * 点进去可以看到每一张的完整记录 —— 拍摄背景、当时在想什么。
+ *
+ * 素材来源：~/Desktop/作品集材料/<项目>/Gallery/
+ * 只使用实际存在的照片，没有放 Gallery 素材的项目不生成画廊。
+ */
+
+export interface GalleryPhoto {
+  src: string
+  /** 这张照片的标题 */
+  caption: string
+  /** 拍摄背景 / 当时发生了什么 */
+  note: string
+  /** 我自己的评论与记录 */
+  story: string
+  /** 拍摄地点 */
+  place?: string
+  /** 拍摄时间 */
+  date?: string
+  /** 宽高比，用于排版（不含 / 形式，如 "4 / 3"） */
+  ratio: string
+}
+
+export interface GalleryEntry {
+  /** 画廊 slug，用于路由 */
+  slug: string
+  /** 画廊标题 */
+  title: string
+  /** 一句话副标题 */
+  subtitle: string
+  /** 分类标签：现场 / 旅途 / 校园 等 */
+  category: string
+  /** 画廊封面 */
+  cover: string
+  coverRatio: string
+  /** 画廊导语 */
+  intro: string
+  photos: GalleryPhoto[]
+}
+
+/**
+ * 图片尺寸 → 比例。
+ *
+ * 现场照片基本是 4:3，手机随手拍是 4:3 或 3:4，
+ * 业务洽谈那张偏竖（2000×1780）。统一写成 "w / h" 供模板用。
+ */
+const ratio = (w: number, h: number) => `${w} / ${h}`
+
+export const galleries: GalleryEntry[] = [
+  /* ---------------------------------------------------------------- */
+  /*  Moca —— 神经接口实验室                                           */
+  /* ---------------------------------------------------------------- */
+  {
+    slug: 'moca',
+    title: '神经接口实验室',
+    subtitle: '一年半的病房与实验室',
+    category: '现场',
+    cover: '/img/gallery/moca-shi-yan-shi-wai-jing.webp',
+    coverRatio: ratio(2000, 1500),
+    intro:
+      '这是我在中科院深圳先进院待得最久的一个地方 —— 一年半，从打标软件的第一版到三家医院的临床试用。这组照片记的是那些不在代码里的部分：病房的走廊、被打断的组会、实验室楼下的傍晚。',
+    photos: [
+      {
+        src: '/img/gallery/moca-shen-zhi-di-er-ren-min-yi-yuan-cai-ji.webp',
+        caption: '深圳第二人民医院 · 病房采集',
+        note: '在神经内科病房为患者采集运动想象（MI）数据，受试者戴着电极帽躺在病床上，医护在旁边守着。',
+        story:
+          '这是我第一次在真实病房里跑自己的软件。之前在实验室一切正常，一进病房就发现串口会因为护士推床进出的电磁干扰丢包。之前写的重连逻辑在这里几乎每分钟触发一次 —— 那种真实环境才暴露出的问题，模拟器永远测不出来。',
+        place: '深圳第二人民医院',
+        date: '2026-09',
+        ratio: ratio(2000, 1499),
+      },
+      {
+        src: '/img/gallery/moca-shi-yan-ce-shi-mi-cai-ji.webp',
+        caption: '实验测试 · MI 采集',
+        note: '在实验室做运动想象范式的完整采集流程验证，同步记录 EEG 信号与打标事件。',
+        story:
+          '范式调优基本是在这里反复试出来的。同样是想象右手举起，问法不一样，诱发响应强度能差出一倍。试验了十几种引导语，最后定下来的那版并不是理论最优的那版，而是老人最容易听懂的那版。',
+        place: '神经接口实验室',
+        date: '2026-08',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-ce-shi-da-biao-zu-jian-he-xia-wei-ji-de-lian-jie.webp',
+        caption: '打标组件与下位机的连接',
+        note: '自研打标设备通过串口直连 EEG 采集设备，实测端到端打标延迟在 20ms 量级。',
+        story:
+          '这块硬件是我和硬件组的同学一起接的。第一版接线用杜邦线，插拔一次抖一下；后来专门做了固定卡扣和屏蔽，走线问题才彻底消失。20ms 不是靠算法优化来的，是靠把物理连接做扎实。',
+        place: '神经接口实验室',
+        date: '2026-05',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-ce-shi-da-biao-yan-chi.webp',
+        caption: '测试打标延迟',
+        note: '用连续发送测试逐帧核对收发时序，定位丢包与延迟的来源。',
+        story:
+          '20ms 级打标精度不是靠运气，是靠能看见每一帧收发。这块调试界面的日志功能，后来成了整套系统最常被用的部分 —— 现场出问题第一个动作就是打开它看时间戳。',
+        place: '神经接口实验室',
+        date: '2026-08',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-shi-yan-shi-wai-jing.webp',
+        caption: '实验室外景',
+        note: '神经接口实验室所在的研究所外景，夏天傍晚。',
+        story:
+          '每天下班从这条路上走过。做到后半年已经能一眼看出今天哪层楼还亮着灯 —— 亮着的大概就是在等信号跑完的那几个人。',
+        place: '深圳 · 西丽',
+        date: '2026-08',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-da-men-wai-jing.webp',
+        caption: '研究所大门',
+        note: '每天上班的第一张图和最后一张图。',
+        story: '早上来的时候通常还没人，晚上走的时候灯已经关得差不多了。',
+        place: '深圳 · 西丽',
+        date: '2026-10',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-xing-zheng-lou-ji-ji.webp',
+        caption: '行政楼阶梯',
+        note: '研究所行政楼前的台阶，中午休息时最热闹。',
+        story:
+          '午饭时间这里会坐满人。做脑电信号的人普遍话少，但吃饭的时候反而很健谈 —— 大概是信号之外总得有点别的话题。',
+        place: '深圳 · 西丽',
+        date: '2026-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-zhong-ke-yuan-xian-jin-ka.webp',
+        caption: '中科院先进院',
+        note: '研究院的咖啡角，午后总有人在这里讨论。',
+        story:
+          '第一次来这里是面试，走错了两次电梯。咖啡角后来成了我改代码的地方 —— 会议改不动的东西，边喝咖啡边改反而能想通。',
+        place: '深圳 · 西丽',
+        date: '2026-05',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-ting-zu-hui.webp',
+        caption: '听组会',
+        note: '实验室的周组会，轮流汇报进展。',
+        story:
+          '第一次轮到我讲的时候紧张到把时序图画反了。师父没打断我，等我自己发现。那次之后我做每一张图都会先确认坐标轴方向 —— 这个习惯是从那儿留下的。',
+        place: '神经接口实验室',
+        date: '2026-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-hai-bao.webp',
+        caption: '学术海报',
+        note: '实验室墙上的学术海报，师兄做的那版范式。',
+        story:
+          '这张海报是师兄做 MoCA 范式时贴的，也是我第一次看到「一个量表怎么变成 EEG 可分析的实验」的过程。后来我的打标系统里那 43 个码表，有一半的思路是从这张海报来的。',
+        place: '神经接口实验室',
+        date: '2026-08',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-gong-wei.webp',
+        caption: '我的工位',
+        note: '两台显示器、一台采集设备、一堆杜邦线的工作台。',
+        story:
+          '工位上最占地方的不是屏幕，是那台被拆开过的采集设备。半年下来它被我拆装过四次，每次都多出一堆说不清用途的零件。',
+        place: '神经接口实验室',
+        date: '2026-09',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-tu-shu-guan-wai-jing.webp',
+        caption: '图书馆外景',
+        note: '研究所图书馆，晚饭后常去。',
+        story:
+          '这里是我的自修时间。有段时间在读信号处理的书补基础 —— 之前做的是工程，做的是「怎么让它跑起来」，不是「为什么它有效」，这两者的差距我一直想补上。',
+        place: '深圳 · 西丽',
+        date: '2026-10',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-ti-yu-chang.webp',
+        caption: '体育场',
+        note: '研究所旁的运动场，下班后的固定行程。',
+        story:
+          '写代码久了肩颈最先出问题。跑步是我能坚持下来的解压方式 —— 脑子里那些排不进去的 bug，反而在跑的时候自己冒出来。',
+        place: '深圳 · 西丽',
+        date: '2026-09',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/moca-jian-shen-fang.webp',
+        caption: '健身房',
+        note: '所里的健身房，器材不多但够用。',
+        story: '一次在实验室通宵后直接睡在工位，第二天被师父赶去健身房洗澡。这张照片是那天留下的。',
+        place: '深圳 · 西丽',
+        date: '2026-11',
+        ratio: ratio(2000, 1500),
+      },
+    ],
+  },
+
+  /* ---------------------------------------------------------------- */
+  /*  CGA-Smart —— 医院与临床一线                                       */
+  /* ---------------------------------------------------------------- */
+  {
+    slug: 'cga',
+    title: '临床一线',
+    subtitle: '病房、护士站与量表',
+    category: '现场',
+    cover: '/img/gallery/cga-zheng-zai-he-zhi-ban-yi-shi-hu-gou-tong-you-hua-xi-tong-she-ji.webp',
+    coverRatio: ratio(2000, 1500),
+    intro:
+      '做老年综合评估系统的那几个月，我的角色一半是开发者、一半是产品经理 —— 因为大部分需求不是坐在工位上想出来的，是在病房里跟医生护士聊出来的。',
+    photos: [
+      {
+        src: '/img/gallery/cga-zheng-zai-he-zhi-ban-yi-shi-hu-gou-tong-you-hua-xi-tong-she-ji.webp',
+        caption: '与值班医生护士沟通系统设计',
+        note: '在护士站与值班医护逐条过评估流程，确认每个环节的可行性。',
+        story:
+          '这一下午推翻了我原本的设计。原方案是让评估员在平板上独立完成全部 21 条量表，但护士说实际流程是「护士先问基础信息、评估员再补充」——两个人来回切屏根本没法用。方案改成双角色协作，评估员端和护士端分开，才真正跑得起来。',
+        place: '康颐养医院',
+        date: '2026-08',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/cga-can-kao-de-his-xi-tong-zhong-de-xin-li-liang-biao.webp',
+        caption: '参考 HIS 系统中的心理量表',
+        note: '调研医院现有 HIS 系统里已有的心理量表，确认我们的设计不重复造轮子。',
+        story:
+          '做之前先去看别人怎么做的。这套量表在 HIS 里已经有了，但只做记录、不做解释、也没有风险提示。我们最终补上的正是「解释」这一层 —— 让分数能直接变成一个可以跟家属讨论的结论。',
+        place: '康颐养医院',
+        date: '2026-08',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/cga-ye-wu-qia-tan.webp',
+        caption: '业务洽谈',
+        note: '与院方讨论部署形态、落地成本与后续运维方式。',
+        story:
+          '这次洽谈里最关键的一句话是院方问的：「这套东西要多少钱。」之前我一直在想怎么证明它好，直到被问成本，才真正开始算硬件门槛 —— 最后落地成迷你主机加平板，五千以内。技术选型的很多判断，其实是被这类问题逼出来的。',
+        place: '康颐养医院',
+        date: '2026-08',
+        ratio: ratio(2000, 1780),
+      },
+      {
+        src: '/img/gallery/cga-kang-yi-yang-yuan-jie-shao.webp',
+        caption: '康颐养医院介绍',
+        note: '合作方康颐养医院的外景与设施。',
+        story: '这是系统最终落地的机构。住院部、康复区、认知训练室，是这套评估系统每天要面对的真实场景。',
+        place: '广州 · 康颐养医院',
+        date: '2026-08',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/cga-guang-zhou-gang-kang-yi-yang-yuan.webp',
+        caption: '广州港康颐养医院',
+        note: '另一家合作机构的院区环境。',
+        story: '同一套系统要跑在不同的院子里，环境差异比想象中大。有的院区网络只有 4G，有的 WiFi 覆盖不全。这直接决定了系统必须支持离线运行。',
+        place: '广州 · 港康颐养医院',
+        date: '2026-09',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/cga-kang-yi-yang-nei-bu-zou-lang.webp',
+        caption: '康颐养内部走廊',
+        note: '住院区走廊，评估动线的实际场景。',
+        story:
+          '我在这条走廊上走了很多次，主要是测 WiFi 覆盖和设备摆放位置。评估的时候老人需要安静环境，而走廊是整个院区最吵的地方 —— 这个约束在办公室是想不到的。',
+        place: '广州 · 康颐养医院',
+        date: '2026-09',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/cga-guang-dong-sheng-lao-nian-yi-xue-yan-jiu-suo.webp',
+        caption: '广东省老年医学研究所',
+        note: '对接的省级研究机构，量表与评估规范的专业来源。',
+        story:
+          '量表的临床依据来自这里。开发规范、评分口径、解释话术都是他们给的 —— 这一点很重要：技术做得再漂亮，如果解释不符合临床惯例，医生是不会采信的。',
+        place: '广州',
+        date: '2026-08',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/cga-guang-dong-sheng-ren-min-yi-yuan.webp',
+        caption: '广东省人民医院',
+        note: '临床验证的合作医院。',
+        story: '系统在这里做跨机构验证。也正是在不同机构之间跑，才暴露出我在单机构测试里完全没发现的一致性问题。',
+        place: '广州',
+        date: '2026-08',
+        ratio: ratio(2000, 1500),
+      },
+    ],
+  },
+
+  /* ---------------------------------------------------------------- */
+  /*  防返贫 —— 海口与对外交付                                          */
+  /* ---------------------------------------------------------------- */
+  {
+    slug: 'fupan',
+    title: '走南闯北',
+    subtitle: '海口的两个月与路上的风景',
+    category: '旅途',
+    cover: '/img/gallery/fupan-hai-dao-wan-xia.webp',
+    coverRatio: ratio(2000, 1500),
+    intro:
+      '这是我第一次被派驻到外地。两个月里大部分时间在工位和会议室，但海南的光线、椰子和傍晚的海风留下来了 —— 那些不需要写进周报的部分。',
+    photos: [
+      {
+        src: '/img/gallery/fupan-hai-dao-wan-xia.webp',
+        caption: '海岛晚霞',
+        note: '公司外的海滩，傍晚退潮后的天空。',
+        story:
+          '加班到八点出门就能看到这个。有一天改 Agent 的工具注册改到崩溃，出来站在海边吹了十分钟风，回去居然把问题想通了 —— 之后我偶尔会主动让自己在傍晚停一下。',
+        place: '海口',
+        date: '2026-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/fupan-gong-si-wai-de-hai-tan.webp',
+        caption: '公司外的海滩',
+        note: '办公区步行十分钟能到的海滩。',
+        story: '这是我见过最近的 beach break office。海南的夏天很热，但傍晚的海风确实能把一整天的烦躁吹掉。',
+        place: '海口',
+        date: '2026-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/fupan-men-kou-de-ye-zi-shu.webp',
+        caption: '门口的椰子树',
+        note: '办公楼下的一排椰子树。',
+        story: '每天上班路过都会看一眼。它长得比刚来时快了不少。',
+        place: '海口',
+        date: '2026-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/fupan-hai-kou-qi-lou.webp',
+        caption: '海口骑楼',
+        note: '海口老城区的骑楼老街，南洋风格的老建筑。',
+        story:
+          '骑楼是海口最有意思的地方 —— 一楼是店铺，二楼以上住人，阳台几乎连成一片。交付期间住得近，休息时会走过去走走。这座城市比想象中安静。',
+        place: '海口 · 老城区',
+        date: '2026-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/fupan-you-ke-zhao.webp',
+        caption: '游客照',
+        note: '在海边的一张随拍。',
+        story: '这张本来是发给家人的，被我留下来了。',
+        place: '海口',
+        date: '2026-07',
+        ratio: ratio(2000, 1520),
+      },
+      {
+        src: '/img/gallery/fupan-yan-fa-bu-men-pai.webp',
+        caption: '研发部门牌',
+        note: '数智科技研发部门所在楼层的门牌。',
+        story:
+          '第一次刷工牌进门的位置。实习结束那天我在这里拍的最后一张照片 —— 门牌换过一次，后来又搬了楼层，但照片里这块牌子还在。',
+        place: '海口 · 数智科技',
+        date: '2026-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/fupan-ban-gong-lou-wai-jing.webp',
+        caption: '办公楼外景',
+        note: '办公园区的一角。',
+        story: '驻外的两个月里，这个地方就是我的日常坐标。',
+        place: '海口',
+        date: '2026-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/fupan-gong-wei.webp',
+        caption: '工位',
+        note: '驻外期间的工位，一个笔记本加一台显示器。',
+        story:
+          '驻外条件比学校简陋，但反而效率高 —— 没有研发环境在旁边随时打断，能连着把一个 Agent 的工具链从头写完。',
+        place: '海口 · 数智科技',
+        date: '2026-07',
+        ratio: ratio(2000, 1500),
+      },
+    ],
+  },
+
+  /* ---------------------------------------------------------------- */
+  /*  招投标 —— 中国电信调研与部署                                       */
+  /* ---------------------------------------------------------------- */
+  {
+    slug: 'bidos',
+    title: '从需求到部署',
+    subtitle: '一次真实的政企交付现场',
+    category: '现场',
+    cover: '/img/gallery/bidos-vllm-pei-zhi-de-dual-spark.webp',
+    coverRatio: ratio(2000, 1500),
+    intro:
+      'BidOS 这个项目真正难的部分不在代码，在于要把它跑进一个真实的企业环境里。这组照片是那次交付调研时拍的 —— 机房、办公室、还有那台专门为推理采购的服务器。',
+    photos: [
+      {
+        src: '/img/gallery/bidos-vllm-pei-zhi-de-dual-spark.webp',
+        caption: 'vLLM 配置的 dualSpark 服务器',
+        note: '为本地部署采购的推理服务器，配置 vLLM 作为推理引擎。',
+        story:
+          '这是整个项目里最贵的一件东西。甲方最初的要求是「模型必须跑在客户内网」，但预算只允许买一台机器。所以推理服务必须做共享 —— 一个 vLLM 实例同时服务多个场景，把资源利用率压到极限才勉强够用。采购、部署、调优的那两周，我把这台机器的性能曲线翻来覆去测了很多遍。',
+        place: '客户内网机房',
+        date: '2026-10',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/bidos-ye-wu-diao-yan.webp',
+        caption: '业务调研',
+        note: '与招标业务人员逐条核对标书编制流程与痛点。',
+        story:
+          '调研的时候我才真正明白「读文档」和「读要求」的差别。业务人员做标书的方式，是把招标文件拆成一堆条目逐条打勾；而我们最初设计的是让模型通读全文写摘要。方向从这时就转了。',
+        place: '客户现场',
+        date: '2026-09',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/bidos-ye-wu-diao-yan-2.webp',
+        caption: '业务调研 · 续',
+        note: '调研的后续环节，确认材料清单与交付物格式。',
+        story:
+          '这次调研里最有用的一句话是「我们十年攒下来的标书都在一个共享盘里」。那批没被整理过的历史标书，后来成了知识库建设的基础 —— 23 份历史稿件，就是从这样的共享盘里一份份扒出来的。',
+        place: '客户现场',
+        date: '2026-09',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/bidos-shu-ju-qi-ji-wang-zuo.webp',
+        caption: '服务器及工位',
+        note: '现场部署环境的服务器与开发工位。',
+        story: '客户给我们的部署环境和开发环境差别很大，这让「模型配置外置」从一个技术选项变成了必须。',
+        place: '客户现场',
+        date: '2026-10',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/bidos-zhu-lou-wai-jing.webp',
+        caption: '主楼外景',
+        note: '客户单位的主楼，交付期间的驻场地点。',
+        story: '驻场那段时间每天都要刷卡进这道门。',
+        place: '客户单位',
+        date: '2026-09',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/bidos-shi-yan-shi-zou-lang.webp',
+        caption: '实验室走廊',
+        note: '场地内部的走廊。',
+        story: '交付期间走这条走廊的次数比走自己实验室还多。',
+        place: '客户单位',
+        date: '2026-09',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/bidos-shu-zi-hua-bu-ban-gong-shi.webp',
+        caption: '数字化部办公室',
+        note: '客户数字化部的工作环境，团队最终交接给他们的地方。',
+        story:
+          '这是我第一次意识到「交付」的真正含义 —— 不是代码跑通，是有人能接着用下去。所以系统里所有的模型配置都做成了可在界面调整，甲方同事不用找我们就能自己换模型。',
+        place: '客户单位 · 数字化部',
+        date: '2026-10',
+        ratio: ratio(2000, 1500),
+      },
+    ],
+  },
+]
+
+export const getGallery = (slug: string) => galleries.find((g) => g.slug === slug)

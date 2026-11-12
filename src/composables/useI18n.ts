@@ -51,6 +51,7 @@ const zh: Dict = {
   'nav.about': '关于',
   'nav.projects': '项目',
   'nav.research': '研究',
+  'nav.gallery': '画廊',
   'nav.contact': '联系',
 
   'hero.eyebrow': 'AI 工程 / 智能体 / 部署',
@@ -175,6 +176,7 @@ const en: Dict = {
   'nav.about': 'About',
   'nav.projects': 'Projects',
   'nav.research': 'Research',
+  'nav.gallery': 'Gallery',
   'nav.contact': 'Contact',
 
   'hero.eyebrow': 'AI ENGINEERING / AGENT / DEPLOYMENT',
