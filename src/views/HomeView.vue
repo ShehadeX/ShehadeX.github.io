@@ -4,6 +4,7 @@ import { asset } from '@/utils/asset'
 import ParallaxBackdrop from '@/components/ParallaxBackdrop.vue'
 import StackGraph from '@/components/StackGraph.vue'
 import WeChatModal from '@/components/WeChatModal.vue'
+import DeliveryFlow from '@/components/DeliveryFlow.vue'
 import { stackCategories, allStackItems } from '@/data/stack'
 import { stackCategoriesEn } from '@/data/stack.en'
 import {
@@ -205,7 +206,7 @@ const internships = [
 
             <!-- 副标题：整行不换行，AI-Native 带橙色机器人图标 -->
             <p
-              class="mt-7 flex flex-nowrap items-center gap-2 whitespace-nowrap text-[20px] leading-[1.4] text-ink sm:text-[24px]"
+              class="mt-6 flex flex-nowrap items-center gap-2 whitespace-nowrap text-[20px] leading-[1.4] text-ink sm:text-[24px]"
             >
               <span class="rise rise-3">{{ t('hero.tagline') }}</span>
               <span class="rise rise-3 inline-flex shrink-0 items-center gap-1.5">
@@ -220,7 +221,7 @@ const internships = [
               <span class="squiggle squiggle-reveal rise rise-4">{{ t('hero.tagline2') }}</span>
             </p>
 
-            <p class="mt-6 max-w-[54ch] text-[15px] leading-[1.85] text-ink-muted">
+            <p class="mt-5 max-w-[58ch] text-[14px] leading-[1.75] text-ink-muted">
               {{ t('hero.school') }}
               {{ t('hero.school2') }}
             </p>
@@ -234,32 +235,32 @@ const internships = [
               不受各列文案长度差异影响。
             -->
             <div
-              class="mt-8 grid gap-x-7 gap-y-6 border-t border-ink/12 pt-7 sm:grid-cols-3 sm:grid-rows-[auto_auto_auto_1fr]"
+              class="mt-11 grid gap-x-6 gap-y-5 border-t border-ink/12 pt-6 sm:grid-cols-3 sm:grid-rows-[auto_auto_auto_1fr]"
             >
               <!-- 卡片 1 -->
               <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
-                <p class="display self-start text-[40px] leading-none text-ink">
+                <p class="display self-start text-[36px] leading-none text-ink">
                   <span class="marker marker-reveal text-claude">{{ t('hero.m1.num') }}</span>
                 </p>
-                <p class="mt-2 self-start text-[14.5px] font-semibold leading-snug text-ink">
+                <p class="mt-1.5 self-start text-[14px] font-semibold leading-snug text-ink">
                   {{ t('hero.m1.title') }}
                 </p>
-                <p class="mt-1.5 self-start text-[12.5px] leading-relaxed text-ink-muted">
+                <p class="mt-1 self-start text-[12px] leading-[1.7] text-ink-muted">
                   {{ t('hero.m1.desc') }}
                 </p>
-                <div class="mt-3 flex items-start gap-2 self-start">
+                <div class="mt-2.5 flex items-start gap-1.5 self-start">
                   <RouterLink
                     v-for="p in projectIcons"
                     :key="p.slug"
                     :to="`/project/${p.slug}`"
-                    class="group/img relative flex h-9 w-9 items-center justify-center rounded-[5px] border border-ink/12 bg-base transition-colors duration-150 hover:border-claude/50 hover:bg-raised"
+                    class="group/img relative flex h-8 w-8 items-center justify-center rounded-[5px] border border-ink/12 bg-base transition-colors duration-150 hover:border-claude/50 hover:bg-raised"
                     :title="p.name"
                     :aria-label="p.name"
                   >
                     <img
                       :src="p.icon"
                       :alt="p.name"
-                      class="h-6 w-6 object-contain transition-transform duration-200 ease-out group-hover/img:scale-110"
+                      class="h-5 w-5 object-contain transition-transform duration-200 ease-out group-hover/img:scale-110"
                     />
                   </RouterLink>
                 </div>
@@ -267,16 +268,16 @@ const internships = [
 
               <!-- 卡片 2 -->
               <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
-                <p class="display self-start text-[40px] leading-none text-ink">
+                <p class="display self-start text-[36px] leading-none text-ink">
                   <span class="marker marker-reveal text-claude">{{ t('hero.m2.num') }}</span>
                 </p>
-                <p class="mt-2 self-start text-[14.5px] font-semibold leading-snug text-ink">
+                <p class="mt-1.5 self-start text-[14px] font-semibold leading-snug text-ink">
                   {{ t('hero.m2.title') }}
                 </p>
-                <p class="mt-1.5 self-start whitespace-pre-line text-[12.5px] leading-relaxed text-ink-muted">
+                <p class="mt-1 self-start whitespace-pre-line text-[12px] leading-[1.7] text-ink-muted">
                   {{ t('hero.m2.desc') }}
                 </p>
-                <div class="mt-3 flex items-start gap-2.5 self-start">
+                <div class="mt-2.5 flex items-start gap-2 self-start">
                   <img
                     v-for="l in internships"
                     :key="l.src"
@@ -289,17 +290,17 @@ const internships = [
 
               <!-- 卡片 3 -->
               <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
-                <p class="display self-start text-[40px] leading-none text-ink">
+                <p class="display self-start text-[36px] leading-none text-ink">
                   <span class="marker marker-reveal text-claude">{{ t('hero.m3.num') }}</span>
                 </p>
-                <p class="mt-2 self-start text-[14.5px] font-semibold leading-snug text-ink">
+                <p class="mt-1.5 self-start text-[14px] font-semibold leading-snug text-ink">
                   {{ t('hero.m3.title') }}
                 </p>
-                <p class="mt-1.5 self-start text-[12.5px] leading-relaxed text-ink-muted">
+                <p class="mt-1 self-start text-[12px] leading-[1.7] text-ink-muted">
                   {{ t('hero.m3.desc') }}
                 </p>
                 <!-- Rebuttal 状态标签：与左两列的图标行对齐 -->
-                <div class="mt-3 flex items-start self-start">
+                <div class="mt-2.5 flex items-start self-start">
                   <span
                     class="inline-flex items-center gap-1.5 rounded-[3px] border border-claude/35 bg-claude/8 px-2 py-1 font-mono text-[10.5px] tracking-[0.06em] text-claude"
                   >
@@ -404,13 +405,19 @@ const internships = [
           </div>
 
           <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
-            <h2
-              class="text-[32px] leading-[1.16] sm:text-[42px] lg:text-[46px]"
-            >
-              <span class="display">{{ t('phl.t1') }}</span><br />
-              <span class="display">{{ t('phl.t2') }}</span><br />
-              <span class="display text-ink-muted">{{ t('phl.t3') }}</span>
-            </h2>
+            <!-- 左栏：大标题 + 流程示意图 -->
+            <div class="flex flex-col gap-9">
+              <h2
+                class="text-[32px] leading-[1.16] sm:text-[42px] lg:text-[46px]"
+              >
+                <span class="display">{{ t('phl.t1') }}</span><br />
+                <span class="display">{{ t('phl.t2') }}</span><br />
+                <span class="display text-ink-muted">{{ t('phl.t3') }}</span>
+              </h2>
+
+              <!-- 交付流程示意图 -->
+              <DeliveryFlow />
+            </div>
 
             <div class="space-y-8">
               <div class="flex gap-5">

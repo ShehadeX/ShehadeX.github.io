@@ -89,9 +89,9 @@ const zh: Dict = {
   'phl.t1': '用第一性原理',
   'phl.t2': '拆解问题，',
   'phl.t3': '做 AI 时代的原住民。',
-  'phl.p1.t': '先问问题，再选工具',
+  'phl.p1.t': '在开始之前，先问要解决什么',
   'phl.p1.d':
-    '拿到需求先拆到不能再拆的最小单元：输入是什么、来源在哪、谁做判断、失败怎么回退。工具是最后一步，而不是第一步——不是为了用模型而用模型，是为了消除某个具体环节的人力成本。',
+    '回归问题本身，通过与客户对话需求，帮助客户找到他真正想要的。快速搭建应用原型，以真实的页面让用户发掘到他真正的难点。再分析实现路径，最后才选用工具——不是为了用模型而用模型，是为了消除某个具体环节的人力成本。',
   'phl.p2.t': '把边界写进系统，而不是写进文档',
   'phl.p2.d':
     '模型能做什么、不能做什么，失败如何恢复、人工在哪个点拍板，都应该是代码与流程里的硬约束。一个能被追溯、被打断、被接管的产品，才是能上线的产品。',
@@ -99,6 +99,18 @@ const zh: Dict = {
   'phl.p3.d':
     '从第一天就把模型当成稳定的工程依赖：结构化输出、工具调用、检索增强、可回放的评测与观测。不是把 AI 贴到旧系统上，而是让系统从架构上就以模型能力为原生积木。',
   'phl.tags': '第一性原理 / AI 原住民 / 工程纪律 / 全链路负责',
+
+  'flow.eyebrow': '交付流程',
+  'flow.title': '从模糊需求到可上线系统',
+  'flow.s1.t': 'Figma',
+  'flow.s1.d': '原型',
+  'flow.s2.t': 'Claude',
+  'flow.s2.d': '架构设计',
+  'flow.s3.t': 'DeepSeek',
+  'flow.s3.d': '详细实现',
+  'flow.s4.t': 'GitHub',
+  'flow.s4.d': '版本管理',
+  'flow.note': '四步串行，每一步的产出都是下一步的输入。',
 
   'about.eyebrow': '关于我',
   'about.title': '我在做的三件事',
@@ -202,9 +214,9 @@ const en: Dict = {
   'phl.t1': 'First principles,',
   'phl.t2': 'decomposed problems,',
   'phl.t3': 'and native AI citizenship.',
-  'phl.p1.t': 'Ask the question before picking the tool',
+  'phl.p1.t': 'Before starting, ask what needs solving',
   'phl.p1.d':
-    'Decompose a requirement into the smallest unit that cannot be split further: what the inputs are, where each comes from, who makes the judgement, and how a failure rolls back. The tool comes last — not to use a model, but to remove human cost at one specific step.',
+    'Return to the problem itself: talk through the requirement with the client to help them find what they actually want. Then build a quick prototype so users can discover the real hard part on a working page. Only after that analyze the implementation path and finally choose the tools — not to use a model, but to remove human cost at one specific step.',
   'phl.p2.t': 'Write the boundaries into the system, not the docs',
   'phl.p2.d':
     'What a model may and may not do, how it recovers from failure, and where a human takes over must be hard constraints in code and workflow. A product that can be traced, interrupted and taken over is a product that can ship.',
