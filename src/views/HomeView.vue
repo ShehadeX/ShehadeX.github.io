@@ -28,34 +28,37 @@ const capabilities = [
 
 const timeline = [
   {
-    period: '2026.07 – 至今',
-    org: '中国科学院深圳先进技术研究所 · 神经接口实验室',
-    role: '实习生',
+    period: '2026.07.16 – 至今',
+    org: '中国科学院深圳先进技术研究院 · 神经接口实验室',
+    role: '科研软件开发实习生',
     points: [
-      '在深圳市第二人民医院合作病房实际采集人体数据',
-      '开发专用脑电打标软件与解码模型',
-      '以第二作者身份推进 ICLR 2027 论文（当前 Rebuttal 阶段）',
-      '打标软件已在三家三甲医院测试 20+ 患者数据并申请软著',
+      '与深圳第二人民医院神经接口科合作采集患者 SEEG 数据，覆盖认知任务、MI 运动想象与 Seize 癫痫任务',
+      '把 MoCA 阿兹海默认知系统从实验室推向病房，通过真实患者测试迭代实验范式，降低非刺激因素干扰',
+      '以第二作者合作完成 ICLR 2027 论文：Stage1 冻结 4 个 backbone、8 个数据集构建 adapter，Stage2 用时间/空间/频域/微事件扰动实现模型「开盒」',
+      '打标软件已在南京鼓楼医院、深圳第二人民医院、广州三九脑科医院测试 20+ 患者数据并申请软著',
     ],
   },
   {
-    period: '2026.06 – 07',
+    period: '2026.07.06 – 2026.07.31',
     org: '中电信数智科技有限公司 · 海南分公司研发中心',
-    role: '实习生',
+    role: 'AI 应用研发实习生',
     points: [
       '设计海南省「防返贫」大模型原型，负责功能研发与测试',
-      '本地化部署千问 3.6 量化模型，构建 Dify / Spring AI E2E 工作流',
-      '实现多模态文件输入与带证据的推理输出',
+      '基于 Spring AI 对接内网模型服务，ReactAgent 编排工具注册、模型选工具与上下文总结',
+      '调用本地部署 Qwen VL 处理多模态农户材料，输出 schema 约束返回值，保证决策阶段不丢数据、不误判',
+      '以 Dify 串联材料识别、字段归一化、规则初判与报告生成，全部数据在内网闭环',
     ],
   },
   {
-    period: '2026.04 – 12',
+    period: '2026.04.01 – 2026.12.01',
     org: '广电计量集团 · 广州总部计量事业部',
     role: '实习生',
     points: [
       '全链路全栈开发：拆解业务需求、开发并测试全套代码、部署生产与后续调优',
-      '实现招投标智能体，构建企业多模态知识库',
-      '通过简化流程 + 动态调优实现低 TPS 与内存约束下的快速内容产出',
+      '用 python-docx 抽取结构化信息并调用 LLM 标注原始格式，把「复制粘贴」变成代码化的一次成稿',
+      '分析 23 份历史人工稿件构建材料图谱与知识库一二级分类，生成时按项目精准召回资质、法律与业绩信息',
+      '用 JSON 定义 OOXML 格式的 harness、企业主体提示词注入与负面提示词抑制模型幻觉',
+      '最终以 Docker 打包并通过 K8s 交付甲方主机，保留开发手稿、维护注释与测试入口',
     ],
   },
   {
@@ -80,7 +83,7 @@ const research = [
   },
   {
     title: '软件著作权 · 脑电事件打标软件',
-    desc: '已在南京鼓楼医院、深圳第二人民医院、广州三九脑科医院完成临床测试并提交登记申请，20ms 级实时打标。',
+    desc: '已在南京鼓楼医院、深圳第二人民医院、广州三九脑科医院完成临床测试并提交登记申请，20ms 级实时打标，43 个精细化打标点。',
     tag: 'Filed',
     to: '/project/moca',
     accent: false,
@@ -90,6 +93,13 @@ const research = [
     desc: '基于芋道（yudao）微服务体系搭建老年综合评估平台，沉淀量表引擎与多模块 AI 能力到工程主干。',
     tag: 'Engineering',
     to: '/project/cga-smart',
+    accent: false,
+  },
+  {
+    title: '脑电数据的跨域情绪识别算法',
+    desc: '组长与开发者。从冻结骨干到部分解冻、全量训练与更换下游分类头多轮尝试，引入 SEED 等数据集补全小样本训练量，三折 BACC 从 65.3% 提升到 78.6%。',
+    tag: 'Research',
+    to: '/project/moca',
     accent: false,
   },
 ]
@@ -103,75 +113,113 @@ const research = [
       <div class="pointer-events-none absolute inset-0 noise opacity-40" />
 
       <div class="relative mx-auto max-w-[1400px] px-5 pb-16 pt-10 sm:px-8 sm:pb-24 sm:pt-16">
-        <!-- terminal + avatar -->
-        <div class="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-start lg:gap-12">
-          <!-- terminal bar -->
-          <div class="term overflow-hidden rounded-[3px] border border-ink/15">
-            <div
-              class="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-[11px]"
-            >
-              <span class="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-              <span class="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
-              <span class="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-              <span class="term-dim ml-2">~/portfolio — zsh</span>
+        <!-- intro + avatar -->
+        <div class="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-start lg:gap-14">
+          <!-- prose intro -->
+          <div class="max-w-[62ch]">
+            <p class="font-mono text-[11px] tracking-[0.14em] text-ink-faint">
+              AI ENGINEERING / AGENT / DEPLOYMENT
+            </p>
+
+            <h1 class="mt-5 text-[38px] leading-[1.1] sm:text-[46px]">
+              我是肖致浩，<br />
+              <span class="text-ink-muted">用 AI 与软件系统解决真实问题。</span>
+            </h1>
+
+            <p class="mt-6 text-[16px] leading-[1.85] text-ink-body">
+              广东工业大学计算机科学与技术专业 2028 届学生，GPA 3.6/5、专业前 5%。
+              我的工作方向是<strong class="font-semibold text-ink">机器学习、Agent 开发与前沿部署</strong>——
+              把业务需求拆成可追踪的流程，用模型与工程把流程真正跑起来，再部署到它该在的地方。
+            </p>
+
+            <div class="mt-8 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-2">
+              <div class="bg-base p-5">
+                <p class="eyebrow">Education</p>
+                <p class="mt-2 text-[14px] leading-relaxed text-ink">
+                  广东工业大学 · 国际教育学院
+                </p>
+                <p class="mt-1 text-[13px] text-ink-muted">
+                  计算机科学与技术 · 2024.09 – 2028.06
+                </p>
+                <p class="mt-1 text-[13px] text-ink-muted">
+                  GPA 3.6/5 · 专业前 5% · 雅思 6.5
+                </p>
+              </div>
+              <div class="bg-base p-5">
+                <p class="eyebrow">Research</p>
+                <p class="mt-2 text-[14px] leading-relaxed text-ink">
+                  ICLR 2027 · 第二作者
+                </p>
+                <p class="mt-1 text-[13px] leading-relaxed text-ink-muted">
+                  Dissecting the Score：跨架构 EEG 解码诊断基准，当前处于 Rebuttal 阶段。
+                </p>
+              </div>
             </div>
 
-            <div class="px-4 py-4 font-mono text-[12.5px] leading-[1.85] sm:px-5 sm:py-5 sm:text-[13px]">
-              <!-- whoami -->
-              <p><span class="term-prompt">$</span> <span class="term-cmd">whoami</span></p>
-              <p class="mt-1 text-[#e8e6e1]">肖致浩</p>
-              <p class="term-dim">广东工业大学 · 计算机科学与技术 · 2028 届</p>
-              <p class="term-dim">机器学习 / Agent 开发 / 前沿部署</p>
+            <div class="mt-6 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-3">
+              <div class="bg-raised p-5">
+                <p class="eyebrow">System</p>
+                <p class="tnum mt-2 text-[26px] font-semibold text-ink">5</p>
+                <p class="mt-1 text-[13px] leading-snug text-ink-muted">
+                  独立或主责交付的生产级系统
+                </p>
+              </div>
+              <div class="bg-raised p-5">
+                <p class="eyebrow">Internship</p>
+                <p class="tnum mt-2 text-[26px] font-semibold text-ink">3</p>
+                <p class="mt-1 text-[13px] leading-snug text-ink-muted">
+                  中科院先进院 · 中电信数智 · 广电计量
+                </p>
+              </div>
+              <div class="bg-raised p-5">
+                <p class="eyebrow">Clinical</p>
+                <p class="tnum mt-2 text-[26px] font-semibold text-ink">3</p>
+                <p class="mt-1 text-[13px] leading-snug text-ink-muted">
+                  家三甲医院完成 20+ 例患者测试
+                </p>
+              </div>
+            </div>
 
-              <!-- uptime -->
-              <p class="mt-4"><span class="term-prompt">$</span> <span class="term-cmd">cat uptime.json</span></p>
-              <p class="mt-1">
-                <span class="term-dim">"role"</span>:
-                <span class="term-accent">"AI Engineering / Agent / Deployment"</span>
-              </p>
-              <p>
-                <span class="term-dim">"gpa"</span>: <span class="term-accent">"3.6/5"</span>,
-                <span class="term-dim">"rank"</span>: <span class="term-accent">"top 5%"</span>,
-                <span class="term-dim">"grad"</span>: <span class="term-accent">"2028"</span>
-              </p>
-              <p>
-                <span class="term-dim">"ships"</span>:
-                <span class="term-accent">"5 production systems"</span>,
-                <span class="term-dim">"internships"</span>: <span class="term-accent">"3"</span>
-              </p>
-              <p>
-                <span class="term-dim">"paper"</span>:
-                <span class="term-accent">"ICLR 2027 (2nd author)"</span>,
-                <span class="term-dim">"status"</span>: <span class="term-accent">"rebuttal"</span>
-              </p>
+            <p class="mt-8 text-[15px] leading-[1.85] text-ink-muted">
+              正在寻找 <span class="text-ink">AI 工程、Agent 开发与前沿部署</span>方向的实习与校招机会。
+            </p>
 
-              <!-- status -->
-              <p class="mt-4"><span class="term-prompt">$</span> <span class="term-cmd">status</span></p>
-              <p class="mt-1">
-                <span class="inline-block h-1.5 w-1.5 rounded-full bg-[#28C840]" />
-                <span class="ml-2 text-[#e8e6e1]">building AI agents that survive contact with production</span>
-              </p>
-
-              <!-- prompt -->
-              <p class="mt-4 flex items-center gap-1.5">
-                <span class="term-prompt">$</span>
-                <span class="inline-block h-[15px] w-[7px] bg-[#d4a157] align-middle"
-                  aria-hidden="true"
-                />
-              </p>
+            <div class="mt-6 flex flex-wrap items-center gap-3">
+              <a
+                href="mailto:2912698300@qq.com"
+                class="inline-flex h-10 items-center rounded-[3px] bg-overlay px-5 font-mono text-[12px] text-base transition-opacity duration-150 hover:opacity-90"
+              >
+                发邮件给我
+              </a>
+              <a
+                href="https://github.com/ShehadeX"
+                target="_blank"
+                rel="noopener"
+                class="inline-flex h-10 items-center rounded-[3px] border border-ink/20 px-5 font-mono text-[12px] text-ink transition-colors duration-150 hover:bg-raised"
+              >
+                GitHub ↗
+              </a>
+              <a
+                href="https://gitee.com/ShehadeX"
+                target="_blank"
+                rel="noopener"
+                class="inline-flex h-10 items-center rounded-[3px] border border-ink/20 px-5 font-mono text-[12px] text-ink transition-colors duration-150 hover:bg-raised"
+              >
+                Gitee ↗
+              </a>
             </div>
           </div>
 
           <!-- avatar -->
-          <div class="lg:sticky lg:top-20">
+          <div class="lg:sticky lg:top-20 lg:w-[300px]">
             <div
               class="overflow-hidden rounded-[15px] border border-ink/15 bg-raised"
             >
               <img
                 :src="asset('/img/profile/avatar.webp')"
                 alt="肖致浩"
-                width="400"
-                height="400"
+                width="1024"
+                height="1024"
                 class="aspect-square w-full object-cover"
               />
               <div class="border-t border-ink/12 bg-base px-4 py-3">
@@ -183,11 +231,11 @@ const research = [
         </div>
 
         <!-- headline -->
-        <h1 class="mt-12 max-w-[20ch] text-[44px] leading-[1.05] sm:text-[64px] lg:text-[68px]">
+        <h2 class="mt-16 max-w-[20ch] text-[38px] leading-[1.1] sm:text-[52px] lg:text-[56px]">
           AI Engineering.<br />
           Software Systems.<br />
           <span class="text-ink-muted">Research.</span>
-        </h1>
+        </h2>
 
         <p class="mt-7 max-w-[58ch] text-[15px] leading-relaxed text-ink-body sm:text-[16px]">
           从业务问题出发，设计并实现 AI 驱动的软件系统，探索深度学习与智能体的实际应用。
@@ -236,20 +284,42 @@ const research = [
             </p>
           </div>
 
-          <div class="term overflow-hidden rounded-[3px] border border-ink/15 self-start">
-            <div class="border-b border-white/10 px-3 py-2 text-[11px] term-dim">~/stack — zsh</div>
-            <div class="px-4 py-4 text-[12.5px] leading-[1.85]">
-              <p><span class="term-prompt">$</span> <span class="term-cmd">cat stack.txt</span></p>
-              <p class="mt-2 term-dim"># AI 开发与编排</p>
-              <p>Codex Pro+ / Claude Plus — 多项目并行高速开发</p>
-              <p>Dify + LangGraph — 构想转稳定 Workflow</p>
-              <p class="mt-2 term-dim"># 部署与运维</p>
-              <p>Docker + ECS + GPTDots — 快速上线与 24H 运维</p>
-              <p class="mt-2 term-dim"># 应用架构</p>
-              <p>Vue + UniApp + Node.js + Flask + Spring Boot</p>
-              <p class="mt-2 term-dim"># 知识管理</p>
-              <p>Notion + Obsidian + Zotero — idea 与文献托管</p>
+          <div class="self-start overflow-hidden rounded-[15px] border border-ink/12 bg-base">
+            <div class="border-b border-ink/10 bg-raised px-5 py-3">
+              <p class="eyebrow">Toolbox</p>
             </div>
+            <dl class="divide-y divide-ink/10">
+              <div class="px-5 py-4">
+                <dt class="text-[13px] font-semibold text-ink">AI 开发与编排</dt>
+                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
+                  Codex / Claude / Cursor / DeepSeek Harness 协同开发，Dify + LangGraph 把构想转成稳定 Workflow。
+                </dd>
+              </div>
+              <div class="px-5 py-4">
+                <dt class="text-[13px] font-semibold text-ink">部署与运维</dt>
+                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
+                  Docker + K8s + ECS 交付上线，GPT-Dots 做 24 小时监控与自动构建。
+                </dd>
+              </div>
+              <div class="px-5 py-4">
+                <dt class="text-[13px] font-semibold text-ink">应用架构</dt>
+                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
+                  Vue 3 / TypeScript / Spring Boot / Flask / Python / Electron。
+                </dd>
+              </div>
+              <div class="px-5 py-4">
+                <dt class="text-[13px] font-semibold text-ink">知识管理</dt>
+                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
+                  Notion + Obsidian + Zotero 托管 idea 与文献，Git 记录同步进知识图谱。
+                </dd>
+              </div>
+              <div class="px-5 py-4">
+                <dt class="text-[13px] font-semibold text-ink">模型与多模态</dt>
+                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
+                  阿里云 Qwen OCR、火山引擎 TTS/ASR、聚合平台接入 GPT-image / Nano Banana 多模态模型。
+                </dd>
+              </div>
+            </dl>
           </div>
         </div>
       </div>
@@ -406,23 +476,64 @@ const research = [
             </div>
           </div>
 
-          <div class="term overflow-hidden rounded-[3px] border border-ink/15 self-start">
-            <div class="border-b border-white/10 px-3 py-2 text-[11px] term-dim">~/contact — zsh</div>
-            <div class="px-4 py-4 text-[12.5px] leading-[1.9]">
-              <p><span class="term-prompt">$</span> <span class="term-cmd">cat contact.txt</span></p>
-              <p class="mt-2 term-dim">name</p>
-              <p>肖致浩 / Xiaozhihao Shehade</p>
-              <p class="mt-2 term-dim">role</p>
-              <p>机器学习 · Agent 开发 · 前沿部署</p>
-              <p class="mt-2 term-dim">email</p>
-              <p>2912698300@qq.com</p>
-              <p class="mt-2 term-dim">phone</p>
-              <p>13728860925</p>
-              <p class="mt-2 term-dim">github</p>
-              <p>github.com/ShehadeX</p>
-              <p class="mt-2 term-dim">education</p>
-              <p>广东工业大学 · 计算机科学与技术 · 2028 届</p>
+          <div class="self-start overflow-hidden rounded-[15px] border border-ink/12 bg-base">
+            <div class="border-b border-ink/10 bg-raised px-5 py-3">
+              <p class="eyebrow">Contact</p>
             </div>
+            <dl class="divide-y divide-ink/10">
+              <div class="flex items-baseline gap-4 px-5 py-3.5">
+                <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+                  NAME
+                </dt>
+                <dd class="text-[14px] text-ink">肖致浩 / Xiaozhihao Shehade</dd>
+              </div>
+              <div class="flex items-baseline gap-4 px-5 py-3.5">
+                <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+                  ROLE
+                </dt>
+                <dd class="text-[14px] text-ink">机器学习 · Agent 开发 · 前沿部署</dd>
+              </div>
+              <div class="flex items-baseline gap-4 px-5 py-3.5">
+                <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+                  EMAIL
+                </dt>
+                <dd class="text-[14px] text-ink">
+                  <a href="mailto:2912698300@qq.com" class="ul">2912698300@qq.com</a>
+                </dd>
+              </div>
+              <div class="flex items-baseline gap-4 px-5 py-3.5">
+                <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+                  PHONE
+                </dt>
+                <dd class="text-[14px] text-ink">13728860925</dd>
+              </div>
+              <div class="flex items-baseline gap-4 px-5 py-3.5">
+                <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+                  GITHUB
+                </dt>
+                <dd class="text-[14px] text-ink">
+                  <a href="https://github.com/ShehadeX" target="_blank" rel="noopener" class="ul">
+                    github.com/ShehadeX
+                  </a>
+                </dd>
+              </div>
+              <div class="flex items-baseline gap-4 px-5 py-3.5">
+                <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+                  GITEE
+                </dt>
+                <dd class="text-[14px] text-ink">
+                  <a href="https://gitee.com/ShehadeX" target="_blank" rel="noopener" class="ul">
+                    gitee.com/ShehadeX
+                  </a>
+                </dd>
+              </div>
+              <div class="flex items-baseline gap-4 px-5 py-3.5">
+                <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+                  SCHOOL
+                </dt>
+                <dd class="text-[14px] text-ink">广东工业大学 · 计算机科学与技术 · 2028 届</dd>
+              </div>
+            </dl>
           </div>
         </div>
       </div>

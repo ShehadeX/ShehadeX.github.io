@@ -18,7 +18,8 @@ defineProps<{ project: Project; index: number }>()
         <LazyImage
           :src="project.cover"
           :alt="project.coverCaption"
-          ratio="16 / 10"
+          :ratio="project.coverRatio || '16 / 10'"
+          :fit="project.coverRatio ? 'contain' : 'cover'"
           class="transition-transform duration-[420ms] ease-out group-hover:scale-[1.02]"
         />
         <div

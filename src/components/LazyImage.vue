@@ -10,7 +10,7 @@ import { ref } from 'vue'
  * 结果是图片停留在「已请求但未发起网络请求」的状态（complete=false、
  * naturalWidth=0），页面上表现为一片空白。
  *
- * 站点图片已全部压缩为 WebP，总体积约 2.2MB，单张 20–175KB，
+ * 站点图片已全部压缩为 WebP，总体积约 3MB，单张 15–250KB，
  * 直接加载的成本远低于「图片不显示」的代价，因此这里不做延迟加载。
  */
 interface Props {
@@ -18,11 +18,14 @@ interface Props {
   alt: string
   /** 容器固定比例，避免加载完成时布局跳动 */
   ratio?: string
+  /** cover = 裁切填满；contain = 完整显示不裁切（手机竖屏截图用） */
+  fit?: 'cover' | 'contain'
   class?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   ratio: '16 / 10',
+  fit: 'cover',
   class: '',
 })
 
@@ -48,7 +51,8 @@ const failed = ref(false)
       :alt="alt"
       decoding="async"
       :class="[
-        'h-full w-full object-cover object-top transition-opacity duration-200 ease-out',
+        'h-full w-full transition-opacity duration-200 ease-out',
+        fit === 'contain' ? 'object-contain' : 'object-cover object-top',
         loaded ? 'opacity-100' : 'opacity-0',
       ]"
       @load="loaded = true"

@@ -77,11 +77,15 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
     <!-- cover -->
     <section class="border-b border-ink/10">
       <div class="mx-auto max-w-[1400px] px-5 py-10 sm:px-8">
-        <figure class="overflow-hidden rounded-[15px] border border-ink/12 bg-raised">
+        <figure
+          class="mx-auto overflow-hidden rounded-[15px] border border-ink/12 bg-raised"
+          :class="project.coverRatio ? 'max-w-[420px]' : ''"
+        >
           <LazyImage
             :src="project.cover"
             :alt="project.coverCaption"
-            ratio="16 / 9"
+            :ratio="project.coverRatio || '16 / 9'"
+            :fit="project.coverRatio ? 'contain' : 'cover'"
           />
           <figcaption class="border-t border-ink/10 bg-base px-4 py-2.5 font-mono text-[11px] text-ink-muted">
             {{ project.coverCaption }}
@@ -107,7 +111,7 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
       </div>
     </section>
 
-    <!-- case sections -->
+    <!-- case sections：图片为主体，文字围绕图片展开 -->
     <section class="border-b border-ink/10">
       <div class="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16">
         <div class="flex items-baseline gap-4">
@@ -135,16 +139,59 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
           </nav>
 
           <!-- body -->
-          <div class="prose space-y-12">
+          <div class="space-y-16">
             <div v-for="s in project.sections" :key="s.id" :id="s.id" class="scroll-mt-24">
               <div class="flex items-baseline gap-3">
                 <span class="font-mono text-[11px] text-ink-faint">{{ s.no }}</span>
                 <h2 class="text-[21px] leading-snug">{{ s.title }}</h2>
               </div>
+
               <div class="mt-3 space-y-3">
                 <p v-for="(b, i) in s.body" :key="i" class="text-[15px] leading-[1.8]">
                   {{ b }}
                 </p>
+              </div>
+
+              <!-- 图片组：图为主体，右侧/下方为解读与开发历程 -->
+              <div v-if="s.media?.length" class="mt-8 space-y-8">
+                <figure
+                  v-for="m in s.media"
+                  :key="m.src"
+                  class="overflow-hidden rounded-[15px] border border-ink/12 bg-base"
+                >
+                  <LazyImage
+                    :src="m.src"
+                    :alt="m.caption"
+                    :ratio="m.ratio || '16 / 10'"
+                    :fit="m.ratio ? 'contain' : 'cover'"
+                  />
+
+                  <figcaption class="border-t border-ink/10 px-5 py-4 sm:px-6 sm:py-5">
+                    <div class="flex items-baseline gap-2.5">
+                      <span class="font-mono text-[10px] tracking-[0.12em] text-ink-faint">
+                        FIG.
+                      </span>
+                      <span class="text-[14px] font-semibold text-ink">{{ m.caption }}</span>
+                    </div>
+
+                    <p
+                      v-if="m.note"
+                      class="mt-2.5 text-[14px] leading-[1.75] text-ink-body"
+                    >
+                      {{ m.note }}
+                    </p>
+
+                    <div
+                      v-if="m.story"
+                      class="mt-4 border-l-2 border-ink/15 pl-4"
+                    >
+                      <p class="eyebrow">Behind this screen</p>
+                      <p class="mt-2 text-[13.5px] leading-[1.8] text-ink-muted">
+                        {{ m.story }}
+                      </p>
+                    </div>
+                  </figcaption>
+                </figure>
               </div>
             </div>
           </div>
@@ -177,13 +224,21 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
           <span class="eyebrow">Screenshots</span>
           <span class="rule flex-1" />
         </div>
-        <div class="mt-8 grid gap-6 sm:grid-cols-2">
+        <div
+          class="mt-8 grid gap-6"
+          :class="project.gallery[0]?.ratio ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-2'"
+        >
           <figure
             v-for="g in project.gallery"
             :key="g.src"
             class="overflow-hidden rounded-[15px] border border-ink/12 bg-raised"
           >
-            <LazyImage :src="g.src" :alt="g.caption" ratio="16 / 10" />
+            <LazyImage
+              :src="g.src"
+              :alt="g.caption"
+              :ratio="g.ratio || '16 / 10'"
+              :fit="g.ratio ? 'contain' : 'cover'"
+            />
             <figcaption class="border-t border-ink/10 bg-base px-4 py-2.5 font-mono text-[11px] text-ink-muted">
               {{ g.caption }}
             </figcaption>
