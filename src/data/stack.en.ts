@@ -28,14 +28,14 @@ export const stackCategoriesEn: StackCategoryEn[] = [
       {
         id: 'vue3',
         name: 'Vue 3',
-        note: 'The main framework behind the BidOS workspace and the CGA-Smart assessment client; every project-facing interface is built on it.',
-        projects: ['bidos', 'cga-smart'],
+        note: 'The main framework behind the BidOS workspace, the CGA-Smart assessment client and the PolyMed admin console; every project-facing interface is built on it.',
+        projects: ['bidos', 'cga-smart', 'polymed'],
       },
       {
         id: 'vite',
         name: 'Vite',
-        note: 'Build tool for CGA-Smart — fast cold start, so editing a scale definition does not mean waiting on a bundle.',
-        projects: ['cga-smart'],
+        note: 'Build tool for CGA-Smart and the PolyMed console — fast cold start, so editing a scale definition does not mean waiting on a bundle.',
+        projects: ['cga-smart', 'polymed'],
       },
       {
         id: 'typescript',
@@ -46,8 +46,8 @@ export const stackCategoriesEn: StackCategoryEn[] = [
       {
         id: 'elementplus',
         name: 'Element Plus',
-        note: 'Forms and tables in the CGA-Smart workbench; carries the density of a 21-scale navigation tree.',
-        projects: ['cga-smart'],
+        note: 'Forms and tables in the CGA-Smart workbench carry the density of a 21-scale navigation tree; the PolyMed family and doctor consoles reuse the same transfer and timeline components.',
+        projects: ['cga-smart', 'polymed'],
       },
       {
         id: 'pinia',
@@ -95,8 +95,20 @@ export const stackCategoriesEn: StackCategoryEn[] = [
       {
         id: 'springboot',
         name: 'Spring Boot',
-        note: 'CGA-Smart backend: scale definitions, scoring engine and a layered data abstraction.',
-        projects: ['cga-smart'],
+        note: 'Backend of CGA-Smart and the base of the PolyMed console: scale definitions, the scoring engine and a layered data abstraction.',
+        projects: ['cga-smart', 'polymed'],
+      },
+      {
+        id: 'ruoyi',
+        name: 'RuoYi-Vue-Pro',
+        note: 'Base of the PolyMed doctor console and admin backend — permissions, dictionaries, code generation and scheduled jobs, instead of rebuilding them.',
+        projects: ['polymed'],
+      },
+      {
+        id: 'nodejs',
+        name: 'Node.js',
+        note: 'BidOS export service and document parsing pipeline; shares a toolchain with the Vue front end under Vite.',
+        projects: ['bidos', 'cga-smart'],
       },
       {
         id: 'springai',
@@ -121,6 +133,12 @@ export const stackCategoriesEn: StackCategoryEn[] = [
         name: 'FastAPI',
         note: 'Standardised interface layer for model services, speaking a unified OpenAI-compatible protocol.',
         projects: ['fupan'],
+      },
+      {
+        id: 'sscat',
+        name: 'SSCOM Serial Tool',
+        note: 'Debugging and protocol reverse-engineering for the EEG acquisition device: capture raw serial frames with SSCOM first, then write the Python driver.',
+        projects: ['moca'],
       },
       {
         id: 'electron',
@@ -207,6 +225,24 @@ export const stackCategoriesEn: StackCategoryEn[] = [
         note: 'Frozen backbone with a linear readout, paired with eight pre-registered intervention protocols to locate the signal structure a model truly relies on.',
         projects: ['research'],
       },
+      {
+        id: 'pytorch',
+        name: 'PyTorch',
+        note: 'Training framework for EEG-FM backbones and readouts; the eight intervention protocols of the diagnostic benchmark are implemented here too.',
+        projects: ['research'],
+      },
+      {
+        id: 'cuda',
+        name: 'CUDA',
+        note: 'GPU acceleration layer for cross-architecture decoding and batched interventions — this is what makes eight protocols across many models runnable.',
+        projects: ['research'],
+      },
+      {
+        id: 'numpy',
+        name: 'NumPy',
+        note: 'Low-level operators for signal slicing, channel reordering and statistics — the main language of the protocol pre-processing stage.',
+        projects: ['research', 'moca'],
+      },
     ],
   },
   {
@@ -248,6 +284,24 @@ export const stackCategoriesEn: StackCategoryEn[] = [
         id: 'paradigm',
         name: 'Experimental Paradigm Design',
         note: 'Stimulus presentation and response timing for MoCA tasks — this determines whether signal segments can be cut precisely.',
+        projects: ['moca'],
+      },
+      {
+        id: 'mysql',
+        name: 'MySQL',
+        note: 'Persistence of medication plans and follow-up records across the three PolyMed sides (patient / family / doctor).',
+        projects: ['polymed'],
+      },
+      {
+        id: 'qdrant',
+        name: 'Qdrant',
+        note: 'Vector store behind the PolyMed medication knowledge base and multimodal prescription retrieval, recalling precisely per project and scenario.',
+        projects: ['polymed'],
+      },
+      {
+        id: 'eventcode',
+        name: 'Event Code Table',
+        note: 'The 43 fine-grained MoCA tagging points — the single source of truth that aligns behavioural events with EEG signal.',
         projects: ['moca'],
       },
     ],

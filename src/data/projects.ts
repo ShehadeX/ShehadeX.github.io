@@ -203,8 +203,8 @@ export const projects: Project[] = [
     domain: 'AI SYSTEMS',
     summary:
       '把材料导入、初判、深度分析、目录生成、章节准备、编制导出拆成六阶段 AI 工作流，来源、人工确认与交付边界全部纳入系统流程。',
-    cover: asset('/img/bidos/03.webp'),
-    coverCaption: 'BidOS 项目概览：阶段产物与目录绑定关系',
+    cover: asset('/img/bidos/cover-bidos.webp'),
+    coverCaption: 'BidOS 招投标智能编制系统 · 六阶段工作台主界面',
     tags: ['Vue 3', 'Flask', 'Python', 'SQLite', 'LLM', 'Workflow'],
     stack: ['Vue 3', 'Flask / Python', 'SQLite', '文件系统产物', '模型适配层'],
     period: '2026.07 – 2026.12',
@@ -337,6 +337,7 @@ export const projects: Project[] = [
       },
     ],
     gallery: [
+      { src: asset('/img/bidos/cover-bidos.webp'), caption: 'BidOS 招投标智能编制系统主界面' },
       { src: asset('/img/bidos/01.webp'), caption: '材料导入' },
       { src: asset('/img/bidos/02.webp'), caption: '招标深度分析' },
       { src: asset('/img/bidos/03.webp'), caption: '目录与企业知识库绑定' },
@@ -1009,6 +1010,7 @@ export const projects: Project[] = [
       },
     ],
     gallery: [
+      { src: asset('/img/fupanpolymed/polymed-03.webp'), caption: 'PolyMed 智能用药小程序 · 患者端', ratio: '736 / 1600' },
       { src: asset('/img/fupanpolymed/polymed-01.webp'), caption: '患者端 · 用药助手', ratio: '736 / 1600' },
       { src: asset('/img/fupanpolymed/polymed-05.webp'), caption: '用药方案与注意事项', ratio: '736 / 1600' },
       { src: asset('/img/fupanpolymed/polymed-06.webp'), caption: '处方识别与药物匹配', ratio: '736 / 1600' },

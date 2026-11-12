@@ -34,14 +34,14 @@ export const stackCategories: StackCategory[] = [
       {
         id: 'vue3',
         name: 'Vue 3',
-        note: 'BidOS 工作台与 CGA-Smart 评估端的主框架，全部项目型界面都基于它。',
-        projects: ['bidos', 'cga-smart'],
+        note: 'BidOS 工作台、CGA-Smart 评估端与 PolyMed 管理后台的主框架，全部项目型界面都基于它。',
+        projects: ['bidos', 'cga-smart', 'polymed'],
       },
       {
         id: 'vite',
         name: 'Vite',
-        note: 'CGA-Smart 的构建工具，冷启动快，改量表定义时不需要等打包。',
-        projects: ['cga-smart'],
+        note: 'CGA-Smart 与 PolyMed 后台的构建工具，冷启动快，改量表定义时不需要等打包。',
+        projects: ['cga-smart', 'polymed'],
       },
       {
         id: 'typescript',
@@ -52,8 +52,8 @@ export const stackCategories: StackCategory[] = [
       {
         id: 'elementplus',
         name: 'Element Plus',
-        note: 'CGA-Smart 评估工作台的表单与表格，21 条量表导航靠它撑起密度。',
-        projects: ['cga-smart'],
+        note: 'CGA-Smart 评估工作台的表单与表格撑起 21 条量表导航密度；PolyMed 家属端与医生端的穿梭框与用药时间轴同样基于它。',
+        projects: ['cga-smart', 'polymed'],
       },
       {
         id: 'pinia',
@@ -101,8 +101,20 @@ export const stackCategories: StackCategory[] = [
       {
         id: 'springboot',
         name: 'Spring Boot',
-        note: 'CGA-Smart 后端，量表定义库、计分引擎与数据抽象分层。',
-        projects: ['cga-smart'],
+        note: 'CGA-Smart 后端与 PolyMed 管理后台底座，量表定义库、计分引擎与数据抽象分层。',
+        projects: ['cga-smart', 'polymed'],
+      },
+      {
+        id: 'ruoyi',
+        name: 'RuoYi-Vue-Pro',
+        note: 'PolyMed 医生端与管理后台的权限、字典、代码生成与定时任务底座，避免重复造轮子。',
+        projects: ['polymed'],
+      },
+      {
+        id: 'nodejs',
+        name: 'Node.js',
+        note: 'BidOS 导出服务与文档解析流水线；Vite 生态下与 Vue 前端的构建链路同源。',
+        projects: ['bidos', 'cga-smart'],
       },
       {
         id: 'springai',
@@ -127,6 +139,12 @@ export const stackCategories: StackCategory[] = [
         name: 'FastAPI',
         note: '模型服务的标准化接口层，统一 OpenAI-compatible 协议。',
         projects: ['fupan'],
+      },
+      {
+        id: 'sscat',
+        name: 'SSCOM 串口工具',
+        note: 'EEG 采集设备联调与协议逆向：先用 SSCOM 抓原始串口帧，再写 Python 驱动。',
+        projects: ['moca'],
       },
       {
         id: 'electron',
@@ -213,6 +231,24 @@ export const stackCategories: StackCategory[] = [
         note: '冻结骨干 + 线性读出，配合八种预注册干预协议定位模型真正依赖的信号结构。',
         projects: ['research'],
       },
+      {
+        id: 'pytorch',
+        name: 'PyTorch',
+        note: 'EEG-FM 骨干与读出层的训练框架；诊断基准里的八种干预协议也在这里实现。',
+        projects: ['research'],
+      },
+      {
+        id: 'cuda',
+        name: 'CUDA',
+        note: '跨架构解码与批量干预实验的 GPU 加速层，决定了八协议 × 多模型的可跑规模。',
+        projects: ['research'],
+      },
+      {
+        id: 'numpy',
+        name: 'NumPy',
+        note: '信号段切片、通道重排与统计量的底层算子，协议实现前处理阶段的主语言。',
+        projects: ['research', 'moca'],
+      },
     ],
   },
   {
@@ -254,6 +290,24 @@ export const stackCategories: StackCategory[] = [
         id: 'paradigm',
         name: '实验范式设计',
         note: 'MoCA 任务的刺激呈现与作答时序定义，决定了信号段能否被精确切分。',
+        projects: ['moca'],
+      },
+      {
+        id: 'mysql',
+        name: 'MySQL',
+        note: 'PolyMed 三端（患者 / 家属 / 医生）的用药方案与随访记录持久化。',
+        projects: ['polymed'],
+      },
+      {
+        id: 'qdrant',
+        name: 'Qdrant',
+        note: 'PolyMed 用药知识库与多模态处方检索的向量库，按项目与用药场景精准召回。',
+        projects: ['polymed'],
+      },
+      {
+        id: 'eventcode',
+        name: '事件码表',
+        note: 'MoCA 的 43 个精细化打标点定义，是行为事件与 EEG 信号对齐的唯一真值来源。',
         projects: ['moca'],
       },
     ],

@@ -232,20 +232,20 @@ const internships = [
               不受各列文案长度差异影响。
             -->
             <div
-              class="mt-16 grid gap-x-6 gap-y-5 border-t border-ink/12 pt-6 sm:grid-cols-3 sm:grid-rows-[auto_auto_auto_1fr]"
+              class="mt-10 grid gap-x-6 gap-y-4 border-t border-ink/12 pt-5 sm:grid-cols-3 sm:grid-rows-[auto_auto_auto_1fr]"
             >
               <!-- 卡片 1 -->
               <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
-                <p class="display self-start text-[36px] leading-none text-ink">
+                <p class="display self-start text-[34px] leading-none text-ink">
                   <span class="marker marker-reveal text-claude">{{ t('hero.m1.num') }}</span>
                 </p>
-                <p class="mt-1.5 self-start text-[14px] font-semibold leading-snug text-ink">
+                <p class="mt-1 self-start text-[13.5px] font-semibold leading-snug text-ink">
                   {{ t('hero.m1.title') }}
                 </p>
-                <p class="mt-1 self-start text-[12px] leading-[1.7] text-ink-muted">
+                <p class="mt-0.5 self-start text-[11.5px] leading-[1.6] text-ink-muted">
                   {{ t('hero.m1.desc') }}
                 </p>
-                <div class="mt-2.5 flex items-start gap-1.5 self-start">
+                <div class="mt-2 flex items-start gap-1.5 self-start">
                   <RouterLink
                     v-for="p in projectIcons"
                     :key="p.slug"
@@ -265,16 +265,16 @@ const internships = [
 
               <!-- 卡片 2 -->
               <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
-                <p class="display self-start text-[36px] leading-none text-ink">
+                <p class="display self-start text-[34px] leading-none text-ink">
                   <span class="marker marker-reveal text-claude">{{ t('hero.m2.num') }}</span>
                 </p>
-                <p class="mt-1.5 self-start text-[14px] font-semibold leading-snug text-ink">
+                <p class="mt-1 self-start text-[13.5px] font-semibold leading-snug text-ink">
                   {{ t('hero.m2.title') }}
                 </p>
-                <p class="mt-1 self-start whitespace-pre-line text-[12px] leading-[1.7] text-ink-muted">
+                <p class="mt-0.5 self-start whitespace-pre-line text-[11.5px] leading-[1.6] text-ink-muted">
                   {{ t('hero.m2.desc') }}
                 </p>
-                <div class="mt-2.5 flex items-start gap-2 self-start">
+                <div class="mt-2 flex items-start gap-2 self-start">
                   <img
                     v-for="l in internships"
                     :key="l.src"
@@ -287,17 +287,17 @@ const internships = [
 
               <!-- 卡片 3 -->
               <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
-                <p class="display self-start text-[36px] leading-none text-ink">
+                <p class="display self-start text-[34px] leading-none text-ink">
                   <span class="marker marker-reveal text-claude">{{ t('hero.m3.num') }}</span>
                 </p>
-                <p class="mt-1.5 self-start text-[14px] font-semibold leading-snug text-ink">
+                <p class="mt-1 self-start text-[13.5px] font-semibold leading-snug text-ink">
                   {{ t('hero.m3.title') }}
                 </p>
-                <p class="mt-1 self-start text-[12px] leading-[1.7] text-ink-muted">
+                <p class="mt-0.5 self-start text-[11.5px] leading-[1.6] text-ink-muted">
                   {{ t('hero.m3.desc') }}
                 </p>
                 <!-- Rebuttal 状态标签：与左两列的图标行对齐 -->
-                <div class="mt-2.5 flex items-start self-start">
+                <div class="mt-2 flex items-start self-start">
                   <span
                     class="inline-flex items-center gap-1.5 rounded-[3px] border border-claude/35 bg-claude/8 px-2 py-1 font-mono text-[10.5px] tracking-[0.06em] text-claude"
                   >
@@ -470,38 +470,38 @@ const internships = [
               <DeliveryFlow />
             </div>
 
-            <div class="space-y-8">
-              <div class="flex gap-5">
+            <div class="space-y-6">
+              <div class="flex gap-4">
                 <span class="claude-num shrink-0 pt-1.5">01</span>
                 <div>
-                  <p class="text-[18px] font-semibold text-ink">{{ t('phl.p1.t') }}</p>
-                  <p class="mt-2 text-[14.5px] leading-[1.85] text-ink-muted">
+                  <p class="text-[16.5px] font-semibold text-ink">{{ t('phl.p1.t') }}</p>
+                  <p class="mt-1.5 text-[13.5px] leading-[1.7] text-ink-muted">
                     {{ t('phl.p1.d') }}
                   </p>
                 </div>
               </div>
 
-              <div class="flex gap-5">
+              <div class="flex gap-4">
                 <span class="claude-num shrink-0 pt-1.5">02</span>
                 <div>
-                  <p class="text-[18px] font-semibold text-ink">{{ t('phl.p2.t') }}</p>
-                  <p class="mt-2 text-[14.5px] leading-[1.85] text-ink-muted">
+                  <p class="text-[16.5px] font-semibold text-ink">{{ t('phl.p2.t') }}</p>
+                  <p class="mt-1.5 text-[13.5px] leading-[1.7] text-ink-muted">
                     {{ t('phl.p2.d') }}
                   </p>
                 </div>
               </div>
 
-              <div class="flex gap-5">
+              <div class="flex gap-4">
                 <span class="claude-num shrink-0 pt-1.5">03</span>
                 <div>
-                  <p class="text-[18px] font-semibold text-ink">{{ t('phl.p3.t') }}</p>
-                  <p class="mt-2 text-[14.5px] leading-[1.85] text-ink-muted">
+                  <p class="text-[16.5px] font-semibold text-ink">{{ t('phl.p3.t') }}</p>
+                  <p class="mt-1.5 text-[13.5px] leading-[1.7] text-ink-muted">
                     {{ t('phl.p3.d') }}
                   </p>
                 </div>
               </div>
 
-              <div class="flex flex-wrap gap-2 pt-1">
+              <div class="flex flex-wrap gap-2 pt-0.5">
                 <span class="tag">First Principles</span>
                 <span class="tag">AI-native</span>
                 <span class="tag">Engineering Discipline</span>
@@ -524,30 +524,30 @@ const internships = [
 
         <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
           <div>
-            <h2 class="max-w-[20ch] break-keep text-[30px] leading-[1.25] sm:text-[38px]">
+            <h2 class="max-w-[20ch] break-keep text-[27px] leading-[1.22] sm:text-[34px]">
               {{ t('about.title') }}
             </h2>
-            <div class="mt-8 space-y-8">
+            <div class="mt-6 space-y-5">
               <div>
-                <p class="text-[19px] font-semibold text-ink">{{ t('about.c1.t') }}</p>
-                <p class="mt-2 text-[14.5px] leading-[1.8] text-ink-muted">
+                <p class="text-[17px] font-semibold text-ink">{{ t('about.c1.t') }}</p>
+                <p class="mt-1.5 text-[13.5px] leading-[1.7] text-ink-muted">
                   {{ t('about.c1.d') }}
                 </p>
               </div>
               <div>
-                <p class="text-[19px] font-semibold text-ink">{{ t('about.c2.t') }}</p>
-                <p class="mt-2 text-[14.5px] leading-[1.8] text-ink-muted">
+                <p class="text-[17px] font-semibold text-ink">{{ t('about.c2.t') }}</p>
+                <p class="mt-1.5 text-[13.5px] leading-[1.7] text-ink-muted">
                   {{ t('about.c2.d') }}
                 </p>
               </div>
               <div>
-                <p class="text-[19px] font-semibold text-ink">{{ t('about.c3.t') }}</p>
-                <p class="mt-2 text-[14.5px] leading-[1.8] text-ink-muted">
+                <p class="text-[17px] font-semibold text-ink">{{ t('about.c3.t') }}</p>
+                <p class="mt-1.5 text-[13.5px] leading-[1.7] text-ink-muted">
                   {{ t('about.c3.d') }}
                 </p>
               </div>
             </div>
-            <p class="mt-9 text-[15px] leading-[1.85] text-ink-body">
+            <p class="mt-6 text-[14px] leading-[1.75] text-ink-body">
               {{ t('about.p1') }}
             </p>
           </div>
