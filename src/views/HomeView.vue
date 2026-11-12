@@ -232,7 +232,7 @@ const internships = [
               不受各列文案长度差异影响。
             -->
             <div
-              class="mt-10 grid gap-x-6 gap-y-4 border-t border-ink/12 pt-5 sm:grid-cols-3 sm:grid-rows-[auto_auto_auto_1fr]"
+              class="mt-16 grid gap-x-6 gap-y-4 border-t border-ink/12 pt-5 sm:grid-cols-3 sm:grid-rows-[auto_auto_auto_1fr]"
             >
               <!-- 卡片 1 -->
               <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
@@ -522,39 +522,34 @@ const internships = [
           <span class="rule flex-1" />
         </div>
 
-        <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
+        <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
+          <!-- 左：描述（压缩） -->
           <div>
-            <h2 class="max-w-[20ch] break-keep text-[27px] leading-[1.22] sm:text-[34px]">
+            <h2 class="max-w-[20ch] break-keep text-[24px] leading-[1.2] sm:text-[30px]">
               {{ t('about.title') }}
             </h2>
-            <div class="mt-6 space-y-5">
-              <div>
-                <p class="text-[17px] font-semibold text-ink">{{ t('about.c1.t') }}</p>
-                <p class="mt-1.5 text-[13.5px] leading-[1.7] text-ink-muted">
-                  {{ t('about.c1.d') }}
+
+            <!-- 三件事：紧凑列表 -->
+            <ul class="mt-5 space-y-3.5">
+              <li v-for="k in (['c1', 'c2', 'c3'] as const)" :key="k">
+                <p class="flex items-baseline gap-2 text-[15px] font-semibold text-ink">
+                  <span class="claude-num shrink-0">{{ k.slice(1) }}</span>
+                  {{ t(`about.${k}.t`) }}
                 </p>
-              </div>
-              <div>
-                <p class="text-[17px] font-semibold text-ink">{{ t('about.c2.t') }}</p>
-                <p class="mt-1.5 text-[13.5px] leading-[1.7] text-ink-muted">
-                  {{ t('about.c2.d') }}
+                <p class="mt-1 pl-6 text-[12.5px] leading-[1.65] text-ink-muted">
+                  {{ t(`about.${k}.d`) }}
                 </p>
-              </div>
-              <div>
-                <p class="text-[17px] font-semibold text-ink">{{ t('about.c3.t') }}</p>
-                <p class="mt-1.5 text-[13.5px] leading-[1.7] text-ink-muted">
-                  {{ t('about.c3.d') }}
-                </p>
-              </div>
-            </div>
-            <p class="mt-6 text-[14px] leading-[1.75] text-ink-body">
+              </li>
+            </ul>
+
+            <p class="mt-5 border-t border-ink/10 pt-4 text-[13px] leading-[1.7] text-ink-body">
               {{ t('about.p1') }}
             </p>
           </div>
 
-          <!-- 技术栈图谱：通栏 -->
-          <div class="lg:col-span-2">
-            <StackGraph />
+          <!-- 右：技术栈图谱 -->
+          <div>
+            <StackGraph compact />
           </div>
         </div>
 

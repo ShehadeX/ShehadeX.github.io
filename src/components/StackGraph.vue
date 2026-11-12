@@ -1,28 +1,44 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { stackCategories, stackProjects, allStackItems, usageCount } from '@/data/stack'
 import { stackCategoriesEn, stackProjectsEn } from '@/data/stack.en'
 import { t, lang } from '@/composables/useI18n'
-import { computed as _c } from 'vue'
 
 /**
- * Obsidian 式技术栈图谱（力导向 + 实时吸附）。
+ * Obsidian 式技术栈图谱（纯力导向 + 实时吸附）。
  *
- * 布局不再写死：
- *   - 初始位置由确定性算法生成（无随机数，保证 SSR 与首屏一致）
- *   - 挂载后进入力导向模拟：斥力 + 弹簧 + 向心力，持续微调
- *   - 指针靠近节点时，节点被「吸附」到指针方向并高亮，标签跟随
+ * 布局完全由物理模拟产生，不写死任何坐标：
+ *   - 初始位置由黄金角螺旋确定性生成（无随机数，首屏稳定）
+ *   - 每帧计算：节点互斥 + 分类弹簧 + 向心力 + 指针磁吸
+ *   - 标签水平排布，并做双侧（左 / 右）贪心避让，消除文字压叠
+ *
+ * 画布坐标系与 CSS 像素 1:1 对应（viewBox 跟随容器实测宽度），
+ * 所以无论放在通栏还是窄栏，字号始终是真实的 9.5px，不会被缩得看不清。
  *
  * 节点语义：
- *   - 分类是枢纽节点（hub），技术项挂在其周围
- *   - 边 = 分类归属；选中项目后，边 = 项目 → 该项目用到的技术
- *   - 节点半径 = 该技术被多少个项目使用（使用频次越高越大）
+ *   - 分类是枢纽节点（hub），技术项通过弹簧挂在对应分类下
+ *   - 节点半径 = 该技术被多少个项目使用（用得越多越大）
+ *   - 选中项目后，该项目用到的技术点染为橙色，其余淡出
  */
 
-const W = 1120
-const H = 840
-const CX = W / 2
-const CY = H / 2
+interface Props {
+  /** 紧凑模式：窄栏使用，详情面板改为排在图谱下方 */
+  compact?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), { compact: false })
+
+/* ------------------------------------------------------------------ */
+/*  画布尺寸：跟随容器，1:1 映射 CSS 像素                             */
+/* ------------------------------------------------------------------ */
+
+const wrapEl = ref<HTMLDivElement | null>(null)
+const svgEl = ref<SVGSVGElement | null>(null)
+const vw = ref(props.compact ? 680 : 1180)
+const vh = ref(props.compact ? 780 : 720)
+
+const CX = computed(() => vw.value / 2)
+const CY = computed(() => vh.value / 2)
 
 interface Node {
   id: string
@@ -38,84 +54,56 @@ interface Node {
   note: string
   projects: string[]
   count: number
-  /** 固定位置（枢纽），力导向时不参与位移 */
-  fixed?: boolean
-  /** 锚点：初始确定性位置，节点始终被弹性拉回锚点附近 */
-  ax: number
-  ay: number
-  /** 呼吸漂移的相位与半径（确定性，按下标推导） */
-  ph: number
-  driftR: number
-  /** 标签的垂直错位量（用于消除重叠） */
-  labelDy: number
+  /** 标签文本内容 */
+  label: string
+  /** 标签左上角 x */
+  lx: number
+  /** 标签基线 y */
+  ly: number
+  /** 标签锚点 */
+  anchor: 'start' | 'end' | 'middle'
 }
 
 interface Edge {
   from: string
   to: string
-  active: boolean
 }
 
-const isEn = _c(() => lang.value === 'en')
-const cats = _c(() => (isEn.value ? stackCategoriesEn : stackCategories))
-const projects_ = _c(() => (isEn.value ? stackProjectsEn : stackProjects))
+const isEn = computed(() => lang.value === 'en')
+const cats = computed(() => (isEn.value ? stackCategoriesEn : stackCategories))
+const projects_ = computed(() => (isEn.value ? stackProjectsEn : stackProjects))
 
 const selectedProject = ref<string | null>(null)
 const hovered = ref<string | null>(null)
 
-/** 指针位置（SVG 坐标系），null 表示不在图上 */
+/** 指针位置（SVG 用户坐标 = CSS 像素），null 表示不在图上 */
 const pointer = ref<{ x: number; y: number } | null>(null)
 /** 被指针吸附的节点 id */
 const snapped = ref<string | null>(null)
 
-const svgEl = ref<SVGSVGElement | null>(null)
-
 /* ------------------------------------------------------------------ */
-/*  初始布局：确定性，按类别均分角度                                   */
+/*  初始布局：黄金角螺旋（确定性）                                     */
 /* ------------------------------------------------------------------ */
 
-/**
- * 初始布局：径向树（sector / 弧线排布）。
- *
- * 每个分类占据一个角度扇区，分类下的技术沿着扇区内的弧线分两圈排开，
- * 这样标签之间有稳定的角度间隔，不会像纯随机布局那样互相压叠。
- */
-/**
- * 初始布局：径向树 + 按标签宽度分配角度。
- *
- * 关键点：角度不是简单均分，而是根据每个标签的**实际像素宽度**分配。
- * 标签宽的（如 "Element Plus"）占更大的角度份额，窄的（如 "Vue 3"）占更小，
- * 这样同一圈上的标签在弧线上有足够的物理间隔，不会互相压叠。
- */
+const GOLDEN = Math.PI * (3 - Math.sqrt(5))
+
 const buildLayout = () => {
   const nodes: Node[] = []
   const edges: Edge[] = []
+  const cx = CX.value
+  const cy = CY.value
+  const base = Math.min(vw.value, vh.value)
 
-  const HUB_R = 130          // 枢纽半径
-  const RING_A = 246         // 第一圈技术半径
-  const RING_B = 384         // 第二圈技术半径
-  const SECTOR = (Math.PI * 2) / Math.max(1, cats.value.length)
-  const HALF = SECTOR / 2 - 0.06 // 扇区半角
-
-  /** 估算标签像素宽度：等宽字体，中日韩字符按全角算 */
-  const labelWidth = (name: string) => {
-    let w = 0
-    for (const ch of name) {
-      w += /[\u4e00-\u9fff\uff00-\uffef]/.test(ch) ? 10.2 : 6.1
-    }
-    return w
-  }
-
+  // 枢纽先占住中心附近，技术项沿螺旋铺开
+  const hubCount = cats.value.length
+  const hubR = base * 0.11
   cats.value.forEach((cat, ci) => {
-    const bisector = -Math.PI / 2 + ci * SECTOR
-    const hx = CX + HUB_R * Math.cos(bisector)
-    const hy = CY + HUB_R * Math.sin(bisector)
-
+    const a = -Math.PI / 2 + (ci * Math.PI * 2) / hubCount
     nodes.push({
       id: cat.id,
       name: cat.name,
-      x: hx,
-      y: hy,
+      x: cx + hubR * Math.cos(a),
+      y: cy + hubR * Math.sin(a),
       vx: 0,
       vy: 0,
       r: 9,
@@ -125,109 +113,46 @@ const buildLayout = () => {
       note: cat.caption,
       projects: [...new Set(cat.items.flatMap((i) => i.projects))],
       count: cat.items.length,
-      fixed: true,
-      ax: hx,
-      ay: hy,
-      ph: ci * 1.7,
-      driftR: 2.5,
-      labelDy: 0,
+      label: cat.name,
+      lx: 0,
+      ly: 0,
+      anchor: 'middle',
     })
-
-    // 按奇偶分两圈，保证每圈数量均衡
-    const rings: { items: typeof cat.items; radius: number; shift: number }[] = [
-      { items: cat.items.filter((_, i) => i % 2 === 0), radius: RING_A, shift: 0 },
-      { items: cat.items.filter((_, i) => i % 2 === 1), radius: RING_B, shift: 0 },
-    ]
-
-    for (const ring of rings) {
-      const list = ring.items
-      if (!list.length) continue
-      const radius = ring.radius
-
-      // 每个标签的「角宽需求」= 标签宽 + 间隙，再换算成角度
-      const GAP = 14
-      const needs = list.map((it) => (labelWidth(it.name) + GAP) / radius)
-      const totalNeed = needs.reduce((a, b) => a + b, 0)
-
-      // 若需求角度超过扇区，就按比例压缩（宁可标签稍挤，也不越出扇区）
-      const usable = HALF * 2 * 0.9
-      const span = Math.min(usable, totalNeed)
-      const scale = totalNeed > 0 ? span / totalNeed : 0
-
-      // 第二圈整体偏移半个槽位，避免两圈标签在同一角度上正面对齐
-      const slot = list.length ? span / list.length : 0
-      const shift = ring.shift ? slot / 2 : 0
-
-      let cursor = -span / 2
-      list.forEach((it, k) => {
-        const ang = bisector + cursor + (needs[k]! * scale) / 2 + shift
-        cursor += needs[k]! * scale
-
-        const count = usageCount(it.id)
-        const x = CX + radius * Math.cos(ang)
-        const y = CY + radius * Math.sin(ang)
-
-        nodes.push({
-          id: it.id,
-          name: it.name,
-          x,
-          y,
-          vx: 0,
-          vy: 0,
-          r: 3.4 + count * 1.1,
-          kind: 'item',
-          category: cat.id,
-          categoryName: cat.name,
-          note: it.note,
-          projects: it.projects,
-          count,
-          ax: x,
-          ay: y,
-          ph: k * 0.9 + ci * 2.3,
-          driftR: 4 + (k % 3) * 2,
-          labelDy: 0,
-        })
-        edges.push({ from: cat.id, to: it.id, active: true })
-      })
-    }
   })
 
-  /*
-   * 标签去重叠（确定性）。
-   *
-   * 径向排布后仍可能有极窄间距的标签（例如「Pinia」与「Next.js」），
-   * 这里按 y 排序扫描，凡是与前一个标签横向相交的，就把当前标签
-   * 向上或向下错开 11px，交替进行，形成阶梯式错位而不是全部挤向一侧。
-   */
-  const items = nodes.filter((n) => n.kind === 'item')
-  items.sort((a, b) => a.y - b.y || a.x - b.x)
-
-  const LBL_H = 11
-  const placed: { x1: number; x2: number; y: number }[] = []
-  for (const n of items) {
-    const halfW = labelWidth(n.name) / 2
-    let dy = 0
-    for (let attempt = 0; attempt < 12; attempt++) {
-      const ly = n.y + n.r + 11 + dy
-      const hits = placed.some(
-        (p) =>
-          n.x - halfW < p.x2 + 4 &&
-          p.x1 - 4 < n.x + halfW &&
-          Math.abs(ly - p.y) < LBL_H,
-      )
-      if (!hits) {
-        placed.push({ x1: n.x - halfW, x2: n.x + halfW, y: ly })
-        break
-      }
-      dy = attempt % 2 === 0 ? -(Math.floor(attempt / 2) + 1) * LBL_H : (Math.floor(attempt / 2) + 1) * LBL_H
+  let k = 0
+  for (const cat of cats.value) {
+    for (const it of cat.items) {
+      const a = k * GOLDEN
+      const rad = base * 0.2 + base * 0.055 * Math.sqrt(k)
+      const count = usageCount(it.id)
+      nodes.push({
+        id: it.id,
+        name: it.name,
+        x: cx + rad * Math.cos(a),
+        y: cy + rad * Math.sin(a),
+        vx: 0,
+        vy: 0,
+        r: 3.6 + count * 1.15,
+        kind: 'item',
+        category: cat.id,
+        categoryName: cat.name,
+        note: it.note,
+        projects: it.projects,
+        count,
+        label: it.name,
+        lx: 0,
+        ly: 0,
+        anchor: 'start',
+      })
+      edges.push({ from: cat.id, to: it.id })
+      k++
     }
-    n.labelDy = dy
   }
 
   return { nodes, edges }
 }
 
-/** 可变的节点集合（力导向直接改写坐标） */
 const nodes = ref<Node[]>([])
 const edges = ref<Edge[]>([])
 
@@ -240,43 +165,55 @@ const resetLayout = () => {
 resetLayout()
 
 /* ------------------------------------------------------------------ */
-/*  力导向模拟                                                        */
+/*  物理参数（按画布尺寸自适应）                                       */
 /* ------------------------------------------------------------------ */
+
+const params = computed(() => {
+  const base = Math.min(vw.value, vh.value)
+  return {
+    repulsion: base * base * 0.55,
+    repulsionRange: base * 0.28,
+    spring: 0.03,
+    springLen: base * 0.2,
+    centerPull: 0.0032,
+    damping: 0.88,
+    maxStep: base * 0.004,
+    snapRange: 120,
+    snapStrength: 0.16,
+  }
+})
 
 let raf = 0
 let running = false
 let last = 0
 
-/** 物理参数 */
-/*
- * 物理参数（弹性锚定 + 轻量斥力）。
- *
- * 不用纯自由力导向：那样节点会被斥力一路推到画布边界，标签互相压叠。
- * 这里给每个节点一个确定性锚点（ax/ay），力只负责让节点在锚点附近
- * 微微漂移并互相避让 —— 有动态感，但布局始终稳定可读。
- */
-const ANCHOR_PULL = 0.055   // 拉回锚点的强度
-const REPULSION_RANGE = 58 // 互斥作用半径（像素）
-const DAMPING = 0.9
-const MAX_STEP = 1.1
-
 function step(dt: number) {
   const ns = nodes.value
   const n = ns.length
   if (!n) return
+  const P = params.value
+  const cx = CX.value
+  const cy = CY.value
 
-  // 局部互斥：只对近距离节点生效，避免把布局整体推散
+  // ---- 斥力 ----
   for (let i = 0; i < n; i++) {
     const a = ns[i]!
     for (let j = i + 1; j < n; j++) {
       const b = ns[j]!
-      const dx = b.x - a.x
-      const dy = b.y - a.y
-      const d = Math.hypot(dx, dy)
-      if (d > REPULSION_RANGE || d < 0.01) continue
-      const overlap = (REPULSION_RANGE - d) / REPULSION_RANGE
-      const fx = (dx / d) * overlap * 0.12
-      const fy = (dy / d) * overlap * 0.12
+      let dx = b.x - a.x
+      let dy = b.y - a.y
+      let d2 = dx * dx + dy * dy
+      if (d2 < 0.01) {
+        dx = (i % 5) - 2
+        dy = (j % 7) - 3
+        d2 = dx * dx + dy * dy + 0.01
+      }
+      const d = Math.sqrt(d2)
+      if (d > P.repulsionRange) continue
+      const falloff = 1 - d / P.repulsionRange
+      const force = ((P.repulsion * (1 + (a.r + b.r) * 2)) / d2) * falloff * falloff
+      const fx = (dx / d) * force
+      const fy = (dy / d) * force
       a.vx -= fx
       a.vy -= fy
       b.vx += fx
@@ -284,33 +221,35 @@ function step(dt: number) {
     }
   }
 
-  // 弹性锚定：始终把节点拉回自己的锚点附近。
-  // 锚点本身带一个缓慢的呼吸漂移（图案内已有的 drift 动效风格），
-  // 让整张图始终有生命感，而不是静止的图片。
-  const t = performance.now() / 1000
-  for (const node of ns) {
-    if (node.fixed) {
-      node.vx = 0
-      node.vy = 0
-      // 枢纽也跟着轻微呼吸，避免中心节点显得死板
-      node.x = node.ax + Math.cos(t * 0.3 + node.ph) * node.driftR
-      node.y = node.ay + Math.sin(t * 0.26 + node.ph) * node.driftR
-      continue
-    }
-    const tx = node.ax + Math.cos(t * 0.45 + node.ph) * node.driftR
-    const ty = node.ay + Math.sin(t * 0.38 + node.ph * 1.3) * node.driftR
-    node.vx += (tx - node.x) * ANCHOR_PULL
-    node.vy += (ty - node.y) * ANCHOR_PULL
+  // ---- 弹簧（分类 → 技术）----
+  for (const e of edges.value) {
+    const a = ns.find((x) => x.id === e.from)
+    const b = ns.find((x) => x.id === e.to)
+    if (!a || !b) continue
+    const dx = b.x - a.x
+    const dy = b.y - a.y
+    const d = Math.hypot(dx, dy) || 1
+    const f = (d - P.springLen) * P.spring
+    a.vx += (dx / d) * f
+    a.vy += (dy / d) * f
+    b.vx -= (dx / d) * f
+    b.vy -= (dy / d) * f
   }
 
-  // 指针吸附：指针附近的节点朝指针靠拢并高亮
+  // ---- 向心力 ----
+  for (const node of ns) {
+    node.vx += (cx - node.x) * P.centerPull
+    node.vy += (cy - node.y) * P.centerPull
+  }
+
+  // ---- 指针磁吸 ----
   if (pointer.value) {
     const p = pointer.value
     let best: Node | null = null
     let bestDist = Infinity
     for (const node of ns) {
       const d = Math.hypot(node.x - p.x, node.y - p.y)
-      if (d < 120 && d < bestDist) {
+      if (d < P.snapRange && d < bestDist) {
         bestDist = d
         best = node
       }
@@ -320,26 +259,115 @@ function step(dt: number) {
       const dx = p.x - best.x
       const dy = p.y - best.y
       const d = Math.hypot(dx, dy) || 1
-      const target = best.r + 24
-      const pull = (d - target) * 0.08
+      // 停在指针外侧一点点，不覆盖指针本身
+      const target = best.r + 22
+      const pull = (d - target) * P.snapStrength
       best.vx += (dx / d) * pull
       best.vy += (dy / d) * pull
     }
   }
 
-  // 积分 + 阻尼
+  // ---- 积分 ----
   for (const node of ns) {
-    if (node.fixed) continue
-    node.vx *= DAMPING
-    node.vy *= DAMPING
-    node.vx = Math.max(-MAX_STEP, Math.min(MAX_STEP, node.vx))
-    node.vy = Math.max(-MAX_STEP, Math.min(MAX_STEP, node.vy))
+    node.vx *= P.damping
+    node.vy *= P.damping
+    node.vx = Math.max(-P.maxStep, Math.min(P.maxStep, node.vx))
+    node.vy = Math.max(-P.maxStep, Math.min(P.maxStep, node.vy))
     node.x += node.vx * dt
     node.y += node.vy * dt
-    // 锚点附近的软边界：偏离锚点太远时拉回
-    const m = node.r + 16
-    node.x = Math.max(m, Math.min(W - m, node.x))
-    node.y = Math.max(m, Math.min(H - m, node.y))
+    const m = node.r + 10
+    node.x = Math.max(m, Math.min(vw.value - m, node.x))
+    node.y = Math.max(m, Math.min(vh.value - m, node.y))
+  }
+
+  layoutLabels()
+}
+
+/* ------------------------------------------------------------------ */
+/*  标签避让                                                          */
+/* ------------------------------------------------------------------ */
+
+/** 估算标签像素宽度：等宽字体，中日韩字符按全角算 */
+const labelWidth = (name: string) => {
+  let w = 0
+  for (const ch of name) {
+    w += /[\u4e00-\u9fff\uff00-\uffef]/.test(ch) ? 10.4 : 6.2
+  }
+  return w + 5
+}
+
+/**
+ * 标签避让排布（确定性）。
+ *
+ * 每个标签有两个候选位置：节点右侧 / 节点左侧。
+ * 依次尝试「右侧原位、左侧原位、右侧上移、左侧上移、右侧下移、左侧下移……」
+ * 取第一个不与已放置标签相交的位置。
+ *
+ * 双侧策略是关键：只用单侧时，长标签会把整列挤成一条线；
+ * 双侧交替后标签会自然分布在节点两侧，重叠几乎完全消失。
+ */
+function layoutLabels() {
+  const ns = nodes.value
+  const placed: { x1: number; x2: number; y: number }[] = []
+  const H = 11
+
+  const sorted = [...ns].sort((a, b) => a.y - b.y || a.x - b.x)
+
+  for (const node of sorted) {
+    const w = labelWidth(node.label)
+
+    if (node.kind === 'hub') {
+      // 枢纽标签在节点正上方居中
+      const x1 = node.x - w / 2
+      const x2 = node.x + w / 2
+      const baseY = node.y - node.r - 5
+      let y = baseY
+      for (let attempt = 0; attempt < 16; attempt++) {
+        const hit = placed.some(
+          (p) => x1 < p.x2 + 3 && p.x1 - 3 < x2 && Math.abs(y - p.y) < H,
+        )
+        if (!hit) break
+        const dir = attempt % 2 === 0 ? -1 : 1
+        y = baseY + dir * (Math.floor(attempt / 2) + 1) * (H + 1)
+      }
+      placed.push({ x1, x2, y })
+      node.lx = node.x
+      node.ly = y
+      node.anchor = 'middle'
+      continue
+    }
+
+    const rightX = node.x + node.r + 4
+    const leftX = node.x - node.r - 4
+    const baseY = node.y + 3.4
+
+    let chosen: { x1: number; x2: number; y: number; anchor: 'start' | 'end' } | null = null
+
+    for (let attempt = 0; attempt < 20 && !chosen; attempt++) {
+      const side = attempt % 2 === 0 ? 'right' : 'left'
+      const step = Math.floor(attempt / 2)
+      const dy = step === 0 ? 0 : (attempt % 4 === 0 ? -1 : 1) * step * (H + 1)
+      const y = baseY + dy
+
+      const x1 = side === 'right' ? rightX : leftX - w
+      const x2 = x1 + w
+
+      const hit = placed.some(
+        (p) => x1 < p.x2 + 3 && p.x1 - 3 < x2 && Math.abs(y - p.y) < H,
+      )
+      if (!hit) {
+        chosen = { x1, x2, y, anchor: side === 'right' ? 'start' : 'end' }
+      }
+    }
+
+    if (!chosen) {
+      chosen = { x1: rightX, x2: rightX + w, y: baseY, anchor: 'start' }
+    }
+
+    placed.push({ x1: chosen.x1, x2: chosen.x2, y: chosen.y })
+    node.anchor = chosen.anchor
+    node.ly = chosen.y
+    node.lx = chosen.anchor === 'start' ? chosen.x1 : chosen.x2
   }
 }
 
@@ -364,15 +392,50 @@ function stop() {
 }
 
 onMounted(() => {
+  measure()
   start()
+  if (wrapEl.value && 'ResizeObserver' in window) {
+    ro = new ResizeObserver(() => measure())
+    ro.observe(wrapEl.value)
+  }
 })
 
 onBeforeUnmount(() => {
   stop()
+  ro?.disconnect()
 })
 
-// 切换语言 / 数据源变化时重置布局
+let ro: ResizeObserver | null = null
+
+/** 测量容器宽度，重建坐标系（1:1 映射 CSS 像素） */
+function measure() {
+  const el = wrapEl.value
+  if (!el) return
+  const w = Math.round(el.clientWidth)
+  if (w < 10) return
+  const targetH = props.compact
+    ? Math.round(Math.max(520, Math.min(900, w * 1.12)))
+    : Math.round(Math.max(520, Math.min(860, w * 0.62)))
+  if (Math.abs(w - vw.value) < 8 && Math.abs(targetH - vh.value) < 8) return
+
+  const sx = vw.value ? w / vw.value : 1
+  const sy = vh.value ? targetH / vh.value : 1
+  vw.value = w
+  vh.value = targetH
+  // 已有节点按比例迁移，避免重置时闪一下
+  for (const n of nodes.value) {
+    n.x *= sx
+    n.y *= sy
+  }
+}
+
+// 语言切换 → 数据源变化 → 重建
 watch(cats, () => {
+  resetLayout()
+})
+
+// 尺寸变化 → 重建
+watch([vw, vh], () => {
   resetLayout()
 })
 
@@ -384,8 +447,7 @@ const toSvgPoint = (evt: MouseEvent) => {
   const el = svgEl.value
   if (!el) return null
   const r = el.getBoundingClientRect()
-  // viewBox 等比缩放，换算回 SVG 用户坐标
-  const scale = W / r.width
+  const scale = vw.value / r.width
   return {
     x: (evt.clientX - r.left) * scale,
     y: (evt.clientY - r.top) * scale,
@@ -408,15 +470,7 @@ const onPointerLeave = () => {
   snapped.value = null
 }
 
-/** 选中项目时，额外生成「项目 → 技术」的边 */
-const projectEdges = computed<Edge[]>(() => {
-  if (!selectedProject.value) return []
-  return allStackItems
-    .filter((i) => i.projects.includes(selectedProject.value as string))
-    .map((i) => ({ from: `__p__${i.id}`, to: i.id, active: true }))
-})
-
-/** 选中项目时，被该项目使用的技术集合 */
+/** 选中项目时该项目用到的技术集合 */
 const activeItems = computed(() => {
   if (!selectedProject.value) return null
   return new Set(
@@ -434,11 +488,10 @@ const isDim = (node: Node) => {
   return !activeItems.value?.has(node.id)
 }
 
-const currentProject = computed(() =>
-  projects_.value.find((p) => p.slug === selectedProject.value) ?? null,
+const currentProject = computed(
+  () => projects_.value.find((p) => p.slug === selectedProject.value) ?? null,
 )
 
-/** 右侧详情面板 */
 const detail = computed(() => {
   const id = hovered.value
   if (!id) return null
@@ -456,7 +509,6 @@ const toggleProject = (slug: string) => {
   selectedProject.value = selectedProject.value === slug ? null : slug
 }
 
-/** 节点坐标的响应式读取（力导向会改写 nodes.value 的元素） */
 const nodeById = (id: string) => nodes.value.find((n) => n.id === id)
 </script>
 
@@ -497,13 +549,22 @@ const nodeById = (id: string) => nodes.value.find((n) => n.id === id)
       </span>
     </div>
 
-    <div class="grid gap-0 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+    <div
+      class="grid gap-0"
+      :class="compact ? 'grid-cols-1' : 'xl:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)]'"
+    >
       <!-- 图谱 -->
-      <div class="relative border-b border-ink/10 lg:border-b-0 lg:border-r">
+      <div
+        ref="wrapEl"
+        class="relative border-b border-ink/10"
+        :class="compact ? '' : 'lg:border-b-0 lg:border-r'"
+      >
         <svg
           ref="svgEl"
-          :viewBox="`0 0 ${W} ${H}`"
-          class="block h-auto w-full touch-none select-none"
+          :viewBox="`0 0 ${vw} ${vh}`"
+          :width="vw"
+          :height="vh"
+          class="block max-w-full touch-none select-none"
           role="img"
           aria-label="技术栈关系图谱"
           @pointermove="onPointerMove"
@@ -519,41 +580,16 @@ const nodeById = (id: string) => nodes.value.find((n) => n.id === id)
             :y1="nodeById(e.from)?.y"
             :x2="nodeById(e.to)?.x"
             :y2="nodeById(e.to)?.y"
-            stroke="rgba(32,31,29,0.16)"
+            stroke="rgba(32,31,29,0.13)"
             stroke-width="1"
           />
-
-          <!-- 项目 → 技术 边 -->
-          <g v-if="selectedProject">
-            <line
-              v-for="(e, i) in projectEdges"
-              :key="`p${i}`"
-              :x1="CX"
-              :y1="CY"
-              :x2="nodeById(e.to)?.x"
-              :y2="nodeById(e.to)?.y"
-              stroke="rgba(217,119,87,0.5)"
-              stroke-width="1.4"
-            />
-            <circle :cx="CX" :cy="CY" r="11" fill="#d97757" />
-            <text
-              :x="CX"
-              :y="CY + 3.5"
-              text-anchor="middle"
-              font-size="9"
-              font-family="ui-monospace, monospace"
-              fill="#ECE9E0"
-            >
-              {{ currentProject?.name.slice(0, 4) }}
-            </text>
-          </g>
 
           <!-- 节点 -->
           <g
             v-for="n in nodes"
             :key="n.id"
             class="cursor-pointer"
-            :opacity="isDim(n) ? 0.22 : 1"
+            :opacity="isDim(n) ? 0.2 : 1"
             @mouseenter="hovered = n.id"
             @mouseleave="hovered = null"
           >
@@ -572,55 +608,26 @@ const nodeById = (id: string) => nodes.value.find((n) => n.id === id)
               :fill="
                 selectedProject && activeItems?.has(n.id) ? '#d97757' : 'rgba(32,31,29,0.55)'
               "
-              :stroke="
-                hovered === n.id || snapped === n.id ? '#d97757' : 'rgba(32,31,29,0.25)'
-              "
+              :stroke="hovered === n.id || snapped === n.id ? '#d97757' : 'rgba(32,31,29,0.25)'"
               :stroke-width="hovered === n.id || snapped === n.id ? 1.8 : 1"
             />
             <!-- 命中区域放大，方便悬停 -->
-            <circle :cx="n.x" :cy="n.y" :r="Math.max(n.r + 6, 12)" fill="transparent" />
+            <circle :cx="n.x" :cy="n.y" :r="Math.max(n.r + 7, 13)" fill="transparent" />
 
+            <!-- 标签 -->
             <text
-              v-if="n.kind === 'hub'"
-              :x="n.x"
-              :y="n.y + 3.5"
-              text-anchor="middle"
-              font-size="10"
-              font-family="ui-monospace, monospace"
-              fill="#ECE9E0"
-            >
-              {{ n.count }}
-            </text>
-            <text
-              v-if="n.kind === 'hub'"
-              :x="n.x"
-              :y="n.y - n.r - 7"
-              text-anchor="middle"
-              font-size="10.5"
-              font-family="ui-monospace, monospace"
-              fill="rgba(32,31,29,0.9)"
-              stroke="#ECE9E0"
-              stroke-width="3"
-              paint-order="stroke"
-              stroke-linejoin="round"
-            >
-              {{ n.name }}
-            </text>
-            <text
-              :x="n.x"
-              :y="n.y + n.r + 11 + n.labelDy"
-              text-anchor="middle"
+              :x="n.lx"
+              :y="n.ly"
+              :text-anchor="n.anchor"
               font-size="9.5"
               font-family="ui-monospace, monospace"
-              :fill="
-                hovered === n.id || snapped === n.id ? '#b4553a' : 'rgba(98,95,89,0.95)'
-              "
+              :fill="hovered === n.id || snapped === n.id ? '#b4553a' : 'rgba(98,95,89,0.95)'"
               stroke="#ECE9E0"
-              stroke-width="2.6"
+              stroke-width="2.8"
               paint-order="stroke"
               stroke-linejoin="round"
             >
-              {{ n.name }}
+              {{ n.label }}
             </text>
           </g>
         </svg>
@@ -674,9 +681,7 @@ const nodeById = (id: string) => nodes.value.find((n) => n.id === id)
           <p class="mt-1 text-[13px] text-ink-muted">{{ currentProject.caption }}</p>
           <ul class="mt-4 space-y-1.5">
             <li
-              v-for="it in allStackItems.filter((i) =>
-                i.projects.includes(currentProject!.slug),
-              )"
+              v-for="it in allStackItems.filter((i) => i.projects.includes(currentProject!.slug))"
               :key="it.id"
               class="flex items-baseline gap-2.5 text-[13px] text-ink-muted"
             >
@@ -689,9 +694,11 @@ const nodeById = (id: string) => nodes.value.find((n) => n.id === id)
         <template v-else>
           <p class="eyebrow">{{ t('stack.graph') }}</p>
           <p class="mt-3 text-[13.5px] leading-[1.85] text-ink-muted">
-            {{ isEn
-              ? `${cats.length} domains, ${allStackItems.length} technologies. Use the project filter above to narrow the view, or hover any node to see how it is actually used.`
-              : `${cats.length} 个领域、${allStackItems.length} 项技术。点上方项目筛选可以只看某个项目用到的部分；悬停任意节点查看它的实际用法。` }}
+            {{
+              isEn
+                ? `${cats.length} domains, ${allStackItems.length} technologies. Use the project filter above to narrow the view, or hover any node to see how it is actually used.`
+                : `${cats.length} 个领域、${allStackItems.length} 项技术。点上方项目筛选可以只看某个项目用到的部分；悬停任意节点查看它的实际用法。`
+            }}
           </p>
           <div class="mt-4 space-y-2.5">
             <div v-for="c in cats" :key="c.id">
