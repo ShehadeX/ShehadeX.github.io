@@ -47,19 +47,37 @@ const distances = new Map<string, number>()
 /**
  * 选出当前焦点。
  *
- * 规则：取所有已进入「视口上沿以下 30%」的锚点中，距离上沿最近的那个；
- * 若一个都没进入，则取最后经过的（保持高亮不消失）。
+ * 规则：
+ *   1. 在「焦点线（视口 30% 高度）以上或正好在焦点线上」的锚点里，
+ *      取**距离焦点线最近**的那个 —— 即 d 最大的那个。
+ *      （注意：不能取 d 最小的，那样永远命中第一个 section，
+ *        目录高亮就只会停在 01，滚到哪儿都不动。）
+ *   2. 如果焦点线上方一个锚点都没有（页面刚进入这一节），
+ *      取焦点线下方最近的那个。
  */
 const pickActive = () => {
   const line = window.innerHeight * 0.3
   let best: string | null = null
-  let bestDist = Infinity
+  let bestDist = -Infinity
+  let nextBelow: string | null = null
+  let nextBelowDist = Infinity
+
   for (const [id, d] of distances) {
-    if (d <= line && d < bestDist) {
-      bestDist = d
-      best = id
+    if (d <= line) {
+      // 焦点线上方：取 d 最大的（最靠近焦点线）
+      if (d > bestDist) {
+        bestDist = d
+        best = id
+      }
+    } else if (d < nextBelowDist) {
+      // 焦点线下方：记住最近的一个作为兜底
+      nextBelowDist = d
+      nextBelow = id
     }
   }
+
+  if (!best) best = nextBelow
+
   if (best) {
     // 命中的可能是二级细项：父级保持当前高亮，
     // 子级另外高亮，视觉上形成层级指示。
@@ -169,7 +187,15 @@ const isChildActive = (id: string) => activeChildId.value === id
 </script>
 
 <template>
-  <nav ref="navEl" class="max-h-[70vh] overflow-y-auto pr-1">
+  <!--
+    目录高度占满可用视口（calc(100vh - 5rem) 减去顶部偏移），
+    而不是只占上半屏。条目多时目录自身滚动，
+    当前项会被自动滚进视野。
+  -->
+  <nav
+    ref="navEl"
+    class="max-h-[calc(100vh-6rem)] overflow-y-auto pr-1"
+  >
     <p class="eyebrow">Contents</p>
     <ul class="mt-4 space-y-1">
       <li v-for="s in items" :key="s.id">

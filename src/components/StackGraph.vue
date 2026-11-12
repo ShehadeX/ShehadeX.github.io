@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import StackCanvas from '@/components/StackCanvas.vue'
 import StackDetailPanel from '@/components/StackDetailPanel.vue'
 import { stackCategories, stackProjects, allStackItems } from '@/data/stack'
 import { stackCategoriesEn, stackProjectsEn } from '@/data/stack.en'
 import { t, lang } from '@/composables/useI18n'
+import { useStackSelection } from '@/composables/useStackSelection'
 
 /**
  * 技术栈图谱容器。
@@ -12,6 +13,9 @@ import { t, lang } from '@/composables/useI18n'
  * 高频的物理模拟与指针状态全部封在 StackCanvas 里，
  * 这里只负责：项目筛选、详情面板、领域概览。
  * 这样指针移动不会引起本组件的重渲染，页面不会再卡死。
+ *
+ * 选中状态放在模块级单例（useStackSelection）里，
+ * 这样左栏的「技术选型」能和右栏图谱双向联动。
  */
 
 interface Props {
@@ -25,18 +29,13 @@ const isEn = computed(() => lang.value === 'en')
 const cats = computed(() => (isEn.value ? stackCategoriesEn : stackCategories))
 const projects_ = computed(() => (isEn.value ? stackProjectsEn : stackProjects))
 
-const selectedProject = ref<string | null>(null)
-
-/** 悬停中的节点信息，由画布组件抛出 */
-const hovered = ref<{
-  id: string
-  name: string
-  kind: 'hub' | 'item'
-  category: string
-  note: string
-  projects: string[]
-  count: number
-} | null>(null)
+const {
+  selectedProject,
+  hoveredNode,
+  focusedNode: focused,
+  setProject,
+  toggleNode,
+} = useStackSelection()
 
 /** 选中项目时该项目用到的技术 id 集合，传给画布做高亮 */
 const activeIds = computed<string[] | null>(() => {
@@ -52,17 +51,12 @@ const currentProject = computed(
 
 /** 详情面板是否有内容（决定是否加内边距） */
 const hasPanelContent = computed(
-  () => hovered.value !== null || (selectedProject.value !== null && currentProject.value !== null),
+  () => focused.value !== null || (selectedProject.value !== null && currentProject.value !== null),
 )
 
 const toggleProject = (slug: string) => {
-  selectedProject.value = selectedProject.value === slug ? null : slug
+  setProject(selectedProject.value === slug ? null : slug)
 }
-
-// 切换项目时清掉悬停状态，避免详情面板停留在上一个项目的节点上
-watch(selectedProject, () => {
-  hovered.value = null
-})
 </script>
 
 <template>
@@ -109,20 +103,20 @@ watch(selectedProject, () => {
       否则悬停时右栏突然变高，图谱就会重新开始「独立滑动」。
     -->
     <div v-if="compact" class="relative">
-      <StackCanvas :cats="cats" :active-ids="activeIds" @hover="hovered = $event" />
+      <StackCanvas :cats="cats" :active-ids="activeIds" @hover="hoveredNode = $event" @select="toggleNode($event)" />
 
       <!-- 浮层详情 -->
       <div
-        v-if="hovered || (selectedProject && currentProject)"
+        v-if="focused || (selectedProject && currentProject)"
         class="pointer-events-none absolute inset-x-0 bottom-0 z-10"
       >
         <div
           class="pointer-events-auto border-t border-ink/12 bg-base/95 px-4 py-3.5 backdrop-blur-sm"
         >
           <StackDetailPanel
-            v-if="hovered"
-            :hovered="hovered"
-            :hub-items="cats.find((c) => c.id === hovered!.id)?.items ?? []"
+            v-if="focused"
+            :hovered="focused"
+            :hub-items="cats.find((c) => c.id === focused!.id)?.items ?? []"
           />
 
           <div v-else-if="selectedProject && currentProject">
@@ -148,14 +142,14 @@ watch(selectedProject, () => {
     <!-- 宽屏模式：图谱 + 右侧独立详情栏 -->
     <div v-else class="grid gap-0 xl:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)]">
       <div class="border-b border-ink/10 lg:border-b-0 lg:border-r">
-        <StackCanvas :cats="cats" :active-ids="activeIds" @hover="hovered = $event" />
+        <StackCanvas :cats="cats" :active-ids="activeIds" @hover="hoveredNode = $event" @select="toggleNode($event)" />
       </div>
 
       <div :class="hasPanelContent ? 'p-5 sm:p-6' : ''">
-        <template v-if="hovered">
+        <template v-if="focused">
           <StackDetailPanel
-            :hovered="hovered"
-            :hub-items="cats.find((c) => c.id === hovered!.id)?.items ?? []"
+            :hovered="focused"
+            :hub-items="cats.find((c) => c.id === focused!.id)?.items ?? []"
           />
         </template>
 

@@ -13,7 +13,14 @@ const props = withDefaults(defineProps<Props>(), { compact: false })
  * Before → Built → After。
  *
  * 横向三段流程，中间用箭头连接，而不是竖向堆叠的三块。
- * 箭头本身是一条带流动光点的虚线轨道，视觉上表达「流程推进」。
+ * 箭头是一条带流动光点的虚线轨道，视觉上表达「流程推进」。
+ *
+ * 结构要点（踩过的坑）：
+ *   桌面端网格是 5 列 = 3 段内容 + 2 条箭头列。
+ *   **箭头必须是 .bba-flow 的直接子元素**，
+ *   如果把箭头放在 .bba-step 内部，三段内容会落进第 1/2/3 列，
+ *   而第 2 列只有 2.75rem 宽，Built 会被压扁成一条。
+ *   所以模板里用 <template v-for> 同时吐出「段落」和「箭头」两个同级元素。
  *
  * 移动端降级为竖向（箭头改为向下），避免窄屏下横向挤压。
  */
@@ -27,44 +34,48 @@ const active = ref<string | null>(null)
 </script>
 
 <template>
-  <div
-    class="bba-flow"
-    :class="{ 'bba-flow--compact': props.compact }"
-  >
-    <div
-      v-for="(s, i) in steps"
-      :key="s.key"
-      class="bba-step"
-      :class="[`bba-step--${s.tone}`, { 'is-active': active === s.key }]"
-      @mouseenter="active = s.key"
-      @mouseleave="active = null"
-    >
-      <div class="bba-step__head">
-        <span class="claude-num">{{ String(i + 1).padStart(2, '0') }}</span>
-        <span class="bba-key" :class="s.tone === 'claude' ? 'text-claude-deep' : 'text-ink-faint'">
-          {{ s.label }}
-        </span>
+  <div class="bba-flow" :class="{ 'bba-flow--compact': props.compact }">
+    <!--
+      用 template 包一层，让「段落」和「箭头」成为 .bba-flow 的同级子元素，
+      这样桌面端的 5 列网格才会按 内容→箭头→内容→箭头→内容 排列。
+    -->
+    <template v-for="(s, i) in steps" :key="s.key">
+      <div
+        class="bba-step"
+        :class="[`bba-step--${s.tone}`, { 'is-active': active === s.key }]"
+        @mouseenter="active = s.key"
+        @mouseleave="active = null"
+      >
+        <div class="bba-step__head">
+          <span class="claude-num">{{ String(i + 1).padStart(2, '0') }}</span>
+          <span
+            class="bba-key"
+            :class="s.tone === 'claude' ? 'text-claude-deep' : 'text-ink-faint'"
+          >
+            {{ s.label }}
+          </span>
+        </div>
+
+        <p
+          class="mt-2.5 text-[13.5px] leading-[1.75]"
+          :class="
+            s.tone === 'claude'
+              ? 'text-ink-body'
+              : s.tone === 'strong'
+                ? 'text-ink-strong'
+                : 'text-ink-muted'
+          "
+        >
+          {{ props[s.key as 'before' | 'built' | 'after'] }}
+        </p>
       </div>
 
-      <p
-        class="mt-2.5 text-[13.5px] leading-[1.75]"
-        :class="
-          s.tone === 'claude'
-            ? 'text-ink-body'
-            : s.tone === 'strong'
-              ? 'text-ink-strong'
-              : 'text-ink-muted'
-        "
-      >
-        {{ props[s.key as 'before' | 'built' | 'after'] }}
-      </p>
-
-      <!-- 阶段推进的可视化：步骤条 + 流向箭头 -->
+      <!-- 阶段推进的可视化：虚线轨道 + 流向箭头 -->
       <div v-if="i < steps.length - 1" class="bba-arrow" aria-hidden="true">
         <span class="bba-arrow__line" />
         <span class="bba-arrow__head">›</span>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
@@ -72,29 +83,21 @@ const active = ref<string | null>(null)
 /*
  * 横向 Before → Built → After 流程。
  *
- * 用 grid 的 3 列 + 绝对定位的箭头，
- * 箭头跨在两列的交界处，形成一条连续的推进轨道。
+ * 桌面端：5 列网格 = 内容 | 箭头 | 内容 | 箭头 | 内容
+ * 箭头是独立网格单元，正好落在两段之间的间隙中央。
  */
 .bba-flow {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0;
-  counter-reset: bba;
 }
 
-/*
- * 阶段条：三段比例依次收窄，暗示「越往后越聚焦」。
- */
 .bba-step {
   position: relative;
   padding: 1.25rem 1.25rem 1.5rem;
   background: var(--color-base);
   border-top: 1px solid rgb(32 31 29 / 0.1);
   transition: background-color 220ms ease;
-}
-
-.bba-step--claude {
-  background: var(--color-base);
 }
 
 .bba-step--strong {
@@ -116,20 +119,16 @@ const active = ref<string | null>(null)
  * 轨道上有一个缓慢移动的光点，表示「流程在推进」。
  */
 .bba-arrow {
-  position: absolute;
-  left: 1.25rem;
-  right: 1.25rem;
-  bottom: 0.55rem;
   display: flex;
   align-items: center;
-  gap: 0;
+  width: 100%;
   height: 0.75rem;
-  overflow: hidden;
 }
 
 .bba-arrow__line {
   flex: 1;
   height: 1px;
+  position: relative;
   background-image: linear-gradient(
     to right,
     rgb(32 31 29 / 0.35) 0 6px,
@@ -137,7 +136,6 @@ const active = ref<string | null>(null)
   );
   background-size: 12px 1px;
   background-repeat: repeat-x;
-  position: relative;
 }
 
 /*
@@ -154,11 +152,10 @@ const active = ref<string | null>(null)
   border-radius: 999px;
   background: var(--color-claude);
   box-shadow: 0 0 6px 1px rgb(217 119 87 / 0.55);
-  animation: bda-flow-dot 2.6s linear infinite;
+  animation: bba-flow-dot 2.6s linear infinite;
 }
 
-/* 光点沿轨道平移到末端 */
-@keyframes bda-flow-dot {
+@keyframes bba-flow-dot {
   from {
     transform: translateX(0);
     opacity: 0;
@@ -181,42 +178,18 @@ const active = ref<string | null>(null)
   color: var(--color-claude);
   margin-left: -1px;
   padding-left: 3px;
-}
-
-@keyframes bba-flow-dot {
-  from {
-    transform: translateX(0);
-    opacity: 0;
-  }
-  12% {
-    opacity: 1;
-  }
-  88% {
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
+  flex: none;
 }
 
 /*
- * 桌面端：三列横排，箭头跨在列与列之间。
+ * 桌面端：三段横排，箭头是独立的网格列。
  */
 @media (min-width: 768px) {
-  /*
-   * 桌面端用 5 列网格：三段内容 + 两条箭头列。
-   * 箭头是独立的网格单元，正好落在两段之间的间隙中央，
-   * 不会被下一段的左边框压住。
-   */
   .bba-flow {
     grid-template-columns:
       minmax(0, 1fr) 2.75rem
       minmax(0, 1fr) 2.75rem
       minmax(0, 1fr);
-    gap: 0;
-    background: transparent;
-    border-top: none;
   }
 
   .bba-step {
@@ -234,36 +207,13 @@ const active = ref<string | null>(null)
     border-left-color: rgb(32 31 29 / 0.3);
   }
 
-  /*
-   * 横排时箭头是独立网格单元：垂直居中，横向铺满箭头列。
-   */
   .bba-arrow {
-    position: static;
-    width: 100%;
-    height: 0.75rem;
-    display: flex;
-    align-items: center;
     align-self: center;
-    overflow: visible;
-  }
-
-  .bba-arrow__line {
-    flex: 1;
-    position: relative;
-  }
-
-  .bba-arrow__head {
-    margin-left: -1px;
-    padding-left: 3px;
-    flex: none;
-  }
-
-  .bba-arrow__head {
-    padding-left: 2px;
+    height: 0.75rem;
   }
 }
 
-/* 移动端：箭头竖向朝下 */
+/* 移动端：竖向堆叠，箭头朝下 */
 @media (max-width: 767px) {
   .bba-step {
     padding-left: 1.25rem;
@@ -272,27 +222,46 @@ const active = ref<string | null>(null)
   }
 
   .bba-arrow {
-    position: static;
-    width: 100%;
-    height: 1.75rem;
-    display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding-left: 1.25rem;
-    overflow: visible;
+    height: 1.75rem;
   }
 
   .bba-arrow__line {
     width: 1px;
     flex: none;
     height: 100%;
-    position: relative;
     background-image: linear-gradient(
       to bottom,
       rgb(32 31 29 / 0.35) 0 6px,
       transparent 6px 12px
     );
     background-size: 1px 12px;
+  }
+
+  /* 竖向轨道上的光点改为向下移动 */
+  .bba-arrow__line::after {
+    top: 0;
+    left: -1.5px;
+    animation-name: bba-flow-dot-down;
+  }
+
+  @keyframes bba-flow-dot-down {
+    from {
+      transform: translateY(0);
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    to {
+      transform: translateY(calc(100% - 4px));
+      opacity: 0;
+    }
   }
 
   .bba-arrow__head {

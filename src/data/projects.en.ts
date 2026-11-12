@@ -183,24 +183,54 @@ export const projectsEn: Record<string, EnProject> = {
         no: '04',
         title: 'Engineering — hard parts and how they were solved',
         body: [
-          'First: keeping provenance intact through generation. Fact candidates are modelled as source-bearing objects, so the model can only cite registered candidates and can never introduce an unsourced fact.',
-          'Second: delivery format stability. After DOCX generation a structural check runs — missing chapters, misaligned numbering and empty paragraphs are all blocked at export time rather than discovered when a reviewer opens the file.',
-          'Third: engineering suppression of hallucination. Paragraph generation runs on a large harness: JSON-defined OOXML formatting (spacing, line height, font embedding), plus entity prompt injection, reference masking, data recombination and negative prompts, keeping free-form model output inside an acceptable structure.',
+          'These three hard parts are not parallel: the first governs content credibility, the second delivery stability, the third generation control. They map onto provenance binding, format validation and output constraint respectively.',
         ],
-        media: [
+        subsections: [
           {
-            src: '/img/bidos/04.webp',
-            caption: 'DOCX authoring workspace',
-            note: 'Chapter tree on the left, body editor in the middle, sources and status on the right — write, verify and confirm in one screen.',
-            story:
-              'Format stability was ultimately bought with harnesses. OOXML paragraph attributes are written as a JSON schema that constrains model output, and a structural checker runs before export. Some generation freedom was traded away for compliance certainty on the delivered document.',
+            id: 'engineering-traceability',
+            no: '4.1',
+            title: 'Keeping provenance intact through generation',
+            body: [
+              'Fact candidates are modelled as source-bearing objects, so the model can only cite registered candidates and can never introduce an unsourced fact.',
+              'If this constraint is relaxed, every later claim about traceability collapses — the citation link is already broken at the moment of generation.',
+            ],
           },
           {
-            src: '/img/bidos/05.webp',
-            caption: 'System management',
-            note: 'Model configuration, knowledge-base taxonomy, users and audit records are managed centrally so the client can adjust on site without a code change.',
-            story:
-              'The client site and the dev environment differ in model endpoints and key policy, so all model configuration moved into the admin UI. Site staff can switch models, tune parameters and read audit records themselves — no ticket, no remote patch.',
+            id: 'engineering-format',
+            no: '4.2',
+            title: 'Delivery format stability and hallucination control',
+            body: [
+              'Format: after DOCX generation a structural check runs — missing chapters, misaligned numbering and empty paragraphs are all blocked at export time rather than discovered when a reviewer opens the file.',
+              'Generation: paragraph generation runs on a large harness — JSON-defined OOXML formatting (spacing, line height, font embedding), plus entity prompt injection, reference masking, data recombination and negative prompts, keeping free-form model output inside an acceptable structure.',
+              'Some generation freedom was traded away for compliance certainty on the delivered document.',
+            ],
+            media: [
+              {
+                src: '/img/bidos/04.webp',
+                caption: 'DOCX authoring workspace',
+                note: 'Chapter tree on the left, body editor in the middle, sources and status on the right — write, verify and confirm in one screen.',
+                story:
+                  'Format stability was ultimately bought with harnesses. OOXML paragraph attributes are written as a JSON schema that constrains model output, and a structural checker runs before export. Some generation freedom was traded away for compliance certainty on the delivered document.',
+              },
+            ],
+          },
+          {
+            id: 'engineering-config',
+            no: '4.3',
+            title: 'Model configuration moved into the admin UI',
+            body: [
+              'The client site and the dev environment differ in model endpoints and key policy, so all model configuration moved into the admin UI.',
+              'Site staff can switch models, tune parameters and read audit records themselves — no ticket, no remote patch. This is the precondition for the product surviving long-term on the client site.',
+            ],
+            media: [
+              {
+                src: '/img/bidos/05.webp',
+                caption: 'System management',
+                note: 'Model configuration, knowledge-base taxonomy, users and audit records are managed centrally so the client can adjust on site without a code change.',
+                story:
+                  'The client site and the dev environment differ in model endpoints and key policy, so all model configuration moved into the admin UI. Site staff can switch models, tune parameters and read audit records themselves — no ticket, no remote patch.',
+              },
+            ],
           },
         ],
       },

@@ -6,8 +6,6 @@ import StackGraph from '@/components/StackGraph.vue'
 import StackOverview from '@/components/StackOverview.vue'
 import WeChatModal from '@/components/WeChatModal.vue'
 import DeliveryFlow from '@/components/DeliveryFlow.vue'
-import { stackCategories, allStackItems } from '@/data/stack'
-import { stackCategoriesEn } from '@/data/stack.en'
 import {
   projectFiltersEn,
   capabilitiesEn,
@@ -142,7 +140,6 @@ const projectFilters = computed(() => (isEn.value ? projectFiltersEn : zhOnly.pr
 const capabilities = computed(() => (isEn.value ? capabilitiesEn : zhOnly.capabilities))
 const timeline = computed(() => (isEn.value ? timelineEn : zhOnly.timeline))
 const research = computed(() => (isEn.value ? researchEn : zhOnly.research))
-const stackCats = computed(() => (isEn.value ? stackCategoriesEn : stackCategories))
 
 const activeFilter = ref('all')
 
@@ -557,39 +554,10 @@ const internships = [
             <StackOverview />
 
             <!--
-              完整技术栈清单（常驻展开，不折叠）。
-
-              这不只是排版选择，而是右侧图谱能「锁定」的前提：
-              sticky 的可移动行程 = 父容器高 − 元素高。
-              如果清单折叠，左栏只有 ~850px，图谱高 ~760px，
-              行程仅 95px，等于没锁，滚动两下图谱就滑走了。
-              清单常驻展开后左栏约 1800px，行程 ~1000px，
-              整段 About 滚动过程中图谱都稳稳停在视口里。
+              技术选型面板（StackOverview）。
+              静态的完整清单已删除 —— 改为随右侧图谱选中节点动态展示，
+              左栏长度由此收敛，右侧图谱的 sticky 锁定行程保持稳定。
             -->
-            <div class="mt-6 overflow-hidden rounded-[15px] border border-ink/12 bg-base">
-              <div class="flex items-center gap-3 border-b border-ink/10 bg-raised px-5 py-3.5">
-                <span class="eyebrow">{{ t('stack.inventory') }}</span>
-                <span class="font-mono text-[11px] text-ink-faint">
-                  {{ allStackItems.length }} {{ isEn ? 'technologies' : '项技术' }} ·
-                  {{ stackCategories.length }} {{ isEn ? 'domains' : '个领域' }}
-                </span>
-              </div>
-              <div>
-                <div v-for="c in stackCats" :key="c.id" class="border-b border-ink/8 bg-base p-5 last:border-b-0">
-                  <div class="flex items-baseline gap-2.5">
-                    <span class="claude-num">{{ String(c.items.length).padStart(2, '0') }}</span>
-                    <h3 class="text-[15px] font-semibold text-ink">{{ c.name }}</h3>
-                    <span class="ml-auto font-mono text-[10.5px] text-ink-faint">{{ c.caption }}</span>
-                  </div>
-                  <ul class="mt-3 space-y-1.5">
-                    <li v-for="it in c.items" :key="it.id" class="text-[12.5px] leading-relaxed">
-                      <span class="text-ink">{{ it.name }}</span>
-                      <span class="text-ink-faint"> — {{ it.note }}</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
           </div>
 
           <!--

@@ -44,6 +44,8 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'hover', payload: { id: string; name: string; kind: 'hub' | 'item'; category: string; note: string; projects: string[]; count: number } | null): void
+  /** 点击节点：用于持久选中（与悬停区分开） */
+  (e: 'select', payload: { id: string; name: string; kind: 'hub' | 'item'; category: string; note: string; projects: string[]; count: number } | null): void
 }>()
 
 /* ------------------------------------------------------------------ */
@@ -563,6 +565,28 @@ const onPointerMove = (evt: PointerEvent | MouseEvent) => {
   if (c.style.cursor !== want) c.style.cursor = want
 }
 
+const onClick = (evt: MouseEvent) => {
+  const c = canvasEl.value
+  if (!c) return
+  const r = c.getBoundingClientRect()
+  const x = evt.clientX - r.left
+  const y = evt.clientY - r.top
+  const hov = pickNode(x, y, 18)
+  if (!hov) {
+    emit('select', null)
+    return
+  }
+  emit('select', {
+    id: hov.id,
+    name: hov.name,
+    kind: hov.kind,
+    category: hov.categoryName,
+    note: hov.note,
+    projects: hov.projects,
+    count: hov.count,
+  })
+}
+
 const onPointerLeave = () => {
   pointer = null
   offsets.clear()
@@ -668,6 +692,7 @@ watch(
       @mousemove="onPointerMove"
       @pointerleave="onPointerLeave"
       @mouseleave="onPointerLeave"
+      @click="onClick"
     />
   </div>
 </template>
