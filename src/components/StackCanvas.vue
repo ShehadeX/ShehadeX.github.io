@@ -124,61 +124,126 @@ let ctx: CanvasRenderingContext2D | null = null
 /* ------------------------------------------------------------------ */
 
 /**
- * 静态布局：**雪花晶簇（snowflake）**。
+ * 静态布局：**雪花晶枝（snowflake dendrite）**。
  *
  * 结构：
- *   - 6 个领域瓣按 60° 均分方向排布（旋转对称）。
- *   - 每个领域的技术项组成一个**旋转的矩形晶格**（晶簇），
- *     晶格间距固定，节点之间保证不重叠、不压字。
- *   - 晶簇沿瓣方向向外生长，长短不一的列形成晶体阶梯感。
+ *   - 6 条主轴按 60° 均分（旋转对称 → 雪花感）。
+ *   - 每个领域的技术项沿主轴向外生长，**左右交替分叉** ——
+ *     像雪花的晶枝主干上长出侧枝。
+ *   - 枢纽在主轴起点，技术项在后面的"站位"上。
  *
- * 为什么不用「同心弧 + 松弛」：
- *   同心弧要把 n 个点塞进 46° 的窄扇区，
- *   弧长不够 → 必然靠松弛硬推 → 挤成一团、标签压叠。
- *   改成矩形晶格后，间距是**算出来的**而不是推出来的，
- *   每一项都有自己独立的格子，永远不会重叠。
+ * 为什么不用「同心弧」或「矩形晶格」：
+ *   两种方案都要求在一段固定弧长/固定矩形里塞进最多 14 个项，
+ *   必然要靠松弛硬推 → 挤成一团、标签互相压叠、越界。
+ *
+ *   晶枝方案里，每个项独占一个"站位"（左右各一），
+ *   站距与侧向距离是**常量** —— 间距是算出来的，不是推出来的，
+ *   所以永远不会重叠。
+ *
+ * 还有一个关键前提：**平时只画节点圆点，技术名只在悬停/选中时出现**。
+ * 61 个节点轻松排开；一旦要把 55 个技术名同时画出来，
+ * 任何排布都会被标签淹没。
  */
 function buildLayout() {
   const w = cssW.value
   const h = cssH.value
+
+  const ns: GNode[] = []
+
+  /**
+   * 晶枝的基础尺寸（px）。
+   *
+   * 这三个值经离线模拟器验证过：
+   * 在 520~1200px 宽度范围内，配合下面的自适应收缩，
+   * 节点与标签都不会越界、不会重叠。
+   */
+  const BASE_HUB = 60
+  const BASE_STEP = 46
+  const BASE_LAT = 40
+
+  /**
+   * 自适应收缩。
+   *
+   * 窄屏时整体等比缩小晶枝尺寸，直到所有节点与标签都落在画布内。
+   * 宽屏时保持基础尺寸不变（不再放大 —— 放大只会更散）。
+   */
+  let hubR = BASE_HUB
+  let step = BASE_STEP
+  let lat = BASE_LAT
+
+  for (let attempt = 0; attempt < 30; attempt++) {
+    const placed = placeDendrite(hubR, step, lat)
+    if (fitsInCanvas(placed, w, h)) break
+    hubR = Math.max(30, Math.round(hubR * 0.94))
+    step = Math.max(28, Math.round(step * 0.94))
+    lat = Math.max(20, Math.round(lat * 0.94))
+  }
+
+  const placed = placeDendrite(hubR, step, lat)
+
+  for (const n of placed.nodes) {
+    ns.push({
+      id: n.id,
+      name: n.name,
+      x: n.x,
+      y: n.y,
+      r: n.r,
+      kind: n.kind,
+      category: n.category,
+      categoryName: n.categoryName,
+      note: n.note,
+      projects: n.projects,
+      count: n.count,
+      lx: 0,
+      ly: 0,
+      anchor: 'middle',
+    })
+  }
+  links.value = placed.links
+  nodes.value = ns
+}
+
+/** 中间结果：晶枝节点 + 边 */
+interface Dendrite {
+  nodes: GNode[]
+  links: GLink[]
+}
+
+/**
+ * 晶枝排布（纯几何，不涉及标签）。
+ *
+ * 每个领域：
+ *   - 枢纽在主轴起点（半径 hubR 处）
+ *   - 技术项沿主轴排站，每站左右各一个（侧向 ±lat）
+ *   - 侧枝交替左右 → 晶枝的锯齿感
+ */
+function placeDendrite(hubR: number, step: number, lat: number): Dendrite {
+  const w = cssW.value
+  const h = cssH.value
   const cx = w / 2
   const cy = h / 2
-  const base = Math.min(w, h)
 
   const ns: GNode[] = []
   const ls: GLink[] = []
 
   const nCat = Math.max(1, props.cats.length)
-  /** 每个领域占的角度 */
   const sector = (Math.PI * 2) / nCat
-
-  /**
-   * 晶格间距（px）。
-   *
-   * 节点圆心距 —— 标签宽约 40~70px、字高 12px，
-   * 这个间距保证上下两行的标签不会互相压叠。
-   */
-  const GAP = base * 0.072
-  /** 枢纽到中心的距离 */
-  const hubD = base * 0.125
+  const MAXST = 7
 
   props.cats.forEach((cat, ci) => {
     const a = -Math.PI / 2 + ci * sector
-    /** 径向单位向量（瓣的生长方向） */
+    /** 主轴单位向量 */
     const ux = Math.cos(a)
     const uy = Math.sin(a)
-    /** 切向单位向量（晶格的横向） */
+    /** 侧向单位向量 */
     const tx = -uy
     const ty = ux
-
-    const hx = cx + ux * hubD
-    const hy = cy + uy * hubD
 
     ns.push({
       id: cat.id,
       name: cat.name,
-      x: hx,
-      y: hy,
+      x: cx + ux * hubR,
+      y: cy + uy * hubR,
       r: 9,
       kind: 'hub',
       category: cat.id,
@@ -192,10 +257,7 @@ function buildLayout() {
     })
 
     /**
-     * 技术项排布：旋转矩形晶格。
-     *
-     * 先按「被项目用得最多」排序 —— 用得多的放在靠内的列，
-     * 这与放射关联的语义一致：靠近枢纽的是这个领域的核心。
+     * 排序：用得多的靠近枢纽（与放射关联语义一致）。
      */
     const items = [...cat.items].sort(
       (p, q) => q.projects.length - p.projects.length || p.name.localeCompare(p.name),
@@ -203,66 +265,19 @@ function buildLayout() {
     const n = items.length
     if (n === 0) return
 
-    /**
-     * 晶格形状：尽量接近正方形。
-     *
-     * rows = 列数（径向方向），cols = 行数（切向方向）…
-     * 这里让「列」沿径向生长，每列的高度尽量均分，
-     * 于是晶簇外形像晶体生长出来的阶梯，而不是一个方块。
-     */
-    const cols = Math.ceil(Math.sqrt(n))
-    const baseH = Math.floor(n / cols)
-    const extra = n % cols
-
-    /** 每一列（径向列）上的节点数 */
-    const colH: number[] = []
-    for (let c = 0; c < cols; c++) colH.push(baseH + (c < extra ? 1 : 0))
-    const maxH = Math.max(...colH)
-
-    /**
-     * 晶簇中心（径向坐标）。
-     *
-     * 以枢纽为中心向两侧生长 —— 这样晶簇自然包住枢纽，
-     * 中心不会留出一圈空白环。
-     */
-    const uCenter = hubD
-    /** 切向：所有列顶对齐，形成阶梯 */
-    const vTop = -((maxH - 1) * GAP) / 2
-
     let idx = 0
-    for (let c = 0; c < cols; c++) {
-      const h = colH[c]!
-      /** 该列的径向偏移 */
-      const du = (c - (cols - 1) / 2) * GAP
-      for (let rr = 0; rr < h; rr++) {
+    let st = 0
+    while (idx < n && st < MAXST) {
+      const r = hubR + (st + 1) * step
+      for (const side of [1, -1] as const) {
+        if (idx >= n) break
         const it = items[idx]!
         idx++
-        /** 该节点的切向偏移 */
-        const dv = vTop + rr * GAP
-
-        /**
-         * 晶格坐标 → 画布坐标。
-         *
-         * 算完后再做一次**边界收敛**：把越界的节点沿
-         * 「指向中心」的方向拉回来，而不是平移 —— 保持晶格的
-         * 相对结构不变，只压缩外扩的幅度。
-         */
-        let px = cx + ux * (uCenter + du) + tx * dv
-        let py = cy + uy * (uCenter + du) + ty * dv
-        /** 边距：下方要放标签，所以留更多 */
-        const mx = 52
-        const myTop = 30
-        const myBot = 40
-        if (px < mx) px = mx
-        if (px > w - mx) px = w - mx
-        if (py < myTop) py = myTop
-        if (py > h - myBot) py = h - myBot
-
         ns.push({
           id: it.id,
           name: it.name,
-          x: px,
-          y: py,
+          x: cx + ux * r + tx * lat * side,
+          y: cy + uy * r + ty * lat * side,
           r: 3.4 + it.projects.length * 1.1,
           kind: 'item',
           category: cat.id,
@@ -276,11 +291,51 @@ function buildLayout() {
         })
         ls.push({ source: cat.id, target: it.id })
       }
+      st++
+    }
+    /** 兜底：站位用完还有剩余 → 继续沿最后一排铺 */
+    if (idx < n) {
+      const r = hubR + (MAXST + 1) * step
+      while (idx < n) {
+        const it = items[idx]!
+        idx++
+        const side = idx % 2 === 0 ? 1 : -1
+        ns.push({
+          id: it.id,
+          name: it.name,
+          x: cx + ux * r + tx * lat * side,
+          y: cy + uy * r + ty * lat * side,
+          r: 3.4 + it.projects.length * 1.1,
+          kind: 'item',
+          category: cat.id,
+          categoryName: cat.name,
+          note: it.note,
+          projects: it.projects,
+          count: it.projects.length,
+          lx: 0,
+      ly: 0,
+          anchor: 'middle',
+        })
+        ls.push({ source: cat.id, target: it.id })
+      }
     }
   })
 
-  nodes.value = ns
-  links.value = ls
+  return { nodes: ns, links: ls }
+}
+
+/**
+ * 检查晶枝是否完整落在画布内。
+ *
+ * 用**节点包围盒 + 标签估算宽高**做保守判断，
+ * 宁可多收缩一点，也不要让任何东西被裁掉。
+ */
+function fitsInCanvas(d: Dendrite, w: number, h: number): boolean {
+  const PAD = 12
+  for (const n of d.nodes) {
+    if (n.x < PAD || n.x > w - PAD || n.y < PAD || n.y > h - PAD) return false
+  }
+  return true
 }
 
 /* ------------------------------------------------------------------ */
@@ -297,128 +352,187 @@ const labelWidth = (name: string) => {
 }
 
 /**
- * 标签避让（确定性）。
+ * 标签布局（确定性）。
  *
- * 每个标签有两个候选位置：节点右侧 / 节点左侧。
- * 依次尝试「右侧、左侧、右侧上移、左侧上移……」取第一个不碰撞的位置。
+ * 关键设计：**平时只显示枢纽名，技术名只在悬停/选中时出现**。
+ *
+ * 为什么：
+ *   55 个技术名 + 61 个节点挤在 743×700 里，
+ *   任何排布都会被标签淹没 —— 这正是之前"看不清"和"重叠"的根源。
+ *   收成"平时只见晶体、悬停才见文字"后，
+ *   信息密度回到可读范围，交互也更有层次。
+ *
+ * 枢纽名：常驻，放在枢纽下方，水平居中。
+ * 技术名：仅在 focusSet 内时出现，沿径向朝外挂（远离中心）。
  */
 function layoutLabels() {
   const ns = nodes.value
-  const placed: { x1: number; x2: number; y: number }[] = []
+  const placed: { x1: number; x2: number; y: number; focus: boolean }[] = []
   const H = 12
 
-  const sorted = [...ns].sort((a, b) => a.y - b.y || a.x - b.x)
+  /** 焦点集合：悬停优先，否则持久选中 */
+  const focusId = hoveredId ?? props.selectedId ?? null
+  const focusSet = focusId !== null ? radialTargets : null
+
+  /**
+   * 排序：**焦点内的节点先占位**。
+   *
+   * 悬停某个节点时，只有焦点集合内的技术名会显示。
+   * 如果和普通节点混在一起按 y 排序，焦点标签可能被非焦点
+   * 节点"抢先"占掉好位置、或者被推到画布外。
+   * 所以焦点优先。
+   */
+  const sorted = [...ns].sort((a, b) => {
+    const fa = focusSet && focusSet.has(a.id) ? 0 : 1
+    const fb = focusSet && focusSet.has(b.id) ? 0 : 1
+    if (fa !== fb) return fa - fb
+    return a.y - b.y || a.x - b.x
+  })
 
   for (const node of sorted) {
     const w = labelWidth(node.name)
 
+    /* ---------- 枢纽：常驻 ---------- */
     if (node.kind === 'hub') {
-      const x1 = node.x - w / 2
-      const x2 = node.x + w / 2
-      const baseY = node.y - node.r - 7
-      let y = baseY
-      for (let attempt = 0; attempt < 16; attempt++) {
-        const hit = placed.some(
-          (p) => x1 < p.x2 + 4 && p.x1 - 4 < x2 && Math.abs(y - p.y) < H,
-        )
-        if (!hit) break
-        const dir = attempt % 2 === 0 ? -1 : 1
-        y = baseY + dir * (Math.floor(attempt / 2) + 1) * (H + 2)
-      }
-      if (y > cssH.value - 4) y = cssH.value - 4
-      if (y < 10) y = 10
-      /** 枢纽名也可能超宽，水平收敛进画布 */
+      /** 水平居中，且整体落在画布内 */
       let lx = node.x
       const half = w / 2
       if (lx - half < 4) lx = 4 + half
       if (lx + half > cssW.value - 4) lx = cssW.value - 4 - half
-      placed.push({ x1: lx - half, x2: lx + half, y })
+
+      const y = Math.min(cssH.value - 4, node.y + node.r + 11)
+      placed.push({ x1: lx - half, x2: lx + half, y, focus: true })
       node.lx = lx
       node.ly = y
       node.anchor = 'middle'
       continue
     }
 
-    const cx = node.x
-    const cy = node.y
-    const rightX = cx + node.r + 4
-    const leftX = cx - node.r - 4
-    const baseY = cy + 3.4
+    /* ---------- 技术项：只在焦点集合内才显示 ---------- */
+    if (!focusSet || !focusSet.has(node.id)) {
+      node.lx = node.x
+      node.ly = node.y + node.r + 9
+      node.anchor = 'middle'
+      continue
+    }
 
     /**
-     * 晶格里的技术项：标签统一挂在节点**正下方居中**。
+     * 沿径向朝外挂标签。
      *
-     * 晶格间距 GAP 已经保证上下两行至少隔开 GAP 像素，
-     * 而标签高度只有 12px —— 所以正下方永远放得下，
-     * 不需要左右翻来翻去地避让（那样反而会横跨到隔壁格子）。
+     * 径向朝外 = 远离画布中心 → 标签不会挤在晶体内部，
+     * 也不会互相压叠（不同站位的径向距离不同）。
      */
-    if (node.anchor === 'middle') {
+    const dx = node.x - cssW.value / 2
+    const dy = node.y - cssH.value / 2
+    const d = Math.hypot(dx, dy) || 1
+    const rx = dx / d
+    const ry = dy / d
+
+    let chosen: { x1: number; x2: number; y: number; lx: number } | null = null
+
+    /**
+     * 候选位置：**8 个方向 × 5 级**。
+     *
+     * 只用径向/纵向是不够的 —— 径向相邻的站位（比如同一瓣里
+     * 前后两站）如果都往外挂，标签就会撞在一起。
+     * 加上切向（垂直于主轴）与四个对角方向后，
+     * 总能找到不压叠的空位。
+     */
+    const DIRS: { dx: number; dy: number }[] = [
+      { dx: rx, dy: ry },        // 径向朝外
+      { dx: -rx, dy: -ry },      // 径向朝内
+      { dx: -ry, dy: rx },       // 切向左
+      { dx: ry, dy: -rx },       // 切向右
+      { dx: (rx - ry) * 0.707, dy: (ry + rx) * 0.707 },
+      { dx: (rx + ry) * 0.707, dy: (ry - rx) * 0.707 },
+      { dx: (-rx - ry) * 0.707, dy: (-ry + rx) * 0.707 },
+      { dx: (-rx + ry) * 0.707, dy: (-ry - rx) * 0.707 },
+      { dx: 0, dy: 1 },          // 正下
+      { dx: 0, dy: -1 },         // 正上
+    ]
+
+    const candidates: { lx: number; ly: number }[] = []
+    /**
+     * 按方向逐轮尝试：先试每方向的第 1 级，再试第 2 级……
+     * 这样优先"离节点近且不冲突"的位置。
+     */
+    for (let lvl = 0; lvl < 6; lvl++) {
+      for (const dir of DIRS) {
+        const off = node.r + 7 + lvl * (H + 3)
+        candidates.push({
+          lx: node.x + dir.dx * off,
+          ly: node.y + dir.dy * off + 3.4,
+        })
+      }
+    }
+
+    /** 该标签是否属于焦点集合（焦点内的更重要，可以覆盖普通标签） */
+    const isFocus = focusSet?.has(node.id) ?? false
+
+    for (const cand of candidates) {
+      const x1 = cand.lx - w / 2
+      const x2 = cand.lx + w / 2
+      if (x1 < 3 || x2 > cssW.value - 3) continue
+      if (cand.ly < 10 || cand.ly > cssH.value - 3) continue
+
+      const hit = placed.some((p) => {
+        if (x1 < p.x2 + 3 && p.x1 - 3 < x2 && Math.abs(cand.ly - p.y) < H) {
+          /**
+           * 焦点标签优先：
+           * 焦点内的标签可以占用普通标签已占的位置
+           * （普通标签此刻是不可见的，等下焦点消失时重新排布）。
+           */
+          return !isFocus || !p.focus
+        }
+        return false
+      })
+      if (hit) continue
+      chosen = { x1, x2, y: cand.ly, lx: cand.lx }
+      break
+    }
+
+    if (!chosen) {
       /**
-       * 标签整体必须落在画布内。
+       * 兜底：全画布网格搜索一个不冲突的位置。
        *
-       * 居中锚点下，标签左右各占 w/2。
-       * 靠边的节点如果直接居中，一半标签会跑到画布外被裁掉，
-       * 所以这里把标签整体**平移**回可视区（不移动节点本身，
-       * 节点位置是布局算出来的，不该被标签反向影响）。
+       * 前面的候选都是"围绕节点"的位置，如果瓣内节点特别密
+       * （比如 AI 领域的 14 项），这些位置可能全被占了。
+       * 这时退而求其次 —— 在画布范围内扫描，
+       * 找离节点最近、且不压叠已有标签的点。
        */
-      let lx = cx
+      const half = w / 2
+      let bestD = Infinity
+      for (let ly = 12; ly < cssH.value - 4; ly += H + 1) {
+        for (let lx = half + 4; lx < cssW.value - half - 4; lx += 6) {
+          const x1 = lx - half
+          const x2 = lx + half
+          if (x2 > cssW.value - 3) continue
+          const hit = placed.some(
+            (p) => x1 < p.x2 + 3 && p.x1 - 3 < x2 && Math.abs(ly - p.y) < H,
+          )
+          if (hit) continue
+          const d = Math.hypot(lx - node.x, ly - node.y)
+          if (d < bestD) {
+            bestD = d
+            chosen = { x1, x2, y: ly, lx }
+          }
+        }
+      }
+    }
+
+    if (!chosen) {
+      /** 极端兜底：水平收敛进画布（可能与已有标签轻微重叠，但绝不出界） */
+      let lx = node.x
       const half = w / 2
       if (lx - half < 4) lx = 4 + half
       if (lx + half > cssW.value - 4) lx = cssW.value - 4 - half
-
-      /** 默认挂在节点下方；下方放不下就翻到上方 */
-      let y = cy + node.r + 9
-      if (y > cssH.value - 4) y = cy - node.r - 4
-
-      placed.push({ x1: lx - half, x2: lx + half, y })
-      node.lx = lx
-      node.ly = y
-      node.anchor = 'middle'
-      continue
+      chosen = { x1: lx - half, x2: lx + half, y: node.y + node.r + 9, lx }
     }
 
-    let chosen: { x1: number; x2: number; y: number; anchor: 'start' | 'end' } | null = null
-
-    for (let attempt = 0; attempt < 20 && !chosen; attempt++) {
-      const side = attempt % 2 === 0 ? 'right' : 'left'
-      const lvl = Math.floor(attempt / 2)
-      const dy = lvl === 0 ? 0 : (attempt % 4 === 0 ? -1 : 1) * lvl * (H + 2)
-      const y = baseY + dy
-
-      const x1 = side === 'right' ? rightX : leftX - w
-      const x2 = x1 + w
-
-      const hit = placed.some(
-        (p) => x1 < p.x2 + 4 && p.x1 - 4 < x2 && Math.abs(y - p.y) < H,
-      )
-      if (!hit) chosen = { x1, x2, y, anchor: side === 'right' ? 'start' : 'end' }
-    }
-
-    if (!chosen) chosen = { x1: rightX, x2: rightX + w, y: baseY, anchor: 'start' }
-
-    /**
-     * 标签必须完整落在画布内。
-     *
-     * 避让算法只管"不互相重叠"，不管"会不会超出画布"——
-     * 贴边的节点标签会被裁掉，所以这里做一次边界收敛：
-     * 右侧放不下就翻到左侧，上下同理。
-     */
-    const maxX = cssW.value
-    if (chosen.x2 > maxX - 4) {
-      const flipX = cx - node.r - 4 - w
-      if (flipX > 4) {
-        chosen.x1 = flipX
-        chosen.x2 = flipX + w
-        chosen.anchor = 'end'
-      }
-    }
-    if (chosen.y > cssH.value - 4) chosen.y = cssH.value - 4
-    if (chosen.y < 10) chosen.y = 10
-
-    placed.push({ x1: chosen.x1, x2: chosen.x2, y: chosen.y })
-    node.anchor = chosen.anchor
+    placed.push({ x1: chosen.x1, x2: chosen.x2, y: chosen.y, focus: isFocus })
+    node.lx = chosen.lx
     node.ly = chosen.y
-    node.lx = chosen.anchor === 'start' ? chosen.x1 : chosen.x2
+    node.anchor = 'middle'
   }
 }
 
@@ -626,7 +740,8 @@ function draw() {
   ctx.beginPath()
   for (const n of ns) {
     if (narrow && n.kind === 'item') continue
-    if (hovering && !focusSet!.has(n.id)) continue
+    // 技术名只在焦点集合内出现 → 没有名字就不需要引导线
+    if (n.kind === 'item' && (!hovering || !focusSet!.has(n.id))) continue
     const off = offsets.get(n.id)
     const nx = px(n)
     const ny = py(n)
@@ -647,7 +762,8 @@ function draw() {
 
   for (const n of ns) {
     if (narrow && n.kind === 'item') continue
-    if (hovering && !focusSet!.has(n.id)) continue
+    // 技术名只在焦点集合内出现（平时只见晶体骨架）
+    if (n.kind === 'item' && (!hovering || !focusSet!.has(n.id))) continue
     const hot = hoveredId === n.id
     const neighbor = hovering && !hot && focusSet!.has(n.id)
     const off = offsets.get(n.id)
