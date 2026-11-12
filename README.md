@@ -1,6 +1,8 @@
 # 肖致浩 · AI Engineering Desk
 
-个人技术作品集网站。终端风格的首页 + 五个项目的独立案例详情页。
+个人技术作品集网站。终端风格的首页 + 五个项目的独立案例详情页 + ICLR 论文页。
+
+**线上地址：** https://shehadex.github.io/
 
 - **栈：** Vue 3 + TypeScript + Vite + Tailwind CSS v4 + Vue Router + Mermaid
 - **设计系统：** `anthropic-ui-skills`（Anthropic 浅色设计系统）
@@ -14,9 +16,21 @@
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm run build      # 类型检查 + 产物构建到 dist/
+npm run build      # 类型检查 + 产物构建到 dist/ + 生成 GitHub Pages 路由 fallback
 npm run preview    # 预览构建产物
 ```
+
+## 部署
+
+推送到 `main` 分支即由 GitHub Actions 自动部署（`.github/workflows/deploy.yml`）。
+
+```bash
+git push
+```
+
+构建产物 `dist/` 会额外生成各路由的 `index.html` 与 `404.html`，
+用于绕开 GitHub Pages 没有 history fallback 的限制。
+若改用子路径托管（如 `example.com/portfolio/`），用 `npm run build:subpath` 构建。
 
 ## 截图（无头 Chrome）
 
@@ -29,7 +43,9 @@ bash scripts/screenshot-sections.sh /tmp/pf-shots  # 首页分区
 
 ```
 src/
-├─ data/projects.ts        # 全部项目内容（正文 / 架构图 Mermaid / 图集 / 事实卡）
+├─ data/
+│  ├─ projects.ts          # 五个项目内容（正文 / 架构图 Mermaid / 图集 / 事实卡）
+│  └─ research.ts          # ICLR 论文内容（贡献 / 协议 / 关键发现 / 局限 / AI 声明）
 ├─ components/
 │  ├─ SiteHeader.vue       # 顶部导航
 │  ├─ SiteFooter.vue       # 页脚 + 终端回显
@@ -38,17 +54,26 @@ src/
 │  └─ MermaidDiagram.vue   # 懒加载 Mermaid，滚动进入视口才渲染
 ├─ views/
 │  ├─ HomeView.vue         # 首页五大区块
-│  └─ ProjectView.vue      # 案例详情页
+│  ├─ ProjectView.vue      # 案例详情页
+│  └─ ResearchView.vue     # ICLR 论文页
+├─ utils/asset.ts          # BASE_URL 感知的静态资源路径
 ├─ router/index.ts
 └─ style.css               # 设计令牌 + 组件层
-public/img/
-├─ bidos/  cga/  moca/  fupanpolymed/   # 真实界面截图
+public/
+├─ img/                    # 真实界面截图（bidos / cga / moca / fupanpolymed）
+├─ paper/                  # 论文 PDF
+└─ favicon.svg
+scripts/
+├─ postbuild-pages.mjs     # 生成 Pages 路由 fallback
+├─ screenshot.sh           # 无头 Chrome 批量截图
+└─ screenshot-sections.sh  # 首页分区截图
 ```
 
 ## 内容维护
 
 新增项目只需编辑 `src/data/projects.ts`：追加一个 `Project` 对象即可，
 首页卡片与详情页会自动生成。架构图用 Mermaid 源码内联在同文件的 `diagrams` 字段。
+论文页内容集中在 `src/data/research.ts`。
 
 ## 说明
 
