@@ -406,9 +406,9 @@ function draw() {
   const ls = links.value
   const narrow = isNarrow.value
 
-  /** 当前绘制坐标（含入场动画插值） */
-  const px = (n: GNode) => n.x
-  const py = (n: GNode) => n.y
+  /** 当前绘制坐标 = 静态位置 + 指针吸附偏移 */
+  const px = (n: GNode) => n.x + (offsets.get(n.id)?.x ?? 0)
+  const py = (n: GNode) => n.y + (offsets.get(n.id)?.y ?? 0)
 
   /**
    * 生效的高亮节点。
@@ -527,11 +527,14 @@ function draw() {
   for (const n of ns) {
     if (narrow && n.kind === 'item') continue
     if (hovering && !focusSet!.has(n.id)) continue
+    const off = offsets.get(n.id)
     const nx = px(n)
     const ny = py(n)
-    if (Math.abs(n.lx - nx) < 12 && Math.abs(n.ly - ny) < 6) continue
+    const lx = n.lx + (off?.x ?? 0)
+    const ly = n.ly + (off?.y ?? 0)
+    if (Math.abs(lx - nx) < 12 && Math.abs(ly - ny) < 6) continue
     ctx.moveTo(nx, ny)
-    ctx.lineTo(n.lx, n.ly - 3)
+    ctx.lineTo(lx, ly - 3)
   }
   ctx.stroke()
 
@@ -547,9 +550,10 @@ function draw() {
     if (hovering && !focusSet!.has(n.id)) continue
     const hot = hoveredId === n.id
     const neighbor = hovering && !hot && focusSet!.has(n.id)
+    const off = offsets.get(n.id)
     ctx.textAlign = n.anchor === 'middle' ? 'center' : n.anchor
     ctx.fillStyle = hot || neighbor ? CLAUDE_DEEP : LABEL
-    ctx.fillText(n.name, n.lx, n.ly)
+    ctx.fillText(n.name, n.lx + (off?.x ?? 0), n.ly + (off?.y ?? 0))
   }
 
   ctx.globalAlpha = 1
@@ -563,7 +567,8 @@ const pickNode = (x: number, y: number, range: number) => {
   let best: GNode | null = null
   let bestDist = Infinity
   for (const n of nodes.value) {
-    const d = Math.hypot(n.x - x, n.y - y)
+    const off = offsets.get(n.id)
+    const d = Math.hypot(n.x + (off?.x ?? 0) - x, n.y + (off?.y ?? 0) - y)
     if (d < range && d < bestDist) {
       bestDist = d
       best = n
@@ -572,6 +577,17 @@ const pickNode = (x: number, y: number, range: number) => {
   return best
 }
 
+/**
+ * 指针移动。
+ *
+ * 只做两件事：
+ *   1. 算一次吸附偏移（纯计算，O(节点数)）
+ *   2. **命中变化时**才重绘 + 发事件
+ *
+ * 指针在空白处移动 → 只更新吸附，不重绘整张图。
+ * 吸附的最大位移只有 7px，肉眼看不出来，
+ * 但节点会微微"跟手"，这是唯一的动态反馈。
+ */
 const onPointerMove = (evt: PointerEvent | MouseEvent) => {
   const c = canvasEl.value
   if (!c) return
@@ -579,15 +595,11 @@ const onPointerMove = (evt: PointerEvent | MouseEvent) => {
   const x = evt.clientX - r.left
   const y = evt.clientY - r.top
 
+  pointer = { x, y }
+
   const hov = pickNode(x, y, 18)
   const hid = hov?.id ?? null
 
-  /**
-   * 只有命中/未命中**发生变化**时才重绘。
-   *
-   * 指针在空白处移动不触发任何绘制 ——
-   * 静态图谱不需要逐帧跟随光标。
-   */
   if (hid !== hoveredId) {
     hoveredId = hid
     if (hov) {
@@ -606,11 +618,11 @@ const onPointerMove = (evt: PointerEvent | MouseEvent) => {
       buildRadial(props.selectedId ?? '')
       emit('hover', null)
     }
+    computeSnap()
     draw()
+    const want = hid ? 'pointer' : 'default'
+    if (c.style.cursor !== want) c.style.cursor = want
   }
-
-  const want = hid ? 'pointer' : 'default'
-  if (c.style.cursor !== want) c.style.cursor = want
 }
 
 const onClick = (evt: MouseEvent) => {
@@ -637,6 +649,8 @@ const onClick = (evt: MouseEvent) => {
 }
 
 const onPointerLeave = () => {
+  pointer = null
+  offsets.clear()
   if (!hoveredId) return
   hoveredId = null
   buildRadial(props.selectedId ?? '')
@@ -645,59 +659,53 @@ const onPointerLeave = () => {
 }
 
 /* ------------------------------------------------------------------ */
-/*  入场动画（只在第一次加载时跑一次）                                  */
+/*  指针吸附                                                          */
 /* ------------------------------------------------------------------ */
 
-const ENTER_DUR = 1000
-let rafId: number | null = null
-/** 入场进度 0–1；1 表示已停机 */
-const enterProgress = ref(0)
+/**
+ * 细微的指针吸附。
+ *
+ * 指针附近的节点会被"吸"向光标一点点（最多几像素），
+ * 只是在静态布局上做一点点偏移 —— 不改变结构，不重新布局。
+ *
+ * 关键：**不用动画循环**。
+ * 吸附量在 pointermove 事件里一次性算完并画一帧，
+ * 事件频率就是浏览器给的频率（通常 ≤ 60Hz），
+ * 没有任何后台 rAF 在跑。
+ */
 
-/** 缓出三次方：起步快、收尾慢 */
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
-
-function startEntrance() {
-  const ns = nodes.value
-  if (!ns.length) return
-
-  const t0 = performance.now()
-  const step = (now: number) => {
-    const t = Math.min(1, (now - t0) / ENTER_DUR)
-    const e = easeOut(t)
-    enterProgress.value = e
-    // 用最终坐标与起点（画布中心）插值 —— 节点从中心向外展开
-    for (let i = 0; i < ns.length; i++) {
-      const n = ns[i]!
-      const fx = finalPos.value[i]?.x ?? n.x
-      const fy = finalPos.value[i]?.y ?? n.y
-      n.x = n.ax + (fx - n.ax) * e
-      n.y = n.ay + (fy - n.ay) * e
-    }
-    draw()
-
-    if (t < 1) {
-      rafId = requestAnimationFrame(step)
-    } else {
-      // 动画结束 —— 彻底停机，不再有 rAF
-      rafId = null
-      enterProgress.value = 1
-      for (let i = 0; i < ns.length; i++) {
-        const n = ns[i]!
-        const f = finalPos.value[i]
-        if (f) {
-          n.x = f.x
-          n.y = f.y
-        }
-      }
-      layoutLabels()
-      draw()
-    }
-  }
-  rafId = requestAnimationFrame(step)
+interface Offset {
+  x: number
+  y: number
 }
 
-/** 静态布局的最终坐标（入场动画的终点） */
-const finalPos = shallowRef<{ x: number; y: number }[]>([])
+/** 当前指针位置（画布坐标），null 表示不在画布上 */
+let pointer: { x: number; y: number } | null = null
+
+/** 吸附半径（px） */
+const SNAP_R = 90
+/** 最大吸附位移（px）—— 刻意做得很小，只是"有感觉" */
+const SNAP_MAX = 7
+
+/** 每个节点的吸附偏移 */
+const offsets = new Map<string, Offset>()
+
+function computeSnap() {
+  offsets.clear()
+  if (!pointer) return
+  const px = pointer.x
+  const py = pointer.y
+  for (const n of nodes.value) {
+    const dx = px - n.x
+    const dy = py - n.y
+    const d = Math.hypot(dx, dy)
+    if (d >= SNAP_R || d < 0.001) continue
+    // 平方衰减：越近吸得越强
+    const t = 1 - d / SNAP_R
+    const pull = t * t * SNAP_MAX
+    offsets.set(n.id, { x: (dx / d) * pull, y: (dy / d) * pull })
+  }
+}
 
 /* ------------------------------------------------------------------ */
 /*  尺寸                                                              */
@@ -755,7 +763,6 @@ function measure() {
   if (ctx) ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
 
   buildLayout()
-  finalPos.value = nodes.value.map((n) => ({ x: n.x, y: n.y }))
   layoutLabels()
   draw()
 }
@@ -766,8 +773,6 @@ function measure() {
 
 onMounted(() => {
   measure()
-  // 记录静态终态，供入场动画使用
-  finalPos.value = nodes.value.map((n) => ({ x: n.x, y: n.y }))
 
   if (wrapEl.value && 'ResizeObserver' in window) {
     /**
@@ -787,16 +792,9 @@ onMounted(() => {
     })
     ro.observe(wrapEl.value)
   }
-
-  // 入场动画：只在挂载后跑一次
-  setTimeout(() => {
-    if (enterProgress.value === 0) startEntrance()
-  }, 60)
 })
 
 onBeforeUnmount(() => {
-  // 停机：确保没有残留的动画循环
-  if (rafId !== null) cancelAnimationFrame(rafId)
   if (resizeTimer !== null) clearTimeout(resizeTimer)
   ro?.disconnect()
 })
@@ -806,7 +804,6 @@ watch(
   () => props.cats,
   () => {
     buildLayout()
-    finalPos.value = nodes.value.map((n) => ({ x: n.x, y: n.y }))
     layoutLabels()
     draw()
   },
