@@ -4,6 +4,7 @@ import { useRoute, RouterLink } from 'vue-router'
 import { getProject, projects } from '@/data/projects'
 import BeforeBuiltAfter from '@/components/BeforeBuiltAfter.vue'
 import MermaidDiagram from '@/components/MermaidDiagram.vue'
+import LazyImage from '@/components/LazyImage.vue'
 
 const route = useRoute()
 const project = computed(() => getProject(route.params.slug as string))
@@ -77,10 +78,10 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
     <section class="border-b border-ink/10">
       <div class="mx-auto max-w-[1400px] px-5 py-10 sm:px-8">
         <figure class="overflow-hidden rounded-[15px] border border-ink/12 bg-raised">
-          <img
+          <LazyImage
             :src="project.cover"
             :alt="project.coverCaption"
-            class="w-full object-cover object-top"
+            ratio="16 / 9"
           />
           <figcaption class="border-t border-ink/10 bg-base px-4 py-2.5 font-mono text-[11px] text-ink-muted">
             {{ project.coverCaption }}
@@ -182,13 +183,7 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
             :key="g.src"
             class="overflow-hidden rounded-[15px] border border-ink/12 bg-raised"
           >
-            <img
-              :src="g.src"
-              :alt="g.caption"
-              loading="lazy"
-              decoding="async"
-              class="w-full object-cover object-top"
-            />
+            <LazyImage :src="g.src" :alt="g.caption" ratio="16 / 10" />
             <figcaption class="border-t border-ink/10 bg-base px-4 py-2.5 font-mono text-[11px] text-ink-muted">
               {{ g.caption }}
             </figcaption>

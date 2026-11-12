@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { projects } from '@/data/projects'
 import ProjectCard from '@/components/ProjectCard.vue'
+import { asset } from '@/utils/asset'
 
 const capabilities = [
   {
@@ -102,20 +103,82 @@ const research = [
       <div class="pointer-events-none absolute inset-0 noise opacity-40" />
 
       <div class="relative mx-auto max-w-[1400px] px-5 pb-16 pt-10 sm:px-8 sm:pb-24 sm:pt-16">
-        <!-- terminal bar -->
-        <div class="term overflow-hidden rounded-[3px] border border-ink/15">
-          <div
-            class="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-[11px]"
-          >
-            <span class="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
-            <span class="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
-            <span class="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
-            <span class="term-dim ml-2">~/portfolio — zsh</span>
+        <!-- terminal + avatar -->
+        <div class="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-start lg:gap-12">
+          <!-- terminal bar -->
+          <div class="term overflow-hidden rounded-[3px] border border-ink/15">
+            <div
+              class="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-[11px]"
+            >
+              <span class="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+              <span class="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
+              <span class="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+              <span class="term-dim ml-2">~/portfolio — zsh</span>
+            </div>
+
+            <div class="px-4 py-4 font-mono text-[12.5px] leading-[1.85] sm:px-5 sm:py-5 sm:text-[13px]">
+              <!-- whoami -->
+              <p><span class="term-prompt">$</span> <span class="term-cmd">whoami</span></p>
+              <p class="mt-1 text-[#e8e6e1]">肖致浩</p>
+              <p class="term-dim">广东工业大学 · 计算机科学与技术 · 2028 届</p>
+              <p class="term-dim">机器学习 / Agent 开发 / 前沿部署</p>
+
+              <!-- uptime -->
+              <p class="mt-4"><span class="term-prompt">$</span> <span class="term-cmd">cat uptime.json</span></p>
+              <p class="mt-1">
+                <span class="term-dim">"role"</span>:
+                <span class="term-accent">"AI Engineering / Agent / Deployment"</span>
+              </p>
+              <p>
+                <span class="term-dim">"gpa"</span>: <span class="term-accent">"3.6/5"</span>,
+                <span class="term-dim">"rank"</span>: <span class="term-accent">"top 5%"</span>,
+                <span class="term-dim">"grad"</span>: <span class="term-accent">"2028"</span>
+              </p>
+              <p>
+                <span class="term-dim">"ships"</span>:
+                <span class="term-accent">"5 production systems"</span>,
+                <span class="term-dim">"internships"</span>: <span class="term-accent">"3"</span>
+              </p>
+              <p>
+                <span class="term-dim">"paper"</span>:
+                <span class="term-accent">"ICLR 2027 (2nd author)"</span>,
+                <span class="term-dim">"status"</span>: <span class="term-accent">"rebuttal"</span>
+              </p>
+
+              <!-- status -->
+              <p class="mt-4"><span class="term-prompt">$</span> <span class="term-cmd">status</span></p>
+              <p class="mt-1">
+                <span class="inline-block h-1.5 w-1.5 rounded-full bg-[#28C840]" />
+                <span class="ml-2 text-[#e8e6e1]">building AI agents that survive contact with production</span>
+              </p>
+
+              <!-- prompt -->
+              <p class="mt-4 flex items-center gap-1.5">
+                <span class="term-prompt">$</span>
+                <span class="inline-block h-[15px] w-[7px] bg-[#d4a157] align-middle"
+                  aria-hidden="true"
+                />
+              </p>
+            </div>
           </div>
-          <div class="px-4 py-4 sm:px-5 sm:py-5">
-            <p class="term-prompt">$</p>
-            <p class="term-cmd">whoami</p>
-            <p class="term-dim mt-1">肖致浩 — 机器学习 / Agent 开发 / 前沿部署</p>
+
+          <!-- avatar -->
+          <div class="lg:sticky lg:top-20">
+            <div
+              class="overflow-hidden rounded-[15px] border border-ink/15 bg-raised"
+            >
+              <img
+                :src="asset('/img/profile/avatar.webp')"
+                alt="肖致浩"
+                width="400"
+                height="400"
+                class="aspect-square w-full object-cover"
+              />
+              <div class="border-t border-ink/12 bg-base px-4 py-3">
+                <p class="font-mono text-[11px] text-ink-muted">肖致浩 / Xiaozhihao Shehade</p>
+                <p class="mt-1 font-mono text-[10.5px] text-ink-faint">@ShehadeX</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -235,7 +298,7 @@ const research = [
           精选项目，每项都有可核查的工程证据
         </h2>
 
-        <div class="mt-12 space-y-16 sm:space-y-20">
+        <div class="mt-12 grid gap-x-10 gap-y-14 sm:grid-cols-2">
           <div v-for="(p, i) in projects" :key="p.slug" class="fade-up">
             <div class="mb-5 flex items-baseline gap-4">
               <span class="font-mono text-[11px] tracking-[0.12em] text-ink-faint">

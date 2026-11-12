@@ -5,10 +5,13 @@ const props = defineProps<{ code: string; id: string }>()
 
 const el = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | null = null
+let fallbackTimer: ReturnType<typeof setInterval> | null = null
 let mermaidMod: typeof import('mermaid').default | null = null
+let rendered = false
 
 async function render() {
-  if (!el.value) return
+  if (!el.value || rendered) return
+  rendered = true
   el.value.innerHTML = ''
   try {
     if (!mermaidMod) {
@@ -56,15 +59,47 @@ onMounted(() => {
         render()
         observer?.disconnect()
         observer = null
+        if (fallbackTimer) {
+          clearTimeout(fallbackTimer)
+          fallbackTimer = null
+        }
       }
     },
     { threshold: 0.1 },
   )
   if (el.value) observer.observe(el.value)
+
+  // 兜底：部分嵌入式 webview 中 IntersectionObserver 回调不会触发，
+  // 图表会一直空白。这里用定时器轮询元素是否接近视口。
+  fallbackTimer = setInterval(checkFallback, 400)
 })
 
-onBeforeUnmount(() => observer?.disconnect())
-watch(() => props.code, render)
+function checkFallback() {
+  const node = el.value
+  if (!node || rendered) return
+  const rect = node.getBoundingClientRect()
+  const vh = window.innerHeight || 800
+  // 元素进入视口或已经滚过（bottom 为负）时都渲染
+  if (rect.top < vh * 1.5 && rect.bottom > -vh * 2) {
+    render()
+    if (fallbackTimer) {
+      clearInterval(fallbackTimer)
+      fallbackTimer = null
+    }
+  }
+}
+
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  if (fallbackTimer) clearTimeout(fallbackTimer)
+})
+watch(
+  () => props.code,
+  () => {
+    rendered = false
+    render()
+  },
+)
 </script>
 
 <template>

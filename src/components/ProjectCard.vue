@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Project } from '@/data/projects'
+import LazyImage from '@/components/LazyImage.vue'
 
 defineProps<{ project: Project; index: number }>()
 </script>
@@ -11,22 +12,18 @@ defineProps<{ project: Project; index: number }>()
       class="block focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
     >
       <!-- cover -->
-      <div class="relative overflow-hidden rounded-[15px] border border-ink/12 bg-raised">
-        <img
+      <div
+        class="relative overflow-hidden rounded-[15px] border border-ink/12 bg-raised"
+      >
+        <LazyImage
           :src="project.cover"
           :alt="project.coverCaption"
-          loading="lazy"
-          decoding="async"
-          class="aspect-[16/10] w-full object-cover object-top transition-transform duration-[420ms] ease-out group-hover:scale-[1.02]"
+          ratio="16 / 10"
+          class="transition-transform duration-[420ms] ease-out group-hover:scale-[1.02]"
         />
         <div
           class="pointer-events-none absolute inset-0 bg-gradient-to-t from-overlay/25 to-transparent opacity-0 transition-opacity duration-[420ms] ease-out group-hover:opacity-100"
         />
-        <span
-          class="absolute left-3 top-3 rounded-[3px] bg-overlay/85 px-2 py-1 font-mono text-[10px] tracking-[0.12em] text-base/90"
-        >
-          {{ project.case }} / {{ project.domain }}
-        </span>
       </div>
 
       <!-- body -->
