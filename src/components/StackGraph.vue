@@ -168,8 +168,30 @@ resetLayout()
 /*  物理参数（按画布尺寸自适应）                                       */
 /* ------------------------------------------------------------------ */
 
+/**
+ * 是否窄屏。
+ *
+ * 窄屏（手机）上 61 个水平标签无法在 390px 宽度内放下，
+ * 必须换策略，否则标签会挤成一团完全不可读。
+ */
+const isNarrow = computed(() => vw.value < 560)
+
 const params = computed(() => {
   const base = Math.min(vw.value, vh.value)
+  if (isNarrow.value) {
+    // 窄屏：缩小画布高度、加大斥力让节点摊得更开
+    return {
+      repulsion: base * base * 1.1,
+      repulsionRange: base * 0.42,
+      spring: 0.022,
+      springLen: base * 0.3,
+      centerPull: 0.0022,
+      damping: 0.9,
+      maxStep: base * 0.006,
+      snapRange: 100,
+      snapStrength: 0.16,
+    }
+  }
   return {
     repulsion: base * base * 0.55,
     repulsionRange: base * 0.28,
@@ -316,6 +338,15 @@ function layoutLabels() {
   for (const node of sorted) {
     const w = labelWidth(node.label)
 
+    // 窄屏：技术项标签不直接画（否则 61 个标签挤成一团），
+    // 只保留枢纽（分类）标签，具体技术通过点击节点在详情面板里看。
+    if (isNarrow.value && node.kind === 'item') {
+      node.lx = node.x
+      node.ly = node.y
+      node.anchor = 'middle'
+      continue
+    }
+
     if (node.kind === 'hub') {
       // 枢纽标签在节点正上方居中
       const x1 = node.x - w / 2
@@ -413,9 +444,13 @@ function measure() {
   if (!el) return
   const w = Math.round(el.clientWidth)
   if (w < 10) return
-  const targetH = props.compact
-    ? Math.round(Math.max(520, Math.min(900, w * 1.12)))
-    : Math.round(Math.max(520, Math.min(860, w * 0.62)))
+  // 窄屏给更高的画布（纵向展开），让节点有空间摊开不至于挤成一团
+  const targetH =
+    w < 560
+      ? Math.round(Math.max(560, Math.min(760, w * 1.6)))
+      : props.compact
+        ? Math.round(Math.max(520, Math.min(900, w * 1.12)))
+        : Math.round(Math.max(520, Math.min(860, w * 0.62)))
   if (Math.abs(w - vw.value) < 8 && Math.abs(targetH - vh.value) < 8) return
 
   const sx = vw.value ? w / vw.value : 1
@@ -614,12 +649,13 @@ const nodeById = (id: string) => nodes.value.find((n) => n.id === id)
             <!-- 命中区域放大，方便悬停 -->
             <circle :cx="n.x" :cy="n.y" :r="Math.max(n.r + 7, 13)" fill="transparent" />
 
-            <!-- 标签 -->
+            <!-- 标签：窄屏只显示分类名，技术名留给详情面板 -->
             <text
+              v-if="!isNarrow || n.kind === 'hub'"
               :x="n.lx"
               :y="n.ly"
               :text-anchor="n.anchor"
-              font-size="9.5"
+              :font-size="isNarrow ? 10 : 9.5"
               font-family="ui-monospace, monospace"
               :fill="hovered === n.id || snapped === n.id ? '#b4553a' : 'rgba(98,95,89,0.95)'"
               stroke="#ECE9E0"
