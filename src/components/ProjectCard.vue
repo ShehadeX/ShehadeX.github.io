@@ -29,9 +29,9 @@ defineProps<{ project: Project; index: number }>()
 
       <!-- body -->
       <div class="mt-5 flex items-start gap-4">
-        <span class="mt-1 font-mono text-[11px] text-ink-faint">0{{ index + 1 }}</span>
+        <span class="claude-num mt-1">0{{ index + 1 }}</span>
         <div class="min-w-0 flex-1">
-          <h3 class="text-[21px] leading-tight">{{ project.title }}</h3>
+          <h3 class="display text-[22px] leading-tight">{{ project.title }}</h3>
           <p class="mt-1 text-[14px] text-ink-muted">{{ project.subtitle }}</p>
           <p class="mt-3 max-w-[62ch] text-[14px] leading-relaxed text-ink-body">
             {{ project.summary }}

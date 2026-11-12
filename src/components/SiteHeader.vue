@@ -36,6 +36,7 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
         <span class="font-mono text-[13px] text-ink">ShehadeProfile</span>
       </RouterLink>
 
+
       <nav class="ml-auto hidden items-center gap-6 md:flex">
         <RouterLink
           v-for="l in links"

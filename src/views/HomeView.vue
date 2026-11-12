@@ -120,6 +120,15 @@ const research = [
     <section class="relative overflow-hidden border-b border-ink/10">
       <div class="pointer-events-none absolute inset-0 grid-lines opacity-70" />
       <div class="pointer-events-none absolute inset-0 noise opacity-40" />
+      <!-- Claude 风格暖橙光晕 -->
+      <div
+        class="pointer-events-none absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full opacity-[0.16] blur-3xl"
+        style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 68%)"
+      />
+      <div
+        class="pointer-events-none absolute right-0 top-1/3 h-[380px] w-[380px] rounded-full opacity-[0.10] blur-3xl"
+        style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 70%)"
+      />
 
       <div class="relative mx-auto max-w-[1400px] px-5 pb-16 pt-10 sm:px-8 sm:pb-24 sm:pt-16">
         <!-- intro + avatar -->
@@ -130,14 +139,16 @@ const research = [
               AI ENGINEERING / AGENT / DEPLOYMENT
             </p>
 
-            <h1 class="mt-5 text-[40px] leading-[1.08] sm:text-[58px]">
-              I'm <span class="text-claude">肖致浩</span> Shehade
+            <h1 class="mt-5 text-[42px] leading-[1.06] sm:text-[62px]">
+              <span class="display">I'm </span>
+              <span class="marker text-claude">肖致浩</span>
+              <span class="display"> Shehade</span>
             </h1>
 
-            <p class="mt-6 text-[22px] leading-[1.45] text-ink sm:text-[26px]">
+            <p class="mt-7 text-[23px] leading-[1.5] text-ink sm:text-[27px]">
               我用 AI 与软件系统
               <br class="hidden sm:block" />
-              解决真实问题。
+              <span class="squiggle">解决真实问题。</span>
             </p>
 
             <p class="mt-6 max-w-[52ch] text-[15px] leading-[1.85] text-ink-muted">
@@ -153,14 +164,16 @@ const research = [
             <!-- 三个关键点：大标题 -->
             <div class="mt-10 grid gap-x-8 gap-y-8 sm:grid-cols-3">
               <div>
-                <p class="tnum text-[44px] font-semibold leading-none text-ink">5</p>
-                <p class="mt-2.5 text-[15px] font-semibold text-ink">交付的生产级系统</p>
+                <p class="display tnum text-[46px] leading-none text-ink">5</p>
+                <p class="mt-2.5 text-[15px] font-semibold text-ink">
+                  交付的<span class="marker">生产级系统</span>
+                </p>
                 <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
                   招投标、老年评估、脑电打标、防返贫 Agent、用药小程序
                 </p>
               </div>
               <div>
-                <p class="tnum text-[44px] font-semibold leading-none text-ink">3</p>
+                <p class="display tnum text-[46px] leading-none text-ink">3</p>
                 <p class="mt-2.5 text-[15px] font-semibold text-ink">段实习</p>
                 <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
                   中国科学院先进院 · 中国电信数智 · 广电计量
@@ -176,8 +189,10 @@ const research = [
                 </div>
               </div>
               <div>
-                <p class="tnum text-[44px] font-semibold leading-none text-ink">ICLR</p>
-                <p class="mt-2.5 text-[15px] font-semibold text-ink">2027 论文 · 第二作者</p>
+                <p class="display tnum text-[46px] leading-none text-ink">ICLR</p>
+                <p class="mt-2.5 text-[15px] font-semibold text-ink">
+                  2027 论文 · <span class="marker">第二作者</span>
+                </p>
                 <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
                   跨架构 EEG 解码诊断基准，当前 Rebuttal 阶段
                 </p>
@@ -187,7 +202,7 @@ const research = [
             <div class="mt-10 flex flex-wrap items-center gap-3">
               <a
                 href="mailto:2912698300@qq.com"
-                class="inline-flex h-10 items-center rounded-[3px] bg-overlay px-5 font-mono text-[12px] text-base transition-opacity duration-150 hover:opacity-90"
+                class="inline-flex h-10 items-center rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
               >
                 发邮件给我
               </a>
@@ -231,10 +246,10 @@ const research = [
         </div>
 
         <!-- headline -->
-        <h2 class="mt-16 max-w-[20ch] text-[38px] leading-[1.1] sm:text-[52px] lg:text-[56px]">
-          AI Engineering.<br />
-          Software Systems.<br />
-          <span class="text-ink-muted">Research.</span>
+        <h2 class="mt-16 max-w-[20ch] text-[40px] leading-[1.08] sm:text-[56px] lg:text-[60px]">
+          <span class="display">AI Engineering.<br /></span>
+          <span class="display">Software Systems.<br /></span>
+          <span class="display text-ink-muted">Research.</span>
         </h2>
 
         <p class="mt-7 max-w-[58ch] text-[15px] leading-relaxed text-ink-body sm:text-[16px]">
@@ -254,14 +269,15 @@ const research = [
     <section id="about" class="scroll-mt-20 border-b border-ink/10">
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
-          <span class="eyebrow">01 / About Me</span>
+          <span class="claude-num">01</span>
+          <span class="eyebrow">About Me</span>
           <span class="rule flex-1" />
         </div>
 
         <div class="mt-10 grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div>
-            <h2 class="max-w-[20ch] text-[28px] leading-[1.25] sm:text-[36px]">
-              我在做的三件事
+            <h2 class="max-w-[20ch] text-[30px] leading-[1.25] sm:text-[38px]">
+              我在做的<span class="marker">三件事</span>
             </h2>
             <div class="mt-8 space-y-8">
               <div>
@@ -335,12 +351,13 @@ const research = [
     <section id="capabilities" class="scroll-mt-20 border-b border-ink/10">
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
-          <span class="eyebrow">02 / My Capabilities</span>
+          <span class="claude-num">02</span>
+          <span class="eyebrow">My Capabilities</span>
           <span class="rule flex-1" />
         </div>
 
         <h2 class="mt-8 max-w-[24ch] text-[30px] leading-[1.2] sm:text-[38px]">
-          按 AI 开发流程组织的能力矩阵
+          按 AI 开发流程组织的<span class="marker">能力矩阵</span>
         </h2>
 
         <div class="mt-10 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-2">
@@ -366,12 +383,13 @@ const research = [
     <section id="projects" class="scroll-mt-20 border-b border-ink/10">
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
-          <span class="eyebrow">03 / Selected Projects</span>
+          <span class="claude-num">03</span>
+          <span class="eyebrow">Selected Projects</span>
           <span class="rule flex-1" />
         </div>
 
         <h2 class="mt-8 max-w-[26ch] text-[30px] leading-[1.2] sm:text-[38px]">
-          精选项目，每项都有可核查的工程证据
+          精选项目，<span class="squiggle">每项都有可核查的工程证据</span>
         </h2>
 
         <div class="mt-12 grid gap-x-10 gap-y-14 sm:grid-cols-2">
@@ -392,7 +410,8 @@ const research = [
     <section id="research" class="scroll-mt-20 border-b border-ink/10">
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
-          <span class="eyebrow">04 / Research &amp; Experience</span>
+          <span class="claude-num">04</span>
+          <span class="eyebrow">Research &amp; Experience</span>
           <span class="rule flex-1" />
         </div>
 
@@ -411,7 +430,7 @@ const research = [
               </div>
               <p class="mt-2.5 text-[14px] leading-relaxed text-ink-muted">{{ r.desc }}</p>
               <span
-                class="mt-3 inline-block font-mono text-[11px] text-ink-faint transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-ink"
+                class="claude-link mt-3 inline-block font-mono text-[11px] transition-transform duration-150 group-hover:translate-x-0.5"
               >
                 查看详情 →
               </span>
@@ -423,7 +442,7 @@ const research = [
             <div v-for="(t, i) in timeline" :key="t.org" class="relative pb-8 pl-7 last:pb-0">
               <span
                 class="absolute left-0 top-[6px] h-2 w-2 rounded-[1px] bg-ink/45"
-                :class="i === 0 ? 'bg-accent' : ''"
+                :class="i === 0 ? 'bg-claude' : ''"
               />
               <span v-if="i < timeline.length - 1" class="absolute left-[3px] top-[18px] h-full w-px bg-ink/12" />
               <p class="font-mono text-[11px] tracking-[0.08em] text-ink-faint">{{ t.period }}</p>
@@ -435,7 +454,9 @@ const research = [
                   class="mt-0.5 h-10 w-auto max-w-[72px] shrink-0 object-contain object-left"
                 />
                 <div class="min-w-0">
-                  <h3 class="text-[16px] leading-snug">{{ t.org }}</h3>
+                  <h3 class="text-[16px] leading-snug">
+                    <span class="star mr-1" aria-hidden="true">✳</span>{{ t.org }}
+                  </h3>
                   <p class="mt-1 text-[13px] text-ink-muted">{{ t.role }}</p>
                 </div>
               </div>
@@ -461,14 +482,15 @@ const research = [
     <section id="contact" class="scroll-mt-20">
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
-          <span class="eyebrow">05 / GitHub &amp; Contact</span>
+          <span class="claude-num">05</span>
+          <span class="eyebrow">GitHub &amp; Contact</span>
           <span class="rule flex-1" />
         </div>
 
         <div class="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
           <div>
-            <h2 class="text-[28px] leading-[1.2] sm:text-[33px]">
-              如果你在做<br />AI 与软件系统
+            <h2 class="text-[30px] leading-[1.2] sm:text-[36px]">
+              如果你在做<br /><span class="marker">AI 与软件系统</span>
             </h2>
             <p class="mt-5 max-w-[46ch] text-[15px] leading-relaxed text-ink-muted">
               我正在寻找 AI 工程、Agent 开发与前沿部署方向的实习与校招机会。
@@ -477,7 +499,7 @@ const research = [
             <div class="mt-7 flex flex-wrap gap-3">
               <a
                 href="mailto:2912698300@qq.com"
-                class="inline-flex h-10 items-center rounded-[3px] bg-overlay px-5 font-mono text-[12px] text-base transition-opacity duration-150 hover:opacity-90"
+                class="inline-flex h-10 items-center rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
               >
                 发邮件给我
               </a>
