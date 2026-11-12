@@ -204,21 +204,24 @@ const internships = [
               <span class="display rise rise-2"> Shehade</span>
             </h1>
 
-            <!-- 副标题：整行不换行，AI-Native 带橙色机器人图标 -->
-            <p
-              class="mt-6 flex flex-nowrap items-center gap-2 whitespace-nowrap text-[20px] leading-[1.4] text-ink sm:text-[24px]"
-            >
-              <span class="rise rise-3">{{ t('hero.tagline') }}</span>
-              <span class="rise rise-3 inline-flex shrink-0 items-center gap-1.5">
-                <img
-                  src="/img/social/robot.png"
-                  alt=""
-                  class="h-[1.05em] w-[1.05em] shrink-0 object-contain"
-                  aria-hidden="true"
-                />
-                <span class="marker marker-reveal text-claude">{{ t('hero.tagline.native') }}</span>
+            <!-- 副标题：第一行不换行（AI-Native 带橙色机器人图标），第二行收束到落点 -->
+            <p class="mt-6 text-[20px] leading-[1.42] text-ink sm:text-[24px]">
+              <span class="flex flex-nowrap items-center gap-2 whitespace-nowrap">
+                <span class="rise rise-3">{{ t('hero.tagline') }}</span>
+                <span class="rise rise-3 inline-flex shrink-0 items-center gap-1.5">
+                  <img
+                    src="/img/social/robot.png"
+                    alt=""
+                    class="h-[1.05em] w-[1.05em] shrink-0 object-contain"
+                    aria-hidden="true"
+                  />
+                  <span class="marker marker-reveal text-claude">{{ t('hero.tagline.native') }}</span>
+                </span>
+                <span class="rise rise-3">{{ t('hero.tagline2') }}</span>
               </span>
-              <span class="squiggle squiggle-reveal rise rise-4">{{ t('hero.tagline2') }}</span>
+              <span class="squiggle squiggle-reveal rise rise-4 mt-1 block">
+                {{ t('hero.tagline3') }}
+              </span>
             </p>
 
             <p class="mt-5 max-w-[58ch] text-[14px] leading-[1.75] text-ink-muted">
@@ -311,29 +314,83 @@ const internships = [
               </div>
             </div>
 
-            <div class="mt-8 flex flex-wrap items-center gap-3 lg:mt-auto lg:pt-8">
+            <!-- CTA：图标组，与底部 Contact 区统一 -->
+            <div class="mt-8 flex flex-wrap items-center gap-2.5 lg:mt-auto lg:pt-8">
               <a
-                href="mailto:2912698300@qq.com"
-                class="inline-flex h-10 items-center rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
+                href="mailto:2912698300cn@gmail.com"
+                class="inline-flex h-11 items-center gap-2.5 rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
               >
+                <svg
+                  viewBox="0 0 16 16"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="1.6" y="3.4" width="12.8" height="9.2" rx="1.6" />
+                  <path d="M2.2 4.6 8 9.2l5.8-4.6" />
+                </svg>
                 {{ t('hero.cta.mail') }}
               </a>
-              <a
-                href="https://github.com/ShehadeX"
-                target="_blank"
-                rel="noopener"
-                class="inline-flex h-10 items-center rounded-[3px] border border-ink/20 px-5 font-mono text-[12px] text-ink transition-colors duration-150 hover:bg-raised"
-              >
-                GitHub ↗
-              </a>
-              <a
-                href="https://gitee.com/ShehadeX"
-                target="_blank"
-                rel="noopener"
-                class="inline-flex h-10 items-center rounded-[3px] border border-ink/20 px-5 font-mono text-[12px] text-ink transition-colors duration-150 hover:bg-raised"
-              >
-                Gitee ↗
-              </a>
+
+              <div class="flex items-center gap-2">
+                <a
+                  href="https://github.com/ShehadeX"
+                  target="_blank"
+                  rel="noopener"
+                  class="group/social flex h-11 w-11 items-center justify-center rounded-[3px] border border-ink/20 bg-base transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/35 hover:bg-raised"
+                  title="GitHub"
+                  :aria-label="t('social.github')"
+                >
+                  <img
+                    src="/img/social/github.png"
+                    alt="GitHub"
+                    class="h-5 w-5 object-contain opacity-85 transition-opacity duration-150 group-hover/social:opacity-100"
+                  />
+                </a>
+                <a
+                  href="https://gitee.com/ShehadeX"
+                  target="_blank"
+                  rel="noopener"
+                  class="group/social flex h-11 w-11 items-center justify-center rounded-[3px] border border-ink/20 bg-base transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/35 hover:bg-raised"
+                  title="Gitee"
+                  :aria-label="t('social.gitee')"
+                >
+                  <img
+                    src="/img/social/gitee.png"
+                    alt="Gitee"
+                    class="h-5 w-5 object-contain opacity-85 transition-opacity duration-150 group-hover/social:opacity-100"
+                  />
+                </a>
+                <a
+                  href="mailto:2912698300cn@gmail.com"
+                  class="group/social flex h-11 w-11 items-center justify-center rounded-[3px] border border-ink/20 bg-base transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/35 hover:bg-raised"
+                  title="Gmail"
+                  :aria-label="t('social.gmail')"
+                >
+                  <img
+                    src="/img/social/gmail.png"
+                    alt="Gmail"
+                    class="h-5 w-5 object-contain opacity-85 transition-opacity duration-150 group-hover/social:opacity-100"
+                  />
+                </a>
+                <button
+                  type="button"
+                  class="group/social flex h-11 w-11 items-center justify-center rounded-[3px] border border-ink/20 bg-base transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/35 hover:bg-raised"
+                  title="WeChat"
+                  :aria-label="t('social.wechat')"
+                  @click="wechatOpen = true"
+                >
+                  <img
+                    src="/img/social/wechat.png"
+                    alt="WeChat"
+                    class="h-5 w-5 object-contain opacity-85 transition-opacity duration-150 group-hover/social:opacity-100"
+                  />
+                </button>
+              </div>
             </div>
           </div>
 

@@ -59,6 +59,7 @@ const zh: Dict = {
   'hero.tagline': '很高兴认识你，我以',
   'hero.tagline.native': 'AI-Native',
   'hero.tagline2': '和第一性原理',
+  'hero.tagline3': '解决真实计算机问题',
   'hero.school':
     '广东工业大学计算机科学与技术 · 2028 届 · GPA 3.6/5、专业前 5%，三等学业奖学金。',
   'hero.school2':
@@ -184,6 +185,7 @@ const en: Dict = {
   'hero.tagline': 'Nice to meet you. I work with',
   'hero.tagline.native': 'AI-Native',
   'hero.tagline2': 'and first principles',
+  'hero.tagline3': 'to solve real computing problems',
   'hero.school':
     'B.S. Computer Science, Guangdong University of Technology · Class of 2028 · GPA 3.6/5, top 5%, Third-Class Academic Scholarship.',
   'hero.school2':
