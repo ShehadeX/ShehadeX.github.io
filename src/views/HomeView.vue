@@ -2,6 +2,24 @@
 import { projects } from '@/data/projects'
 import ProjectCard from '@/components/ProjectCard.vue'
 import { asset } from '@/utils/asset'
+import { computed, ref } from 'vue'
+
+const projectFilters = [
+  { key: 'all', label: 'All Cases' },
+  { key: 'AI SYSTEMS', label: 'AI Systems' },
+  { key: 'MEDICAL SOFTWARE', label: 'Medical' },
+  { key: 'NEURO / SIGNAL', label: 'Neuro / Signal' },
+  { key: 'AI AGENT', label: 'Agent' },
+  { key: 'HEALTHCARE', label: 'Healthcare' },
+]
+
+const activeFilter = ref('all')
+
+const filteredProjects = computed(() =>
+  activeFilter.value === 'all'
+    ? projects
+    : projects.filter((p) => p.domain === activeFilter.value),
+)
 
 const capabilities = [
   {
@@ -132,9 +150,9 @@ const research = [
 
       <div class="relative mx-auto max-w-[1400px] px-5 pb-16 pt-10 sm:px-8 sm:pb-24 sm:pt-16">
         <!-- intro + avatar -->
-        <div class="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-start lg:gap-14">
+        <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] lg:items-start lg:gap-14">
           <!-- prose intro -->
-          <div class="max-w-[62ch]">
+          <div>
             <p class="font-mono text-[11px] tracking-[0.14em] text-ink-faint">
               AI ENGINEERING / AGENT / DEPLOYMENT
             </p>
@@ -161,45 +179,7 @@ const research = [
               方向是机器学习、Agent 开发与前沿部署——把业务需求拆成可追踪的流程，用模型与工程把流程真正跑起来。
             </p>
 
-            <!-- 三个关键点：大标题 -->
-            <div class="mt-10 grid gap-x-8 gap-y-8 sm:grid-cols-3">
-              <div>
-                <p class="display tnum text-[46px] leading-none text-ink">5</p>
-                <p class="mt-2.5 text-[15px] font-semibold text-ink">
-                  交付的<span class="marker">生产级系统</span>
-                </p>
-                <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
-                  招投标、老年评估、脑电打标、防返贫 Agent、用药小程序
-                </p>
-              </div>
-              <div>
-                <p class="display tnum text-[46px] leading-none text-ink">3</p>
-                <p class="mt-2.5 text-[15px] font-semibold text-ink">段实习</p>
-                <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
-                  中国科学院先进院 · 中国电信数智 · 广电计量
-                </p>
-                <div class="mt-3 flex items-center gap-3">
-                  <img
-                    v-for="l in internships"
-                    :key="l.src"
-                    :src="l.src"
-                    :alt="l.name"
-                    class="h-9 w-auto max-w-[72px] shrink-0 object-contain object-left"
-                  />
-                </div>
-              </div>
-              <div>
-                <p class="display tnum text-[46px] leading-none text-ink">ICLR</p>
-                <p class="mt-2.5 text-[15px] font-semibold text-ink">
-                  2027 论文 · <span class="marker">第二作者</span>
-                </p>
-                <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
-                  跨架构 EEG 解码诊断基准，当前 Rebuttal 阶段
-                </p>
-              </div>
-            </div>
-
-            <div class="mt-10 flex flex-wrap items-center gap-3">
+            <div class="mt-9 flex flex-wrap items-center gap-3">
               <a
                 href="mailto:2912698300@qq.com"
                 class="inline-flex h-10 items-center rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
@@ -226,9 +206,14 @@ const research = [
           </div>
 
           <!-- avatar -->
-          <div class="lg:sticky lg:top-20 lg:w-[320px]">
+          <div class="relative lg:justify-self-end">
+            <!-- 橙色手绘感光晕 -->
             <div
-              class="overflow-hidden rounded-[15px] border border-ink/15 bg-raised"
+              class="pointer-events-none absolute -inset-6 -z-10 rounded-[28px] opacity-[0.18] blur-2xl"
+              style="background: radial-gradient(circle at 62% 38%, #d97757 0%, rgba(217,119,87,0) 62%)"
+            />
+            <div
+              class="overflow-hidden rounded-[15px] border border-ink/15 bg-raised shadow-[0_18px_48px_-24px_rgba(32,31,29,0.45)]"
             >
               <img
                 :src="asset('/img/profile/avatar.webp')"
@@ -237,30 +222,106 @@ const research = [
                 height="1024"
                 class="aspect-square w-full object-cover"
               />
-              <div class="border-t border-ink/12 bg-base px-4 py-3">
-                <p class="font-mono text-[11px] text-ink-muted">肖致浩 / Xiaozhihao Shehade</p>
-                <p class="mt-1 font-mono text-[10.5px] text-ink-faint">@ShehadeX</p>
+              <div class="flex items-center justify-between gap-3 border-t border-ink/12 bg-base px-4 py-3">
+                <div class="min-w-0">
+                  <p class="font-mono text-[11px] text-ink-muted">肖致浩 / Xiaozhihao Shehade</p>
+                  <p class="mt-1 font-mono text-[10.5px] text-ink-faint">@ShehadeX</p>
+                </div>
+                <span class="star shrink-0 text-[15px]" aria-hidden="true">✳</span>
               </div>
             </div>
+
+            <!-- profile 字段 -->
+            <dl class="mt-5 divide-y divide-ink/10 border-y border-ink/12">
+              <div class="flex items-baseline gap-4 py-3">
+                <dt class="w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
+                  focus
+                </dt>
+                <dd class="text-[13.5px] text-ink">AI-Powered Products · 医疗健康软件</dd>
+              </div>
+              <div class="flex items-baseline gap-4 py-3">
+                <dt class="w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
+                  stack
+                </dt>
+                <dd class="text-[13.5px] text-ink">Vue 3 · Spring AI · LangGraph · Docker</dd>
+              </div>
+              <div class="flex items-baseline gap-4 py-3">
+                <dt class="w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
+                  status
+                </dt>
+                <dd class="flex items-center gap-2 text-[13.5px] text-ink">
+                  <span class="h-1.5 w-1.5 rounded-full bg-claude" />
+                  开放实习与校招机会
+                </dd>
+              </div>
+              <div class="flex items-baseline gap-4 py-3">
+                <dt class="w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
+                  based
+                </dt>
+                <dd class="text-[13.5px] text-ink">广州 · 广东工业大学</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+
+        <!-- 三个关键点：整幅通栏，视觉配重 -->
+        <div class="mt-14 grid gap-x-8 gap-y-9 border-t border-ink/12 pt-10 sm:mt-16 sm:grid-cols-3">
+          <div>
+            <p class="display tnum text-[46px] leading-none text-ink">5</p>
+            <p class="mt-2.5 text-[15px] font-semibold text-ink">
+              交付的<span class="marker">生产级系统</span>
+            </p>
+            <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
+              招投标、老年评估、脑电打标、防返贫 Agent、用药小程序
+            </p>
+          </div>
+          <div>
+            <p class="display tnum text-[46px] leading-none text-ink">3</p>
+            <p class="mt-2.5 text-[15px] font-semibold text-ink">段实习</p>
+            <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
+              中国科学院先进院 · 中国电信数智 · 广电计量
+            </p>
+            <div class="mt-3 flex items-center gap-3">
+              <img
+                v-for="l in internships"
+                :key="l.src"
+                :src="l.src"
+                :alt="l.name"
+                class="h-9 w-auto max-w-[72px] shrink-0 object-contain object-left"
+              />
+            </div>
+          </div>
+          <div>
+            <p class="display tnum text-[46px] leading-none text-ink">ICLR</p>
+            <p class="mt-2.5 text-[15px] font-semibold text-ink">
+              2027 论文 · <span class="marker">第二作者</span>
+            </p>
+            <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
+              跨架构 EEG 解码诊断基准，当前 Rebuttal 阶段
+            </p>
           </div>
         </div>
 
         <!-- headline -->
-        <h2 class="mt-16 max-w-[20ch] text-[40px] leading-[1.08] sm:text-[56px] lg:text-[60px]">
-          <span class="display">AI Engineering.<br /></span>
-          <span class="display">Software Systems.<br /></span>
-          <span class="display text-ink-muted">Research.</span>
-        </h2>
+        <div class="mt-16 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-end lg:gap-16">
+          <h2 class="max-w-[16ch] text-[40px] leading-[1.08] sm:text-[56px] lg:text-[60px]">
+            <span class="display">AI Engineering.<br /></span>
+            <span class="display">Software Systems.<br /></span>
+            <span class="display text-ink-muted">Research.</span>
+          </h2>
 
-        <p class="mt-7 max-w-[58ch] text-[15px] leading-relaxed text-ink-body sm:text-[16px]">
-          从业务问题出发，设计并实现 AI 驱动的软件系统，探索深度学习与智能体的实际应用。
-        </p>
+          <div class="lg:pb-2">
+            <p class="max-w-[52ch] text-[15px] leading-relaxed text-ink-body sm:text-[16px]">
+              从业务问题出发，设计并实现 AI 驱动的软件系统，探索深度学习与智能体的实际应用。
+            </p>
 
-        <div class="mt-8 flex flex-wrap gap-2">
-          <span class="tag">AI Agent</span>
-          <span class="tag">Full-stack</span>
-          <span class="tag">Deep Learning</span>
-          <span class="tag">Deployment</span>
+            <div class="mt-6 flex flex-wrap gap-2">
+              <span class="tag">AI Agent</span>
+              <span class="tag">Full-stack</span>
+              <span class="tag">Deep Learning</span>
+              <span class="tag">Deployment</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -360,17 +421,15 @@ const research = [
           按 AI 开发流程组织的<span class="marker">能力矩阵</span>
         </h2>
 
-        <div class="mt-10 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-2">
+        <div class="mt-10 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-2 lg:grid-cols-4">
           <div
             v-for="(c, i) in capabilities"
             :key="c.key"
-            class="bg-base p-6 transition-colors duration-150 hover:bg-raised sm:p-8"
+            class="flex flex-col bg-base p-6 transition-colors duration-150 hover:bg-raised sm:p-7"
           >
-            <div class="flex items-baseline gap-3">
-              <span class="font-mono text-[11px] text-ink-faint">0{{ i + 1 }}</span>
-              <h3 class="text-[24px]">{{ c.key }}</h3>
-            </div>
-            <p class="mt-3 text-[14px] leading-relaxed text-ink-muted">{{ c.desc }}</p>
+            <span class="claude-num">0{{ i + 1 }}</span>
+            <h3 class="display mt-3 text-[25px] leading-tight">{{ c.key }}</h3>
+            <p class="mt-3 flex-1 text-[13.5px] leading-[1.8] text-ink-muted">{{ c.desc }}</p>
             <div class="mt-5 flex flex-wrap gap-1.5">
               <span v-for="t in c.items" :key="t" class="tag">{{ t }}</span>
             </div>
@@ -392,14 +451,28 @@ const research = [
           精选项目，<span class="squiggle">每项都有可核查的工程证据</span>
         </h2>
 
-        <div class="mt-12 grid gap-x-10 gap-y-14 sm:grid-cols-2">
-          <div v-for="(p, i) in projects" :key="p.slug" class="fade-up">
-            <div class="mb-5 flex items-baseline gap-4">
-              <span class="font-mono text-[11px] tracking-[0.12em] text-ink-faint">
-                {{ p.case }} / {{ p.domain }}
-              </span>
-              <span class="rule flex-1" />
-            </div>
+        <div class="mt-8 flex flex-wrap items-center gap-2">
+          <button
+            v-for="f in projectFilters"
+            :key="f.key"
+            type="button"
+            class="h-8 rounded-[3px] px-3 font-mono text-[11px] transition-colors duration-150"
+            :class="
+              activeFilter === f.key
+                ? 'bg-overlay text-base'
+                : 'border border-ink/15 text-ink-muted hover:bg-raised hover:text-ink'
+            "
+            @click="activeFilter = f.key"
+          >
+            {{ f.label }}
+          </button>
+          <span class="ml-auto font-mono text-[11px] text-ink-faint">
+            {{ filteredProjects.length }} / {{ projects.length }} cases
+          </span>
+        </div>
+
+        <div class="mt-10 space-y-8">
+          <div v-for="(p, i) in filteredProjects" :key="p.slug" class="fade-up">
             <ProjectCard :project="p" :index="i" />
           </div>
         </div>
@@ -415,63 +488,82 @@ const research = [
           <span class="rule flex-1" />
         </div>
 
-        <div class="mt-10 grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
-          <!-- research cards -->
-          <div class="space-y-px overflow-hidden rounded-[15px] bg-ink/12">
-            <RouterLink
-              v-for="r in research"
-              :key="r.title"
-              :to="r.to"
-              class="group block bg-base p-6 transition-colors duration-150 hover:bg-raised"
-            >
-              <div class="flex items-start justify-between gap-4">
-                <h3 class="text-[16px] leading-snug">{{ r.title }}</h3>
-                <span class="tag shrink-0">{{ r.tag }}</span>
-              </div>
-              <p class="mt-2.5 text-[14px] leading-relaxed text-ink-muted">{{ r.desc }}</p>
-              <span
-                class="claude-link mt-3 inline-block font-mono text-[11px] transition-transform duration-150 group-hover:translate-x-0.5"
-              >
-                查看详情 →
-              </span>
-            </RouterLink>
-          </div>
-
+        <div class="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] lg:gap-16">
           <!-- experience timeline -->
           <div>
-            <div v-for="(t, i) in timeline" :key="t.org" class="relative pb-8 pl-7 last:pb-0">
-              <span
-                class="absolute left-0 top-[6px] h-2 w-2 rounded-[1px] bg-ink/45"
-                :class="i === 0 ? 'bg-claude' : ''"
-              />
-              <span v-if="i < timeline.length - 1" class="absolute left-[3px] top-[18px] h-full w-px bg-ink/12" />
-              <p class="font-mono text-[11px] tracking-[0.08em] text-ink-faint">{{ t.period }}</p>
-              <div class="mt-2 flex items-start gap-3">
-                <img
-                  v-if="t.logo"
-                  :src="t.logo"
-                  :alt="t.org"
-                  class="mt-0.5 h-10 w-auto max-w-[72px] shrink-0 object-contain object-left"
+            <p class="eyebrow">Experience Timeline</p>
+            <div class="mt-6 space-y-0">
+              <div
+                v-for="(t, i) in timeline"
+                :key="t.org"
+                class="relative border-t border-ink/12 pb-9 pl-8 pt-6 last:pb-0"
+              >
+                <span
+                  class="absolute left-0 top-[30px] h-2 w-2 rounded-[1px] bg-ink/45"
+                  :class="i === 0 ? 'bg-claude' : ''"
                 />
-                <div class="min-w-0">
-                  <h3 class="text-[16px] leading-snug">
-                    <span class="star mr-1" aria-hidden="true">✳</span>{{ t.org }}
-                  </h3>
-                  <p class="mt-1 text-[13px] text-ink-muted">{{ t.role }}</p>
+                <span
+                  v-if="i < timeline.length - 1"
+                  class="absolute left-[3px] top-[42px] h-full w-px bg-ink/12"
+                />
+                <p class="font-mono text-[11px] tracking-[0.08em] text-ink-faint">
+                  {{ t.period }}
+                </p>
+                <div class="mt-3 flex items-start gap-4">
+                  <div
+                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[3px] border border-ink/12 bg-base"
+                  >
+                    <img
+                      v-if="t.logo"
+                      :src="t.logo"
+                      :alt="t.org"
+                      class="h-8 w-auto max-w-[42px] object-contain"
+                    />
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-[17px] leading-snug">
+                      <span class="star mr-1" aria-hidden="true">✳</span>{{ t.org }}
+                    </h3>
+                    <p class="mt-1 text-[13px] text-ink-muted">{{ t.role }}</p>
+                  </div>
                 </div>
+                <ul class="mt-4 space-y-2 pl-16">
+                  <li
+                    v-for="pt in t.points"
+                    :key="pt"
+                    class="relative pl-4 text-[13.5px] leading-relaxed text-ink-body"
+                  >
+                    <span
+                      class="absolute left-0 top-[9px] h-[3px] w-[3px] rounded-[1px] bg-ink-faint"
+                    />
+                    {{ pt }}
+                  </li>
+                </ul>
               </div>
-              <ul class="mt-3 space-y-1.5">
-                <li
-                  v-for="pt in t.points"
-                  :key="pt"
-                  class="relative pl-4 text-[13.5px] leading-relaxed text-ink-body"
+            </div>
+          </div>
+
+          <!-- research cards -->
+          <div class="lg:justify-self-end lg:w-full">
+            <p class="eyebrow">Research &amp; Publications</p>
+            <div class="mt-6 space-y-3">
+              <RouterLink
+                v-for="r in research"
+                :key="r.title"
+                :to="r.to"
+                class="group block overflow-hidden rounded-[15px] border border-ink/12 bg-base p-5 transition-colors duration-150 hover:border-ink/25 hover:bg-raised/50"
+              >
+                <div class="flex items-start justify-between gap-4">
+                  <h3 class="text-[16px] leading-snug">{{ r.title }}</h3>
+                  <span class="tag shrink-0">{{ r.tag }}</span>
+                </div>
+                <p class="mt-2.5 text-[14px] leading-relaxed text-ink-muted">{{ r.desc }}</p>
+                <span
+                  class="claude-link mt-3 inline-block font-mono text-[11px] transition-transform duration-150 group-hover:translate-x-0.5"
                 >
-                  <span
-                    class="absolute left-0 top-[9px] h-[3px] w-[3px] rounded-[1px] bg-ink-faint"
-                  />
-                  {{ pt }}
-                </li>
-              </ul>
+                  查看详情 →
+                </span>
+              </RouterLink>
             </div>
           </div>
         </div>

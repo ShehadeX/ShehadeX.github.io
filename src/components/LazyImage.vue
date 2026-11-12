@@ -20,12 +20,15 @@ interface Props {
   ratio?: string
   /** cover = 裁切填满；contain = 完整显示不裁切（手机竖屏截图用） */
   fit?: 'cover' | 'contain'
+  /** fill = 不锁定比例，铺满父容器（横向卡片的封面列用） */
+  fill?: boolean
   class?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   ratio: '16 / 10',
   fit: 'cover',
+  fill: false,
   class: '',
 })
 
@@ -36,8 +39,8 @@ const failed = ref(false)
 <template>
   <div
     class="relative overflow-hidden bg-raised"
-    :style="{ aspectRatio: ratio }"
-    :class="props.class"
+    :style="props.fill ? undefined : { aspectRatio: ratio }"
+    :class="[props.fill ? 'absolute inset-0 h-full w-full' : '', props.class]"
   >
     <!-- 占位骨架：结构化，不用 spinner -->
     <div
