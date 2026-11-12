@@ -1,3 +1,5 @@
+import { asset } from '@/utils/asset'
+
 export interface Bba {
   before: string
   built: string
@@ -191,7 +193,7 @@ export const projects: Project[] = [
     domain: 'AI SYSTEMS',
     summary:
       '把材料导入、初判、深度分析、目录生成、章节准备、编制导出拆成六阶段 AI 工作流，来源、人工确认与交付边界全部纳入系统流程。',
-    cover: '/img/bidos/03.jpg',
+    cover: asset('/img/bidos/03.jpg'),
     coverCaption: 'BidOS 项目概览：阶段产物与目录绑定关系',
     tags: ['Vue 3', 'Flask', 'Python', 'SQLite', 'LLM', 'Workflow'],
     stack: ['Vue 3', 'Flask / Python', 'SQLite', '文件系统产物', '模型适配层'],
@@ -269,12 +271,12 @@ export const projects: Project[] = [
       },
     ],
     gallery: [
-      { src: '/img/bidos/01.jpg', caption: '材料导入' },
-      { src: '/img/bidos/02.jpg', caption: '招标深度分析' },
-      { src: '/img/bidos/03.jpg', caption: '目录与企业知识库绑定' },
-      { src: '/img/bidos/04.jpg', caption: 'DOCX 编制工作台' },
-      { src: '/img/bidos/05.jpg', caption: '系统管理总览' },
-      { src: '/img/bidos/08.jpg', caption: '项目概览' },
+      { src: asset('/img/bidos/01.jpg'), caption: '材料导入' },
+      { src: asset('/img/bidos/02.jpg'), caption: '招标深度分析' },
+      { src: asset('/img/bidos/03.jpg'), caption: '目录与企业知识库绑定' },
+      { src: asset('/img/bidos/04.jpg'), caption: 'DOCX 编制工作台' },
+      { src: asset('/img/bidos/05.jpg'), caption: '系统管理总览' },
+      { src: asset('/img/bidos/08.jpg'), caption: '项目概览' },
     ],
     diagrams: [
       { id: 'bidos-workflow', title: '六阶段工作流', code: bidosWorkflow },
@@ -290,7 +292,7 @@ export const projects: Project[] = [
     domain: 'MEDICAL SOFTWARE',
     summary:
       '依据 WS/T 888—2026 构建大模型驱动的轻量化老年综合评估系统，把量表引擎、评分规则与多条件汇总拆成可扩展的独立模块。',
-    cover: '/img/cga/02.jpg',
+    cover: asset('/img/cga/02.jpg'),
     coverCaption: 'CGA-Smart 评估工作台与风险提示',
     tags: ['Vue 3', 'Vite', 'TypeScript', 'Element Plus', 'Pinia', 'ECharts', 'LLM'],
     stack: ['Vue 3', 'Vite 5', 'TypeScript', 'Element Plus', 'Pinia', 'ECharts', 'Spring Boot'],
@@ -368,12 +370,12 @@ export const projects: Project[] = [
       },
     ],
     gallery: [
-      { src: '/img/cga/01.jpg', caption: '系统登录与角色入口' },
-      { src: '/img/cga/02.jpg', caption: '评估工作台与风险提示' },
-      { src: '/img/cga/04.jpg', caption: '量表管理' },
-      { src: '/img/cga/06.jpg', caption: '患者管理' },
-      { src: '/img/cga/08.jpg', caption: '评估流程与结果' },
-      { src: '/img/cga/11.jpg', caption: '系统管理' },
+      { src: asset('/img/cga/01.jpg'), caption: '系统登录与角色入口' },
+      { src: asset('/img/cga/02.jpg'), caption: '评估工作台与风险提示' },
+      { src: asset('/img/cga/04.jpg'), caption: '量表管理' },
+      { src: asset('/img/cga/06.jpg'), caption: '患者管理' },
+      { src: asset('/img/cga/08.jpg'), caption: '评估流程与结果' },
+      { src: asset('/img/cga/11.jpg'), caption: '系统管理' },
     ],
     diagrams: [{ id: 'cga-arch', title: '量表引擎与数据层', code: cgaArchitecture }],
   },
@@ -386,7 +388,7 @@ export const projects: Project[] = [
     domain: 'NEURO / SIGNAL',
     summary:
       '把 MoCA 14 个评估环节数字化，适配多家医院的采集设备，在 20ms 级完成事件打标，把认知测评与脑电信号采集锁进同一条时间轴。',
-    cover: '/img/moca/moca-01.jpg',
+    cover: asset('/img/moca/moca-01.jpg'),
     coverCaption: 'MoCA 认知评估系统操作界面',
     tags: ['实验范式', '串口通信', '脑电事件标记', 'Python', '实时打标'],
     stack: ['串口设备通信', '实时事件打标', '实验范式设计', '数字化量表', 'Python'],
@@ -463,7 +465,7 @@ export const projects: Project[] = [
         ],
       },
     ],
-    gallery: [{ src: '/img/moca/moca-01.jpg', caption: 'MoCA 认知评估系统操作界面' }],
+    gallery: [{ src: asset('/img/moca/moca-01.jpg'), caption: 'MoCA 认知评估系统操作界面' }],
     diagrams: [{ id: 'moca-seq', title: '打标全流程时序', code: mocaSequence }],
   },
 
@@ -475,7 +477,7 @@ export const projects: Project[] = [
     domain: 'AI AGENT',
     summary:
       '基于 Spring AI 与本地化部署的 Qwen 量化模型，构建带证据推理输出的防返贫风险识别智能体，Agent 与 MCP Tools 结构化插入业务链路。',
-    cover: '/img/fupanpolymed/fupan-01.jpg',
+    cover: asset('/img/fupanpolymed/fupan-01.jpg'),
     coverCaption: '防返贫智能体对话与风险识别',
     tags: ['Spring AI', 'ReactAgent', 'Qwen', 'LangGraph', 'MCP', '本地部署'],
     stack: ['Spring AI / Spring AI Alibaba', 'ReactAgent', 'OpenAI-compatible 适配', 'vLLM / Qwen 本地部署', 'Next.js', 'LangGraph'],
@@ -553,9 +555,9 @@ export const projects: Project[] = [
       },
     ],
     gallery: [
-      { src: '/img/fupanpolymed/fupan-01.jpg', caption: '防返贫智能体对话' },
-      { src: '/img/fupanpolymed/fupan-04.jpg', caption: '风险识别结果与证据' },
-      { src: '/img/fupanpolymed/fupan-06.jpg', caption: '多模态文件输入' },
+      { src: asset('/img/fupanpolymed/fupan-01.jpg'), caption: '防返贫智能体对话' },
+      { src: asset('/img/fupanpolymed/fupan-04.jpg'), caption: '风险识别结果与证据' },
+      { src: asset('/img/fupanpolymed/fupan-06.jpg'), caption: '多模态文件输入' },
     ],
     diagrams: [{ id: 'fupan-arch', title: 'Agent 与模型服务架构', code: fupanArch }],
   },
@@ -568,7 +570,7 @@ export const projects: Project[] = [
     domain: 'HEALTHCARE',
     summary:
       '以 RAG 构建微服务用药助手 Agent，患者端、家属端、医生端三端打通，让医嘱智能下达、服药情况实时可监控。',
-    cover: '/img/fupanpolymed/polymed-03.jpg',
+    cover: asset('/img/fupanpolymed/polymed-03.jpg'),
     coverCaption: 'PolyMed 智能用药小程序',
     tags: ['RAG', '多模态', 'Agent', '微信小程序', '医患协同'],
     stack: ['RAG 用药知识库', 'VL 多模态识别', 'Agent 微服务', '微信小程序', '语音交互'],
@@ -646,10 +648,10 @@ export const projects: Project[] = [
       },
     ],
     gallery: [
-      { src: '/img/fupanpolymed/polymed-01.jpg', caption: '患者端 · 用药助手' },
-      { src: '/img/fupanpolymed/polymed-05.jpg', caption: '用药方案与注意事项' },
-      { src: '/img/fupanpolymed/polymed-09.jpg', caption: '家属端监护' },
-      { src: '/img/fupanpolymed/polymed-13.jpg', caption: '医生端医嘱' },
+      { src: asset('/img/fupanpolymed/polymed-01.jpg'), caption: '患者端 · 用药助手' },
+      { src: asset('/img/fupanpolymed/polymed-05.jpg'), caption: '用药方案与注意事项' },
+      { src: asset('/img/fupanpolymed/polymed-09.jpg'), caption: '家属端监护' },
+      { src: asset('/img/fupanpolymed/polymed-13.jpg'), caption: '医生端医嘱' },
     ],
     diagrams: [{ id: 'polymed-arch', title: '三端与 Agent 服务层', code: polymedArch }],
   },

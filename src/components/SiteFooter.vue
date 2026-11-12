@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
+
 const year = new Date().getFullYear()
 </script>
 
@@ -21,6 +23,7 @@ const year = new Date().getFullYear()
           github.com/ShehadeX
         </a>
         <a class="ul w-fit" href="tel:13728860925">13728860925</a>
+        <RouterLink class="ul w-fit" to="/research">Dissecting the Score — ICLR 2027</RouterLink>
         <span class="text-ink-faint">© {{ year }} 肖致浩</span>
       </div>
     </div>

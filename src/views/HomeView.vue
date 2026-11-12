@@ -71,19 +71,25 @@ const timeline = [
 
 const research = [
   {
-    title: 'ICLR 2027 · 第二作者',
-    desc: '以第二作者合作完成神经接口方向论文，当前处于 Rebuttal 阶段，全流程参与实验设计、实现与著作撰写。',
+    title: 'Dissecting the Score — ICLR 2027',
+    desc: '以神经生理学为共同参照的跨架构诊断基准：固定 adapter / 骨干 / readout，对输入施加八种预注册协议，揭示标量分数掩盖的重复性模式——预测依赖粗结构、对细结构响应微弱。',
     tag: 'Under Review',
+    to: '/research',
+    accent: true,
   },
   {
-    title: '软件著作权',
-    desc: '脑电事件打标软件已在南京鼓楼医院、深圳第二人民医院、广州三九脑科医院完成临床测试并提交登记申请。',
+    title: '软件著作权 · 脑电事件打标软件',
+    desc: '已在南京鼓楼医院、深圳第二人民医院、广州三九脑科医院完成临床测试并提交登记申请，20ms 级实时打标。',
     tag: 'Filed',
+    to: '/project/moca',
+    accent: false,
   },
   {
     title: '开源与工程实践',
     desc: '基于芋道（yudao）微服务体系搭建老年综合评估平台，沉淀量表引擎与多模块 AI 能力到工程主干。',
     tag: 'Engineering',
+    to: '/project/cga-smart',
+    accent: false,
   },
 ]
 </script>
@@ -254,13 +260,23 @@ const research = [
         <div class="mt-10 grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <!-- research cards -->
           <div class="space-y-px overflow-hidden rounded-[15px] bg-ink/12">
-            <div v-for="r in research" :key="r.title" class="bg-base p-6">
+            <RouterLink
+              v-for="r in research"
+              :key="r.title"
+              :to="r.to"
+              class="group block bg-base p-6 transition-colors duration-150 hover:bg-raised"
+            >
               <div class="flex items-start justify-between gap-4">
                 <h3 class="text-[16px] leading-snug">{{ r.title }}</h3>
                 <span class="tag shrink-0">{{ r.tag }}</span>
               </div>
               <p class="mt-2.5 text-[14px] leading-relaxed text-ink-muted">{{ r.desc }}</p>
-            </div>
+              <span
+                class="mt-3 inline-block font-mono text-[11px] text-ink-faint transition-transform duration-150 group-hover:translate-x-0.5 group-hover:text-ink"
+              >
+                查看详情 →
+              </span>
+            </RouterLink>
           </div>
 
           <!-- experience timeline -->

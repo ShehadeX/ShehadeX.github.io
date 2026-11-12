@@ -2,10 +2,10 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const links = [
-  { label: 'About', href: '#about' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Research', href: '#research' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'About', href: '/#about' },
+  { label: 'Projects', href: '/#projects' },
+  { label: 'Research', href: '/research' },
+  { label: 'Contact', href: '/#contact' },
 ]
 
 const scrolled = ref(false)
@@ -33,14 +33,14 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
       </RouterLink>
 
       <nav class="ml-auto hidden items-center gap-6 md:flex">
-        <a
+        <RouterLink
           v-for="l in links"
           :key="l.href"
-          :href="l.href"
+          :to="l.href"
           class="font-mono text-[12px] text-ink-muted transition-colors duration-150 hover:text-ink"
         >
           {{ l.label }}
-        </a>
+        </RouterLink>
       </nav>
 
       <a
