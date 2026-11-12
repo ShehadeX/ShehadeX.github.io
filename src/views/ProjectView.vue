@@ -171,7 +171,7 @@ const isEn = computed(() => lang.value === 'en')
                   :class="
                     m.ratio
                       ? 'lg:grid lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]'
-                      : 'lg:grid lg:grid-cols-[minmax(0,1.42fr)_minmax(0,0.58fr)]'
+                      : 'lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(340px,0.9fr)]'
                   "
                 >
                   <!-- 图片列：移动端按比例堆叠，桌面端填满左列 -->
