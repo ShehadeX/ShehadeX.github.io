@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { t } from '@/composables/useI18n'
+import LangToggle from '@/components/LangToggle.vue'
 
-const links = [
-  { label: 'About', href: '/#about' },
-  { label: 'Projects', href: '/#projects' },
-  { label: 'Research', href: '/research' },
-  { label: 'Contact', href: '/#contact' },
-]
+const links = computed(() => [
+  { label: t('nav.about'), href: '/#about' },
+  { label: t('nav.projects'), href: '/#projects' },
+  { label: t('nav.research'), href: '/research' },
+  { label: t('nav.contact'), href: '/#contact' },
+])
 
 const scrolled = ref(false)
 const progress = ref(0)
@@ -61,14 +63,17 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
         </RouterLink>
       </nav>
 
-      <a
-        href="https://github.com/ShehadeX"
-        target="_blank"
-        rel="noopener"
-        class="ml-auto flex h-7 items-center rounded-[3px] border border-ink/15 px-2.5 font-mono text-[11px] text-ink-muted transition-colors duration-150 hover:border-claude/45 hover:text-claude-deep md:ml-0"
-      >
-        GitHub ↗
-      </a>
+      <div class="ml-auto flex items-center gap-2 md:ml-0">
+        <LangToggle />
+        <a
+          href="https://github.com/ShehadeX"
+          target="_blank"
+          rel="noopener"
+          class="flex h-7 items-center rounded-[3px] border border-ink/15 px-2.5 font-mono text-[11px] text-ink-muted transition-colors duration-150 hover:border-claude/45 hover:text-claude-deep"
+        >
+          GitHub ↗
+        </a>
+      </div>
     </div>
   </header>
 </template>

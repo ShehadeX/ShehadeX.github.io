@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { stackCategories, stackProjects, allStackItems, usageCount } from '@/data/stack'
+import { stackCategoriesEn, stackProjectsEn } from '@/data/stack.en'
+import { t, lang } from '@/composables/useI18n'
+import { computed as _c } from 'vue'
 
 /**
  * Obsidian 式技术栈图谱。
@@ -36,6 +39,10 @@ interface Edge {
   active: boolean
 }
 
+const isEn = _c(() => lang.value === 'en')
+const cats = _c(() => (isEn.value ? stackCategoriesEn : stackCategories))
+const projects_ = _c(() => (isEn.value ? stackProjectsEn : stackProjects))
+
 const selectedProject = ref<string | null>(null)
 const hovered = ref<string | null>(null)
 
@@ -45,8 +52,8 @@ const layout = computed(() => {
   const hubR = 196
   const itemR = 104
 
-  stackCategories.forEach((cat, ci) => {
-    const a = -Math.PI / 2 + (ci * Math.PI * 2) / stackCategories.length
+  cats.value.forEach((cat, ci) => {
+    const a = -Math.PI / 2 + (ci * Math.PI * 2) / cats.value.length
     const hx = CX + hubR * Math.cos(a)
     const hy = CY + hubR * Math.sin(a)
 
@@ -125,7 +132,7 @@ const isDim = (node: Node) => {
 }
 
 const currentProject = computed(() =>
-  stackProjects.find((p) => p.slug === selectedProject.value) ?? null,
+  projects_.value.find((p) => p.slug === selectedProject.value) ?? null,
 )
 
 /** 右侧详情面板 */
@@ -139,7 +146,7 @@ const detail = computed(() => {
 const itemProjects = computed(() => {
   if (!detail.value) return []
   return detail.value.projects
-    .map((slug) => stackProjects.find((p) => p.slug === slug))
+    .map((slug) => projects_.value.find((p) => p.slug === slug))
     .filter(Boolean)
 })
 
@@ -152,7 +159,7 @@ const toggleProject = (slug: string) => {
   <div class="overflow-hidden rounded-[15px] border border-ink/12 bg-base">
     <!-- 头部：项目筛选 -->
     <div class="flex flex-wrap items-center gap-2 border-b border-ink/10 bg-raised px-4 py-3">
-      <span class="eyebrow mr-1">Stack Graph</span>
+      <span class="eyebrow mr-1">{{ t('stack.graph') }}</span>
       <button
         type="button"
         class="h-7 rounded-[3px] px-2.5 font-mono text-[11px] transition-colors duration-150"
@@ -166,7 +173,7 @@ const toggleProject = (slug: string) => {
         All
       </button>
       <button
-        v-for="p in stackProjects"
+        v-for="p in projects_"
         :key="p.slug"
         type="button"
         class="h-7 rounded-[3px] px-2.5 font-mono text-[11px] transition-colors duration-150"
@@ -180,7 +187,8 @@ const toggleProject = (slug: string) => {
         {{ p.name }}
       </button>
       <span class="ml-auto font-mono text-[10.5px] text-ink-faint">
-        {{ allStackItems.length }} techs · {{ stackCategories.length }} domains
+        {{ allStackItems.length }} {{ isEn ? 'techs' : '项技术' }} ·
+        {{ cats.length }} {{ isEn ? 'domains' : '个领域' }}
       </span>
     </div>
 
@@ -287,7 +295,7 @@ const toggleProject = (slug: string) => {
         </svg>
 
         <p class="border-t border-ink/10 px-4 py-2.5 font-mono text-[10.5px] leading-relaxed text-ink-faint">
-          节点大小 = 该技术被多少个项目使用 · 点分类或技术查看详情
+          {{ t('stack.hint') }}
         </p>
       </div>
 
@@ -295,14 +303,14 @@ const toggleProject = (slug: string) => {
       <div class="p-5 sm:p-6">
         <template v-if="detail">
           <div class="flex items-baseline gap-2.5">
-            <span class="claude-num">{{ detail.kind === 'hub' ? 'DOMAIN' : 'TECH' }}</span>
+            <span class="claude-num">{{ detail.kind === 'hub' ? t('stack.domain') : t('stack.tech') }}</span>
             <h3 class="display text-[20px] leading-tight">{{ detail.name }}</h3>
           </div>
           <p class="mt-1 font-mono text-[11px] text-ink-faint">{{ detail.categoryName }}</p>
           <p class="mt-3 text-[13.5px] leading-[1.8] text-ink-body">{{ detail.note }}</p>
 
           <div v-if="itemProjects.length" class="mt-5">
-            <p class="eyebrow">Used in</p>
+            <p class="eyebrow">{{ t('stack.usedin') }}</p>
             <ul class="mt-2.5 space-y-1.5">
               <li
                 v-for="p in itemProjects"
@@ -318,7 +326,7 @@ const toggleProject = (slug: string) => {
 
           <div v-if="detail.kind === 'hub'" class="mt-5 flex flex-wrap gap-1.5">
             <span
-              v-for="it in stackCategories.find((c) => c.id === detail!.id)?.items ?? []"
+              v-for="it in cats.find((c) => c.id === detail!.id)?.items ?? []"
               :key="it.id"
               class="tag"
             >
@@ -348,13 +356,14 @@ const toggleProject = (slug: string) => {
         </template>
 
         <template v-else>
-          <p class="eyebrow">Tech Stack</p>
+          <p class="eyebrow">{{ t('stack.graph') }}</p>
           <p class="mt-3 text-[13.5px] leading-[1.85] text-ink-muted">
-            六个领域、{{ allStackItems.length }} 项技术。点上方项目筛选可以只看某个项目用到的部分；
-            悬停任意节点查看它的实际用法。
+            {{ isEn
+              ? `${cats.length} domains, ${allStackItems.length} technologies. Use the project filter above to narrow the view, or hover any node to see how it is actually used.`
+              : `六个领域、${allStackItems.length} 项技术。点上方项目筛选可以只看某个项目用到的部分；悬停任意节点查看它的实际用法。` }}
           </p>
           <div class="mt-5 space-y-3">
-            <div v-for="c in stackCategories" :key="c.id">
+            <div v-for="c in cats" :key="c.id">
               <p class="flex items-baseline gap-2 text-[13px] font-semibold text-ink">
                 <span class="claude-num">{{ c.items.length }}</span>
                 {{ c.name }}

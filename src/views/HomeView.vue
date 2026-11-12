@@ -1,51 +1,149 @@
 <script setup lang="ts">
-import { projects } from '@/data/projects'
 import ProjectCard from '@/components/ProjectCard.vue'
 import { asset } from '@/utils/asset'
 import ParallaxBackdrop from '@/components/ParallaxBackdrop.vue'
 import StackGraph from '@/components/StackGraph.vue'
 import { stackCategories, allStackItems } from '@/data/stack'
+import { stackCategoriesEn } from '@/data/stack.en'
+import {
+  projectFiltersEn,
+  capabilitiesEn,
+  timelineEn,
+  researchEn,
+} from '@/data/home.en'
+import { useLocalizedProjects } from '@/composables/useLocalizedProjects'
+import { t, lang } from '@/composables/useI18n'
 import { computed, ref } from 'vue'
 
-const projectFilters = [
-  { key: 'all', label: 'All Cases' },
-  { key: 'AI SYSTEMS', label: 'AI Systems' },
-  { key: 'MEDICAL SOFTWARE', label: 'Medical' },
-  { key: 'NEURO / SIGNAL', label: 'Neuro / Signal' },
-  { key: 'AI AGENT', label: 'Agent' },
-  { key: 'HEALTHCARE', label: 'Healthcare' },
-]
+const { all: projects } = useLocalizedProjects()
+
+/** 切换语言时重新取本地化数据 */
+const zhOnly = {
+  projectFilters: [
+    { key: 'all', label: 'All Cases' },
+    { key: 'AI SYSTEMS', label: 'AI Systems' },
+    { key: 'MEDICAL SOFTWARE', label: 'Medical' },
+    { key: 'NEURO / SIGNAL', label: 'Neuro / Signal' },
+    { key: 'AI AGENT', label: 'Agent' },
+    { key: 'HEALTHCARE', label: 'Healthcare' },
+  ],
+  capabilities: [
+    {
+      key: 'AI Agent',
+      desc: 'ReactAgent / LangGraph / Spring AI Agent Framework，工具注册、模型选工具、上下文总结与证据绑定推理输出。',
+      items: ['Agent 编排', 'MCP Tools', 'RAG', '多模态 VL'],
+    },
+    {
+      key: 'Full-stack',
+      desc: 'Vue 3 + TypeScript 前端，Flask / Spring Boot 后端，MySQL / SQLite 持久化，Docker 与 ECS 部署运维。',
+      items: ['Vue 3', 'Spring Boot', 'Flask', 'Docker'],
+    },
+    {
+      key: 'Deep Learning',
+      desc: '脑电信号采集与事件打标、认知评估范式设计，实验室真实数据上的信号处理与模型解码。',
+      items: ['脑电打标', '实验范式', '信号处理', '模型解码'],
+    },
+    {
+      key: 'Deployment',
+      desc: '本地端到端成稿与模型服务部署，量化模型本地化，敏感数据不出内网，兼顾成本与响应性能。',
+      items: ['量化部署', '性能调优', '成本控制', '内网合规'],
+    },
+  ],
+  timeline: [
+    {
+      period: '2026.07.16 – 至今',
+      org: '中国科学院深圳先进技术研究院 · 神经接口实验室',
+      role: '科研软件开发实习生',
+      logo: '/img/logos/siat.png',
+      points: [
+        '与深圳第二人民医院神经接口科合作采集患者 SEEG 数据，覆盖认知任务、MI 运动想象与 Seize 癫痫任务',
+        '把 MoCA 阿兹海默认知系统从实验室推向病房，通过真实患者测试迭代实验范式，降低非刺激因素干扰',
+        '以第二作者合作完成 ICLR 2027 论文：Stage1 冻结 4 个 backbone、8 个数据集构建 adapter，Stage2 用时间/空间/频域/微事件扰动实现模型「开盒」',
+        '打标软件已在南京鼓楼医院、深圳第二人民医院、广州三九脑科医院测试 20+ 患者数据并申请软著',
+      ],
+    },
+    {
+      period: '2026.07.06 – 2026.07.31',
+      org: '中国电信数智科技有限公司 · 海南分公司研发中心',
+      role: 'AI 应用研发实习生',
+      logo: '/img/logos/mark-chinatelecom.png',
+      points: [
+        '设计海南省「防返贫」大模型原型，负责功能研发与测试',
+        '基于 Spring AI 对接内网模型服务，ReactAgent 编排工具注册、模型选工具与上下文总结',
+        '调用本地部署 Qwen VL 处理多模态农户材料，输出 schema 约束返回值，保证决策阶段不丢数据、不误判',
+        '以 Dify 串联材料识别、字段归一化、规则初判与报告生成，全部数据在内网闭环',
+      ],
+    },
+    {
+      period: '2026.04.01 – 2026.12.01',
+      org: '广电计量集团 · 广州总部计量事业部',
+      role: '实习生',
+      logo: '/img/logos/mark-grgt.png',
+      points: [
+        '全链路全栈开发：拆解业务需求、开发并测试全套代码、部署生产与后续调优',
+        '用 python-docx 抽取结构化信息并调用 LLM 标注原始格式，把「复制粘贴」变成代码化的一次成稿',
+        '分析 23 份历史人工稿件构建材料图谱与知识库一二级分类，生成时按项目精准召回资质、法律与业绩信息',
+        '用 JSON 定义 OOXML 格式的 harness、企业主体提示词注入与负面提示词抑制模型幻觉',
+        '最终以 Docker 打包并通过 K8s 交付甲方主机，保留开发手稿、维护注释与测试入口',
+      ],
+    },
+    {
+      period: '2025.09 – 2026.02',
+      org: '大云屋工作室众创平台',
+      role: '软件开发组成长',
+      points: [
+        '带领多个项目并行推进，排布成员任务，管理实验室服务器',
+        '对接多位导师，承接横向开发、纵向研究与产教融合任务',
+        '参与协商会议与合同签订',
+      ],
+    },
+  ],
+  research: [
+    {
+      title: 'Dissecting the Score — ICLR 2027',
+      desc: '以神经生理学为共同参照的跨架构诊断基准：固定 adapter / 骨干 / readout，对输入施加八种预注册协议，揭示标量分数掩盖的重复性模式——预测依赖粗结构、对细结构响应微弱。',
+      tag: 'Under Review',
+      to: '/research',
+      accent: true,
+    },
+    {
+      title: '软件著作权 · 脑电事件打标软件',
+      desc: '已在南京鼓楼医院、深圳第二人民医院、广州三九脑科医院完成临床测试并提交登记申请，20ms 级实时打标，43 个精细化打标点。',
+      tag: 'Filed',
+      to: '/project/moca',
+      accent: false,
+    },
+    {
+      title: '开源与工程实践',
+      desc: '基于芋道（yudao）微服务体系搭建老年综合评估平台，沉淀量表引擎与多模块 AI 能力到工程主干。',
+      tag: 'Engineering',
+      to: '/project/cga-smart',
+      accent: false,
+    },
+    {
+      title: '脑电数据的跨域情绪识别算法',
+      desc: '组长与开发者。从冻结骨干到部分解冻、全量训练与更换下游分类头多轮尝试，引入 SEED 等数据集补全小样本训练量，三折 BACC 从 65.3% 提升到 78.6%。',
+      tag: 'Research',
+      to: '/project/moca',
+      accent: false,
+    },
+  ],
+}
+
+const isEn = computed(() => lang.value === 'en')
+const projectFilters = computed(() => (isEn.value ? projectFiltersEn : zhOnly.projectFilters))
+const capabilities = computed(() => (isEn.value ? capabilitiesEn : zhOnly.capabilities))
+const timeline = computed(() => (isEn.value ? timelineEn : zhOnly.timeline))
+const research = computed(() => (isEn.value ? researchEn : zhOnly.research))
+const stackCats = computed(() => (isEn.value ? stackCategoriesEn : stackCategories))
 
 const activeFilter = ref('all')
 
 const filteredProjects = computed(() =>
   activeFilter.value === 'all'
-    ? projects
-    : projects.filter((p) => p.domain === activeFilter.value),
+    ? projects.value
+    : projects.value.filter((p: { domain: string }) => p.domain === activeFilter.value),
 )
-
-const capabilities = [
-  {
-    key: 'AI Agent',
-    desc: 'ReactAgent / LangGraph / Spring AI Agent Framework，工具注册、模型选工具、上下文总结与证据绑定推理输出。',
-    items: ['Agent 编排', 'MCP Tools', 'RAG', '多模态 VL'],
-  },
-  {
-    key: 'Full-stack',
-    desc: 'Vue 3 + TypeScript 前端，Flask / Spring Boot 后端，MySQL / SQLite 持久化，Docker 与 ECS 部署运维。',
-    items: ['Vue 3', 'Spring Boot', 'Flask', 'Docker'],
-  },
-  {
-    key: 'Deep Learning',
-    desc: '脑电信号采集与事件打标、认知评估范式设计，实验室真实数据上的信号处理与模型解码。',
-    items: ['脑电打标', '实验范式', '信号处理', '模型解码'],
-  },
-  {
-    key: 'Deployment',
-    desc: '本地端到端成稿与模型服务部署，量化模型本地化，敏感数据不出内网，兼顾成本与响应性能。',
-    items: ['量化部署', '性能调优', '成本控制', '内网合规'],
-  },
-]
 
 const internships = [
   { name: '中国科学院深圳先进技术研究院', src: '/img/logos/siat.png' },
@@ -53,86 +151,6 @@ const internships = [
   { name: '广电计量集团', src: '/img/logos/mark-grgt.png' },
 ]
 
-const timeline = [
-  {
-    period: '2026.07.16 – 至今',
-    org: '中国科学院深圳先进技术研究院 · 神经接口实验室',
-    role: '科研软件开发实习生',
-    logo: '/img/logos/siat.png',
-    points: [
-      '与深圳第二人民医院神经接口科合作采集患者 SEEG 数据，覆盖认知任务、MI 运动想象与 Seize 癫痫任务',
-      '把 MoCA 阿兹海默认知系统从实验室推向病房，通过真实患者测试迭代实验范式，降低非刺激因素干扰',
-      '以第二作者合作完成 ICLR 2027 论文：Stage1 冻结 4 个 backbone、8 个数据集构建 adapter，Stage2 用时间/空间/频域/微事件扰动实现模型「开盒」',
-      '打标软件已在南京鼓楼医院、深圳第二人民医院、广州三九脑科医院测试 20+ 患者数据并申请软著',
-    ],
-  },
-  {
-    period: '2026.07.06 – 2026.07.31',
-    org: '中国电信数智科技有限公司 · 海南分公司研发中心',
-    role: 'AI 应用研发实习生',
-    logo: '/img/logos/mark-chinatelecom.png',
-    points: [
-      '设计海南省「防返贫」大模型原型，负责功能研发与测试',
-      '基于 Spring AI 对接内网模型服务，ReactAgent 编排工具注册、模型选工具与上下文总结',
-      '调用本地部署 Qwen VL 处理多模态农户材料，输出 schema 约束返回值，保证决策阶段不丢数据、不误判',
-      '以 Dify 串联材料识别、字段归一化、规则初判与报告生成，全部数据在内网闭环',
-    ],
-  },
-  {
-    period: '2026.04.01 – 2026.12.01',
-    org: '广电计量集团 · 广州总部计量事业部',
-    role: '实习生',
-    logo: '/img/logos/mark-grgt.png',
-    points: [
-      '全链路全栈开发：拆解业务需求、开发并测试全套代码、部署生产与后续调优',
-      '用 python-docx 抽取结构化信息并调用 LLM 标注原始格式，把「复制粘贴」变成代码化的一次成稿',
-      '分析 23 份历史人工稿件构建材料图谱与知识库一二级分类，生成时按项目精准召回资质、法律与业绩信息',
-      '用 JSON 定义 OOXML 格式的 harness、企业主体提示词注入与负面提示词抑制模型幻觉',
-      '最终以 Docker 打包并通过 K8s 交付甲方主机，保留开发手稿、维护注释与测试入口',
-    ],
-  },
-  {
-    period: '2025.09 – 2026.02',
-    org: '大云屋工作室众创平台',
-    role: '软件开发组成长',
-    points: [
-      '带领多个项目并行推进，排布成员任务，管理实验室服务器',
-      '对接多位导师，承接横向开发、纵向研究与产教融合任务',
-      '参与协商会议与合同签订',
-    ],
-  },
-]
-
-const research = [
-  {
-    title: 'Dissecting the Score — ICLR 2027',
-    desc: '以神经生理学为共同参照的跨架构诊断基准：固定 adapter / 骨干 / readout，对输入施加八种预注册协议，揭示标量分数掩盖的重复性模式——预测依赖粗结构、对细结构响应微弱。',
-    tag: 'Under Review',
-    to: '/research',
-    accent: true,
-  },
-  {
-    title: '软件著作权 · 脑电事件打标软件',
-    desc: '已在南京鼓楼医院、深圳第二人民医院、广州三九脑科医院完成临床测试并提交登记申请，20ms 级实时打标，43 个精细化打标点。',
-    tag: 'Filed',
-    to: '/project/moca',
-    accent: false,
-  },
-  {
-    title: '开源与工程实践',
-    desc: '基于芋道（yudao）微服务体系搭建老年综合评估平台，沉淀量表引擎与多模块 AI 能力到工程主干。',
-    tag: 'Engineering',
-    to: '/project/cga-smart',
-    accent: false,
-  },
-  {
-    title: '脑电数据的跨域情绪识别算法',
-    desc: '组长与开发者。从冻结骨干到部分解冻、全量训练与更换下游分类头多轮尝试，引入 SEED 等数据集补全小样本训练量，三折 BACC 从 65.3% 提升到 78.6%。',
-    tag: 'Research',
-    to: '/project/moca',
-    accent: false,
-  },
-]
 </script>
 
 <template>
@@ -159,19 +177,17 @@ const research = [
           <!-- prose intro -->
           <div class="flex flex-col">
             <p class="font-mono text-[11px] tracking-[0.14em] text-ink-faint rise rise-1">
-              AI ENGINEERING / AGENT / DEPLOYMENT
+              {{ t('hero.eyebrow') }}
             </p>
 
             <h1 class="mt-5 text-[42px] leading-[1.06] sm:text-[62px]">
               <span class="display rise rise-2">I'm </span>
-              <span class="marker marker-reveal text-claude rise rise-2">肖致浩</span>
+              <span class="marker marker-reveal text-claude rise rise-2">{{ t('hero.name.cn') }}</span>
               <span class="display rise rise-2"> Shehade</span>
             </h1>
 
-            <p class="mt-7 text-[23px] leading-[1.5] text-ink sm:text-[27px]">
-              <span class="rise rise-3">我用 AI 与软件系统</span>
-              <br class="hidden sm:block" />
-              <span class="squiggle squiggle-reveal rise rise-4">解决真实问题。</span>
+            <p class="mt-7 max-w-[20ch] text-[23px] leading-[1.4] text-ink sm:text-[27px]">
+              <span class="rise rise-3">{{ t('hero.tagline') }}</span>
             </p>
 
             <p class="mt-6 max-w-[52ch] text-[15px] leading-[1.85] text-ink-muted">
@@ -180,8 +196,8 @@ const research = [
                 alt="广东工业大学"
                 class="mr-2 inline-block h-6 w-6 -translate-y-0.5 object-contain align-middle"
               />
-              广东工业大学计算机科学与技术 · 2028 届 · GPA 3.6/5、专业前 5%。
-              方向是机器学习、Agent 开发与前沿部署——把业务需求拆成可追踪的流程，用模型与工程把流程真正跑起来。
+              {{ t('hero.school') }}
+              {{ t('hero.school2') }}
             </p>
 
             <!-- 三个关键点：置于左栏，与右侧头像/profile 栏底部对齐 -->
@@ -191,17 +207,17 @@ const research = [
               <div>
                 <p class="display tnum text-[40px] leading-none text-ink">5</p>
                 <p class="mt-2 text-[14.5px] font-semibold text-ink">
-                  交付的<span class="marker">生产级系统</span>
+                  {{ t('hero.m1.title') }}
                 </p>
                 <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
-                  招投标、老年评估、脑电打标、防返贫 Agent、用药小程序
+                  {{ t('hero.m1.desc') }}
                 </p>
               </div>
               <div>
                 <p class="display tnum text-[40px] leading-none text-ink">3</p>
-                <p class="mt-2 text-[14.5px] font-semibold text-ink">段实习</p>
+                <p class="mt-2 text-[14.5px] font-semibold text-ink">{{ t('hero.m2.title') }}</p>
                 <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
-                  中国科学院先进院 · 中国电信数智 · 广电计量
+                  {{ t('hero.m2.desc') }}
                 </p>
                 <div class="mt-3 flex items-center gap-2.5">
                   <img
@@ -216,10 +232,10 @@ const research = [
               <div>
                 <p class="display tnum text-[40px] leading-none text-ink">ICLR</p>
                 <p class="mt-2 text-[14.5px] font-semibold text-ink">
-                  2027 论文 · <span class="marker">第二作者</span>
+                  {{ t('hero.m3.title') }}
                 </p>
                 <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
-                  跨架构 EEG 解码诊断基准，当前 Rebuttal 阶段
+                  {{ t('hero.m3.desc') }}
                 </p>
               </div>
             </div>
@@ -229,7 +245,7 @@ const research = [
                 href="mailto:2912698300@qq.com"
                 class="inline-flex h-10 items-center rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
               >
-                发邮件给我
+                {{ t('hero.cta.mail') }}
               </a>
               <a
                 href="https://github.com/ShehadeX"
@@ -282,13 +298,13 @@ const research = [
                 <dt class="w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
                   focus
                 </dt>
-                <dd class="text-[13.5px] text-ink">AI-Powered Products · 医疗健康软件</dd>
+                <dd class="text-[13.5px] text-ink">{{ t('hero.profile.focus') }}</dd>
               </div>
               <div class="flex items-baseline gap-4 py-3">
                 <dt class="w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
                   stack
                 </dt>
-                <dd class="text-[13.5px] text-ink">Vue 3 · Spring AI · LangGraph · Docker</dd>
+                <dd class="text-[13.5px] text-ink">{{ t('hero.profile.stack') }}</dd>
               </div>
               <div class="flex items-baseline gap-4 py-3">
                 <dt class="w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
@@ -296,14 +312,14 @@ const research = [
                 </dt>
                 <dd class="flex items-center gap-2 text-[13.5px] text-ink">
                   <span class="pulse-dot h-1.5 w-1.5 rounded-full bg-claude" />
-                  开放实习与校招机会
+                  {{ t('hero.profile.status') }}
                 </dd>
               </div>
               <div class="flex items-baseline gap-4 py-3">
                 <dt class="w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
                   based
                 </dt>
-                <dd class="text-[13.5px] text-ink">广州 · 广东工业大学</dd>
+                <dd class="text-[13.5px] text-ink">{{ t('hero.profile.based') }}</dd>
               </div>
             </dl>
           </div>
@@ -313,25 +329,26 @@ const research = [
         <div class="mt-16 border-t border-ink/12 pt-10 sm:mt-20 sm:pt-12">
           <div class="flex items-baseline gap-4">
             <span class="claude-num">PHL</span>
-            <span class="eyebrow">Development Philosophy</span>
+            <span class="eyebrow">{{ t('phl.eyebrow') }}</span>
             <span class="rule flex-1" />
           </div>
 
-          <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
-            <h2 class="max-w-[14ch] text-[38px] leading-[1.1] sm:text-[48px] lg:text-[52px]">
-              <span class="display">用<span class="marker">第一性原理</span></span><br />
-              <span class="display">拆解问题，</span><br />
-              <span class="display text-ink-muted">做 AI 时代的原住民。</span>
+          <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16">
+            <h2
+              class="text-[32px] leading-[1.16] sm:text-[42px] lg:text-[46px]"
+            >
+              <span class="display">{{ t('phl.t1') }}</span><br />
+              <span class="display">{{ t('phl.t2') }}</span><br />
+              <span class="display text-ink-muted">{{ t('phl.t3') }}</span>
             </h2>
 
             <div class="space-y-8">
               <div class="flex gap-5">
                 <span class="claude-num shrink-0 pt-1.5">01</span>
                 <div>
-                  <p class="text-[18px] font-semibold text-ink">先问问题，再选工具</p>
+                  <p class="text-[18px] font-semibold text-ink">{{ t('phl.p1.t') }}</p>
                   <p class="mt-2 text-[14.5px] leading-[1.85] text-ink-muted">
-                    拿到需求先拆到不能再拆的最小单元：输入是什么、来源在哪、谁做判断、失败怎么回退。
-                    工具是最后一步，而不是第一步——不是为了用模型而用模型，是为了消除某个具体环节的人力成本。
+                    {{ t('phl.p1.d') }}
                   </p>
                 </div>
               </div>
@@ -339,12 +356,9 @@ const research = [
               <div class="flex gap-5">
                 <span class="claude-num shrink-0 pt-1.5">02</span>
                 <div>
-                  <p class="text-[18px] font-semibold text-ink">
-                    把边界写进<span class="squiggle">系统</span>，而不是写进文档
-                  </p>
+                  <p class="text-[18px] font-semibold text-ink">{{ t('phl.p2.t') }}</p>
                   <p class="mt-2 text-[14.5px] leading-[1.85] text-ink-muted">
-                    模型能做什么、不能做什么，失败如何恢复、人工在哪个点拍板，都应该是代码与流程里的硬约束。
-                    一个能被追溯、被打断、被接管的产品，才是能上线的产品。
+                    {{ t('phl.p2.d') }}
                   </p>
                 </div>
               </div>
@@ -352,12 +366,9 @@ const research = [
               <div class="flex gap-5">
                 <span class="claude-num shrink-0 pt-1.5">03</span>
                 <div>
-                  <p class="text-[18px] font-semibold text-ink">
-                    以 AI 原住民的方式交付
-                  </p>
+                  <p class="text-[18px] font-semibold text-ink">{{ t('phl.p3.t') }}</p>
                   <p class="mt-2 text-[14.5px] leading-[1.85] text-ink-muted">
-                    从第一天就把模型当成稳定的工程依赖：结构化输出、工具调用、检索增强、可回放的评测与观测。
-                    不是把 AI 贴到旧系统上，而是让系统从架构上就以模型能力为原生积木。
+                    {{ t('phl.p3.d') }}
                   </p>
                 </div>
               </div>
@@ -379,39 +390,37 @@ const research = [
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
           <span class="claude-num">01</span>
-          <span class="eyebrow">About Me</span>
+          <span class="eyebrow">{{ t('about.eyebrow') }}</span>
           <span class="rule flex-1" />
         </div>
 
         <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
           <div>
-            <h2 class="max-w-[20ch] text-[30px] leading-[1.25] sm:text-[38px]">
-              我在做的<span class="marker">三件事</span>
+            <h2 class="max-w-[20ch] break-keep text-[30px] leading-[1.25] sm:text-[38px]">
+              {{ t('about.title') }}
             </h2>
             <div class="mt-8 space-y-8">
               <div>
-                <p class="text-[19px] font-semibold text-ink">AI 工程系统</p>
+                <p class="text-[19px] font-semibold text-ink">{{ t('about.c1.t') }}</p>
                 <p class="mt-2 text-[14.5px] leading-[1.8] text-ink-muted">
-                  企业招投标智能体、政府场景防返贫风险识别 Agent。关注从需求到交付的完整链路，而不是只做模型调用的那一层。
+                  {{ t('about.c1.d') }}
                 </p>
               </div>
               <div>
-                <p class="text-[19px] font-semibold text-ink">医疗健康软件</p>
+                <p class="text-[19px] font-semibold text-ink">{{ t('about.c2.t') }}</p>
                 <p class="mt-2 text-[14.5px] leading-[1.8] text-ink-muted">
-                  老年综合评估系统、MoCA 认知评估与脑电实时打标。软件要能在真实病房里跑，而不是只在演示环境里跑。
+                  {{ t('about.c2.d') }}
                 </p>
               </div>
               <div>
-                <p class="text-[19px] font-semibold text-ink">神经科学方向的深度学习研究</p>
+                <p class="text-[19px] font-semibold text-ink">{{ t('about.c3.t') }}</p>
                 <p class="mt-2 text-[14.5px] leading-[1.8] text-ink-muted">
-                  以 ICLR 2027 论文为例，尝试把 EEG 解码模型的「黑盒」打开，让能力来源可被量化归因。
+                  {{ t('about.c3.d') }}
                 </p>
               </div>
             </div>
             <p class="mt-9 text-[15px] leading-[1.85] text-ink-body">
-              我的工作方式有两条固定的线。第一条是把模糊需求拆成可追踪的输入、来源、确认与输出；
-              第二条是对模型输出保持边界意识——先定义模型可以做范围、证据要求、失败恢复方式与人工决策点，
-              再谈它能带来多少提效。
+              {{ t('about.p1') }}
             </p>
           </div>
 
@@ -426,9 +435,10 @@ const research = [
           <summary
             class="flex cursor-pointer items-center gap-3 border-b border-ink/10 bg-raised px-5 py-3.5 transition-colors duration-150 hover:bg-raised/70"
           >
-            <span class="eyebrow">Full Stack Inventory</span>
+            <span class="eyebrow">{{ t('stack.inventory') }}</span>
             <span class="font-mono text-[11px] text-ink-faint">
-              {{ allStackItems.length }} 项技术 · {{ stackCategories.length }} 个领域
+              {{ allStackItems.length }} {{ isEn ? 'technologies' : '项技术' }} ·
+              {{ stackCategories.length }} {{ isEn ? 'domains' : '个领域' }}
             </span>
             <span
               class="ml-auto font-mono text-[11px] text-ink-muted transition-transform duration-200 group-open:rotate-90"
@@ -437,7 +447,7 @@ const research = [
             </span>
           </summary>
           <div class="grid gap-px bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
-            <div v-for="c in stackCategories" :key="c.id" class="bg-base p-5">
+            <div v-for="c in stackCats" :key="c.id" class="bg-base p-5">
               <div class="flex items-baseline gap-2.5">
                 <span class="claude-num">{{ String(c.items.length).padStart(2, '0') }}</span>
                 <h3 class="text-[15px] font-semibold text-ink">{{ c.name }}</h3>
@@ -460,12 +470,12 @@ const research = [
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
           <span class="claude-num">02</span>
-          <span class="eyebrow">My Capabilities</span>
+          <span class="eyebrow">{{ t('cap.eyebrow') }}</span>
           <span class="rule flex-1" />
         </div>
 
-        <h2 class="mt-8 max-w-[24ch] text-[30px] leading-[1.2] sm:text-[38px]">
-          按 AI 开发流程组织的<span class="marker">能力矩阵</span>
+        <h2 class="mt-8 max-w-[18ch] break-keep text-[30px] leading-[1.2] sm:text-[38px]">
+          {{ t('cap.title') }}
         </h2>
 
         <div class="mt-10 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-2 lg:grid-cols-4">
@@ -496,12 +506,12 @@ const research = [
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
           <span class="claude-num">03</span>
-          <span class="eyebrow">Selected Projects</span>
+          <span class="eyebrow">{{ t('proj.eyebrow') }}</span>
           <span class="rule flex-1" />
         </div>
 
-        <h2 class="mt-8 max-w-[26ch] text-[30px] leading-[1.2] sm:text-[38px]">
-          精选项目，<span class="squiggle">每项都有可核查的工程证据</span>
+        <h2 class="mt-8 max-w-[20ch] break-keep text-[30px] leading-[1.2] sm:text-[38px]">
+          {{ t('proj.title') }}
         </h2>
 
         <div class="mt-8 flex flex-wrap items-center gap-2">
@@ -543,14 +553,14 @@ const research = [
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
           <span class="claude-num">04</span>
-          <span class="eyebrow">Research &amp; Experience</span>
+          <span class="eyebrow">{{ t('res.eyebrow') }}</span>
           <span class="rule flex-1" />
         </div>
 
         <div class="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)] lg:gap-16">
           <!-- experience timeline -->
           <div>
-            <p class="eyebrow">Experience Timeline</p>
+            <p class="eyebrow">{{ t('res.timeline') }}</p>
             <div class="mt-6 space-y-0">
               <div
                 v-for="(t, i) in timeline"
@@ -604,7 +614,7 @@ const research = [
 
           <!-- research cards -->
           <div class="lg:justify-self-end lg:w-full">
-            <p class="eyebrow">Research &amp; Publications</p>
+            <p class="eyebrow">{{ t('res.research') }}</p>
             <div class="mt-6 space-y-3">
               <RouterLink
                 v-for="r in research"
@@ -620,7 +630,7 @@ const research = [
                 <span
                   class="claude-link mt-3 inline-block font-mono text-[11px] transition-transform duration-150 group-hover:translate-x-0.5"
                 >
-                  查看详情 →
+                  {{ t('res.detail') }}
                 </span>
               </RouterLink>
             </div>
@@ -634,25 +644,24 @@ const research = [
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
           <span class="claude-num">05</span>
-          <span class="eyebrow">GitHub &amp; Contact</span>
+          <span class="eyebrow">{{ t('contact.eyebrow') }}</span>
           <span class="rule flex-1" />
         </div>
 
         <div class="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
           <div>
-            <h2 class="text-[30px] leading-[1.2] sm:text-[36px]">
-              如果你在做<br /><span class="marker">AI 与软件系统</span>
+            <h2 class="max-w-[18ch] break-keep text-[30px] leading-[1.2] sm:text-[36px]">
+              {{ t('contact.title') }}
             </h2>
             <p class="mt-5 max-w-[46ch] text-[15px] leading-relaxed text-ink-muted">
-              我正在寻找 AI 工程、Agent 开发与前沿部署方向的实习与校招机会。
-              简历、系统截图与项目文档可以提供完整版本。
+              {{ t('contact.p1') }}
             </p>
             <div class="mt-7 flex flex-wrap gap-3">
               <a
                 href="mailto:2912698300@qq.com"
                 class="inline-flex h-10 items-center rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
               >
-                发邮件给我
+                {{ t('hero.cta.mail') }}
               </a>
               <a
                 href="https://github.com/ShehadeX"
@@ -680,7 +689,7 @@ const research = [
                 <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
                   ROLE
                 </dt>
-                <dd class="text-[14px] text-ink">机器学习 · Agent 开发 · 前沿部署</dd>
+                <dd class="text-[14px] text-ink">{{ isEn ? 'Machine Learning · Agent Development · Frontier Deployment' : '机器学习 · Agent 开发 · 前沿部署' }}</dd>
               </div>
               <div class="flex items-baseline gap-4 px-5 py-3.5">
                 <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">

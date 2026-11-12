@@ -1,16 +1,21 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
-import { getProject, projects } from '@/data/projects'
+import { useLocalizedProjects } from '@/composables/useLocalizedProjects'
+import { lang } from '@/composables/useI18n'
 import BeforeBuiltAfter from '@/components/BeforeBuiltAfter.vue'
 import MermaidDiagram from '@/components/MermaidDiagram.vue'
 import LazyImage from '@/components/LazyImage.vue'
 
 const route = useRoute()
-const project = computed(() => getProject(route.params.slug as string))
+const { all: projects, bySlug } = useLocalizedProjects()
 
-const idx = computed(() => projects.findIndex((p) => p.slug === route.params.slug))
-const next = computed(() => projects[(idx.value + 1) % projects.length])
+const project = computed(() => bySlug(route.params.slug as string))
+
+const idx = computed(() => projects.value.findIndex((p) => p.slug === route.params.slug))
+const next = computed(() => projects.value[(idx.value + 1) % projects.value.length])
+
+const isEn = computed(() => lang.value === 'en')
 </script>
 
 <template>
@@ -22,7 +27,7 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
           to="/#projects"
           class="inline-flex items-center gap-2 font-mono text-[12px] text-ink-faint transition-colors duration-150 hover:text-claude-deep"
         >
-          ← 返回项目列表
+          ← {{ isEn ? 'Back to projects' : '返回项目列表' }}
         </RouterLink>
 
         <div class="mt-8 flex flex-wrap items-baseline gap-x-4 gap-y-2">
@@ -157,36 +162,49 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
                 </p>
               </div>
 
-              <!-- 图片组：图为主体，右侧/下方为解读与开发历程 -->
+              <!-- 图片组：图在左，解读与开发历程在右 -->
               <div v-if="s.media?.length" class="mt-8 space-y-8">
                 <figure
                   v-for="m in s.media"
                   :key="m.src"
                   class="reveal gpu overflow-hidden rounded-[15px] border border-ink/12 bg-base"
+                  :class="
+                    m.ratio
+                      ? 'lg:grid lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]'
+                      : 'lg:grid lg:grid-cols-[minmax(0,1.42fr)_minmax(0,0.58fr)]'
+                  "
                 >
-                  <LazyImage
-                    :src="m.src"
-                    :alt="m.caption"
-                    :ratio="m.ratio || '16 / 10'"
-                    :fit="m.ratio ? 'contain' : 'cover'"
-                  />
+                  <!-- 图片列：移动端按比例堆叠，桌面端填满左列 -->
+                  <div
+                    class="relative aspect-[var(--r)] border-b border-ink/10 lg:min-h-[440px] lg:[aspect-ratio:auto] lg:border-b-0 lg:border-r"
+                    :style="{ '--r': m.ratio || '16 / 10' }"
+                  >
+                    <LazyImage
+                      :src="m.src"
+                      :alt="m.caption"
+                      fill
+                      :fit="m.ratio ? 'contain' : 'cover'"
+                    />
+                  </div>
 
-                  <figcaption class="border-t border-ink/10 px-5 py-4 sm:px-6 sm:py-5">
+                  <figcaption
+                    class="flex flex-col justify-center border-t border-ink/10 px-5 py-5 sm:px-6 lg:border-t-0 lg:py-6"
+                  >
                     <div class="flex items-baseline gap-2.5">
                       <span class="claude-num">FIG.</span>
-                      <span class="text-[14px] font-semibold text-ink">{{ m.caption }}</span>
+                      <span class="text-[15px] font-semibold text-ink">{{ m.caption }}</span>
                     </div>
 
                     <p
                       v-if="m.note"
-                      class="mt-2.5 text-[14px] leading-[1.75] text-ink-body"
+                      class="mt-3 text-[14px] leading-[1.75] text-ink-body"
                     >
                       {{ m.note }}
                     </p>
 
                     <div
                       v-if="m.story"
-                      class="mt-4 border-l-2 border-claude/50 pl-4"
+                      class="mt-5 border-l-2 border-claude/50 pl-4"
                     >
                       <p class="claude-num">Behind this screen</p>
                       <p class="mt-2 text-[13.5px] leading-[1.8] text-ink-muted">

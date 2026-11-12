@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { Project } from '@/data/projects'
+import type { LocalizedProject } from '@/composables/useLocalizedProjects'
 import LazyImage from '@/components/LazyImage.vue'
+import { t } from '@/composables/useI18n'
 
-defineProps<{ project: Project; index: number }>()
+defineProps<{ project: LocalizedProject; index: number }>()
 </script>
 
 <template>
@@ -71,7 +72,7 @@ defineProps<{ project: Project; index: number }>()
           :to="`/project/${project.slug}`"
           class="inline-flex items-center gap-1.5 font-mono text-[11px] text-claude-deep underline decoration-claude/35 underline-offset-4 transition-colors duration-150 hover:decoration-claude-deep"
         >
-          Preview
+          {{ t('proj.preview') }}
           <span class="transition-transform duration-150 group-hover:translate-x-0.5">→</span>
         </RouterLink>
       </div>

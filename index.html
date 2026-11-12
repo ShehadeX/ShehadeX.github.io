@@ -4,13 +4,18 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="肖致浩 · AI Engineering Desk — 从业务问题出发，设计并实现 AI 驱动的软件系统。" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+    <meta
+      name="description"
+      content="肖致浩 · AI Engineering Desk — 从业务问题出发，设计并实现 AI 驱动的软件系统。"
     />
+    <!--
+      字体全部自托管（见 src/main.ts 的 @fontsource 引入）。
+
+      之前走 Google Fonts CDN，但在当前网络环境下 fonts.googleapis.com
+      不可达，所有衬线与等宽字体都会静默退回系统字体，Claude 的排版质感
+      完全丢失。自托管后由 Vite 打包成带指纹的 woff2 随站点部署，
+      不再依赖任何外部域名。
+    -->
     <title>肖致浩 · AI Engineering Desk</title>
   </head>
   <body>

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { t, lang } from '@/composables/useI18n'
 
 const year = new Date().getFullYear()
+const isEn = () => lang.value === 'en'
 </script>
 
 <template>
@@ -17,12 +19,14 @@ const year = new Date().getFullYear()
       <div>
         <p class="term inline-block px-3 py-2">$ echo "stay curious" — exit 0</p>
         <p class="mt-4 text-[13px] leading-relaxed text-ink-muted">
-          肖致浩 · AI Engineering<br />
-          广东工业大学 · 计算机科学与技术 · 2028 届
+          {{ isEn() ? 'Xiaozhihao Shehade · AI Engineering' : '肖致浩 · AI Engineering' }}<br />
+          {{ isEn()
+            ? 'Guangdong University of Technology · Computer Science · Class of 2028'
+            : '广东工业大学 · 计算机科学与技术 · 2028 届' }}
         </p>
         <p class="mt-4 flex items-center gap-2 font-mono text-[11px] text-ink-faint">
           <span class="star" aria-hidden="true">✳</span>
-          Built with Vue 3 · Tailwind CSS · Mermaid
+          {{ t('footer.stack') }}
         </p>
       </div>
 
