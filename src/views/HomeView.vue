@@ -3,6 +3,7 @@ import ProjectCard from '@/components/ProjectCard.vue'
 import { asset } from '@/utils/asset'
 import ParallaxBackdrop from '@/components/ParallaxBackdrop.vue'
 import StackGraph from '@/components/StackGraph.vue'
+import StackOverview from '@/components/StackOverview.vue'
 import WeChatModal from '@/components/WeChatModal.vue'
 import DeliveryFlow from '@/components/DeliveryFlow.vue'
 import { stackCategories, allStackItems } from '@/data/stack'
@@ -178,11 +179,11 @@ const internships = [
       <div class="pointer-events-none absolute inset-0 noise opacity-40" />
       <!-- Claude 风格暖橙光晕 -->
       <div
-        class="drift gpu pointer-events-none absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full opacity-[0.16] blur-3xl"
+        class="drift gpu pointer-events-none absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full opacity-[0.16] blur-2xl"
         style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 68%)"
       />
       <div
-        class="drift gpu pointer-events-none absolute right-0 top-1/3 h-[380px] w-[380px] rounded-full opacity-[0.10] blur-3xl"
+        class="drift gpu pointer-events-none absolute right-0 top-1/3 h-[380px] w-[380px] rounded-full opacity-[0.10] blur-2xl"
         style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 70%); animation-delay: -9s"
       />
 
@@ -549,6 +550,9 @@ const internships = [
             <p class="mt-5 border-t border-ink/10 pt-4 text-[13px] leading-[1.7] text-ink-body">
               {{ t('about.p1') }}
             </p>
+
+            <!-- 技术栈领域概览 -->
+            <StackOverview />
           </div>
 
           <!-- 右：技术栈图谱 -->

@@ -162,10 +162,38 @@ const buildLayout = (): { nodes: Node[]; edges: Edge[] } => {
 const nodes = shallowRef<Node[]>([])
 const edges = shallowRef<Edge[]>([])
 
+/**
+ * 模板用的只读代理。
+ *
+ * Vue 模板里直接写 `edges.length` / `v-for="n in nodeList"` 依赖的是
+ * 模板编译器的 ref 解包行为，一旦这层解包因为 shallowRef / 编译差异
+ * 失效，表达式就会在渲染期抛 TypeError，
+ * 而 Vue 会把出错的组件静默替换成空注释节点（<!---->）——
+ * 页面上就表现为「图谱区域一片空白」，极难排查。
+ *
+ * 这里统一用 computed 暴露，模板只依赖 computed 的解包（这是 Vue 明确保证的），
+ * 彻底绕开这层不确定性。
+ */
+const nodeList = computed(() => nodes.value)
+const edgeCount = computed(() => edges.value.length)
+
+/**
+ * id → 节点的索引。
+ *
+ * 注意声明顺序：必须在 resetLayout() 首次调用**之前**完成声明，
+ * 否则会踩到 const 的暂时性死区（TDZ），
+ * 报 "Cannot access 'x' before initialization"，
+ * 组件 setup 直接抛错、被 Vue 静默替换成空注释节点，
+ * 页面上表现为「图谱区域一片空白」。
+ */
+const nodeById = new Map<string, Node>()
+
 const resetLayout = () => {
   const l = buildLayout()
   nodes.value = l.nodes
   edges.value = l.edges
+  nodeById.clear()
+  for (const n of l.nodes) nodeById.set(n.id, n)
   // 重新渲染结构后需要重新收集 DOM 引用
   requestAnimationFrame(() => collectEls())
 }
@@ -279,8 +307,8 @@ function step(dt: number) {
 
   // ---- 弹簧（分类 → 技术）----
   for (const e of edges.value) {
-    const a = ns.find((x) => x.id === e.from)
-    const b = ns.find((x) => x.id === e.to)
+    const a = nodeById.get(e.from)
+    const b = nodeById.get(e.to)
     if (!a || !b) continue
     const dx = b.x - a.x
     const dy = b.y - a.y
@@ -441,27 +469,40 @@ function paint() {
     const el = nodeEls.get(node.id)
     if (!el) continue
 
-    el.dot.setAttribute('cx', node.x.toFixed(2))
-    el.dot.setAttribute('cy', node.y.toFixed(2))
-    el.hit.setAttribute('cx', node.x.toFixed(2))
-    el.hit.setAttribute('cy', node.y.toFixed(2))
+    const cx = node.x.toFixed(2)
+    const cy = node.y.toFixed(2)
+    if (el.dot.getAttribute('cx') !== cx) el.dot.setAttribute('cx', cx)
+    if (el.dot.getAttribute('cy') !== cy) el.dot.setAttribute('cy', cy)
+    if (el.hit.getAttribute('cx') !== cx) el.hit.setAttribute('cx', cx)
+    if (el.hit.getAttribute('cy') !== cy) el.hit.setAttribute('cy', cy)
 
     const hot = hoverId === node.id || snappedId === node.id
     if (node.kind === 'item') {
-      el.dot.setAttribute('fill', act?.has(node.id) ? '#d97757' : 'rgba(32,31,29,0.55)')
-      el.dot.setAttribute('stroke', hot ? '#d97757' : 'rgba(32,31,29,0.25)')
-      el.dot.setAttribute('stroke-width', hot ? '1.8' : '1')
+      const fill = act?.has(node.id) ? '#d97757' : 'rgba(32,31,29,0.55)'
+      const stroke = hot ? '#d97757' : 'rgba(32,31,29,0.25)'
+      const sw = hot ? '1.8' : '1'
+      if (el.dot.getAttribute('fill') !== fill) el.dot.setAttribute('fill', fill)
+      if (el.dot.getAttribute('stroke') !== stroke) el.dot.setAttribute('stroke', stroke)
+      if (el.dot.getAttribute('stroke-width') !== sw) el.dot.setAttribute('stroke-width', sw)
     }
 
     // 窄屏：技术项不画标签
     const showText = !narrow || node.kind === 'hub'
     if (showText) {
-      el.text.setAttribute('x', node.lx.toFixed(2))
-      el.text.setAttribute('y', node.ly.toFixed(2))
-      el.text.setAttribute('text-anchor', node.anchor)
-      el.text.setAttribute('fill', hot ? '#b4553a' : 'rgba(98,95,89,0.95)')
-      el.text.style.display = ''
-    } else {
+      // 标签只在「位置真的变了」或「高亮态变了」时才写属性：
+      // 61 个 <text> 每帧无条件 setAttribute 会让浏览器重排整个 SVG 文本树，
+      // 这是图谱最贵的一笔开销。
+      const lx = node.lx.toFixed(2)
+      const ly = node.ly.toFixed(2)
+      if (el.text.getAttribute('x') !== lx) el.text.setAttribute('x', lx)
+      if (el.text.getAttribute('y') !== ly) el.text.setAttribute('y', ly)
+      if (el.text.getAttribute('text-anchor') !== node.anchor) {
+        el.text.setAttribute('text-anchor', node.anchor)
+      }
+      const fill = hot ? '#b4553a' : 'rgba(98,95,89,0.95)'
+      if (el.text.getAttribute('fill') !== fill) el.text.setAttribute('fill', fill)
+      if (el.text.style.display !== '') el.text.style.display = ''
+    } else if (el.text.style.display !== 'none') {
       el.text.style.display = 'none'
     }
 
@@ -475,19 +516,23 @@ function paint() {
     if (g) g.setAttribute('opacity', dim ? '0.18' : '1')
   }
 
-  // 边
+  // 边：预先建好 from→to 的索引，避免每帧 find()（O(n²)）
   const es = edges.value
   for (let i = 0; i < edgeEls.length; i++) {
     const line = edgeEls[i]
     const e = es[i]
     if (!line || !e) continue
-    const a = ns.find((x) => x.id === e.from)
-    const b = ns.find((x) => x.id === e.to)
+    const a = nodeById.get(e.from)
+    const b = nodeById.get(e.to)
     if (!a || !b) continue
-    line.setAttribute('x1', a.x.toFixed(2))
-    line.setAttribute('y1', a.y.toFixed(2))
-    line.setAttribute('x2', b.x.toFixed(2))
-    line.setAttribute('y2', b.y.toFixed(2))
+    const x1 = a.x.toFixed(2)
+    const y1 = a.y.toFixed(2)
+    const x2 = b.x.toFixed(2)
+    const y2 = b.y.toFixed(2)
+    if (line.getAttribute('x1') !== x1) line.setAttribute('x1', x1)
+    if (line.getAttribute('y1') !== y1) line.setAttribute('y1', y1)
+    if (line.getAttribute('x2') !== x2) line.setAttribute('x2', x2)
+    if (line.getAttribute('y2') !== y2) line.setAttribute('y2', y2)
   }
 }
 
@@ -552,11 +597,31 @@ function measure() {
   }
 }
 
+/**
+ * 可见性管理。
+ *
+ * 图谱的物理模拟每帧都要重算 61 个节点 + 重绘整个 SVG，
+ * 如果用户根本没看到它（滚过去了 / 切了标签页），
+ * 这些计算就是纯浪费，累积起来会让整页变卡。
+ *
+ * IntersectionObserver：滚出视口 → 停
+ * visibilitychange：切走标签页 → 停
+ */
+let io: IntersectionObserver | null = null
+let inView = true
+let pageVisible = true
+
+const syncRun = () => {
+  if (inView && pageVisible) start()
+  else stop()
+}
+
 onMounted(() => {
   measure()
   collectEls()
   layoutLabels()
   start()
+
   if (wrapEl.value && 'ResizeObserver' in window) {
     ro = new ResizeObserver(() => {
       measure()
@@ -564,11 +629,31 @@ onMounted(() => {
     })
     ro.observe(wrapEl.value)
   }
+
+  if (wrapEl.value && 'IntersectionObserver' in window) {
+    io = new IntersectionObserver(
+      (entries) => {
+        inView = entries[0]?.isIntersecting ?? true
+        syncRun()
+      },
+      { rootMargin: '120px' },
+    )
+    io.observe(wrapEl.value)
+  }
+
+  document.addEventListener('visibilitychange', onVisibility)
 })
+
+function onVisibility() {
+  pageVisible = document.visibilityState === 'visible'
+  syncRun()
+}
 
 onBeforeUnmount(() => {
   stop()
   ro?.disconnect()
+  io?.disconnect()
+  document.removeEventListener('visibilitychange', onVisibility)
 })
 
 // 数据源变化 → 重建
@@ -634,7 +719,7 @@ const onNodeLeave = () => {
 </script>
 
 <template>
-  <div ref="wrapEl" class="relative w-full overflow-hidden">
+  <div ref="wrapEl" data-stack-canvas class="relative w-full overflow-hidden">
     <svg
       ref="svgEl"
       :viewBox="`0 0 ${vw} ${vh}`"
@@ -651,7 +736,7 @@ const onNodeLeave = () => {
       <!-- 归属边 -->
       <g data-edges>
         <line
-          v-for="i in edges.length"
+          v-for="i in edgeCount"
           :key="i"
           stroke="rgba(32,31,29,0.13)"
           stroke-width="1"
@@ -660,7 +745,7 @@ const onNodeLeave = () => {
 
       <!-- 节点 -->
       <g
-        v-for="n in nodes"
+        v-for="n in nodeList"
         :key="n.id"
         :data-node="n.id"
         class="cursor-pointer"

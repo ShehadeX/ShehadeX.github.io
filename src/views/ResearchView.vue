@@ -105,7 +105,7 @@ const isEn = computed(() => lang.value === 'en')
       <div class="relative overflow-hidden">
         <div class="pointer-events-none absolute inset-0 grid-lines opacity-70" />
         <div
-          class="drift gpu pointer-events-none absolute -left-32 -top-32 h-[460px] w-[460px] rounded-full opacity-[0.14] blur-3xl"
+          class="drift gpu pointer-events-none absolute -left-32 -top-32 h-[460px] w-[460px] rounded-full opacity-[0.14] blur-2xl"
           style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 68%)"
         />
         <div class="relative mx-auto max-w-[1400px] px-5 pb-14 pt-10 sm:px-8 sm:pb-20">

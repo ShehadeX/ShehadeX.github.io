@@ -74,16 +74,20 @@
   }
 
   /*
-   * GPU 合成层提升放在 #app 而不是 body 上。
+   * 不要给 #app / body 加 transform 或 will-change。
    *
-   * 原因：body 上加 transform 会让 position: fixed 的包含块变成 body，
-   * 导致 Teleport 到 body 的弹窗（微信二维码）高度撑满整页、无法固定在视口。
-   * #app 是普通块级容器，同样能吃到合成层提升，且不影响 fixed 定位。
+   * 原因（踩过的坑）：
+   *   合成层提升（translateZ(0)）只对**小面积**元素有意义。
+   *   整个页面高达 9000px、1400+ 个元素，若整体提升成一个合成层，
+   *   浏览器会把它当成一张巨大的纹理来光栅化：
+   *   - 图谱每帧重绘 → 整层重新光栅化 → 主线程被长时间占用
+   *   - 纹理内存暴涨，移动端直接卡死
+   *   而且 body 上有 transform 还会让 position: fixed 的包含块变成 body，
+   *   导致 Teleport 到 body 的弹窗（微信二维码）撑满整页、无法固定在视口。
+   *
+   * 正确做法：只给真正需要动画的小元素加 .gpu / .gpu-hover，
+   * 页面级容器保持默认的普通层。
    */
-  #app {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
 
   h1,
   h2,
@@ -446,10 +450,17 @@
     transform: translate3d(0, 0, 0);
   }
 
-  /* 悬浮时缓慢漂移的暖橙光晕 */
+  /*
+   * 悬浮时缓慢漂移的暖橙光晕。
+   *
+   * blur 是重绘操作，大半径（blur-3xl = 96px）在 520px 的元素上
+   * 每帧都要重新做一次高斯模糊，代价很高。这里把模糊半径降到 48px，
+   * 视觉上几乎看不出差别，但重绘成本降到 1/4。
+   */
   .drift {
     animation: drift 18s ease-in-out infinite alternate;
     will-change: transform;
+    contain: paint;
   }
 
   /* 呼吸点 */

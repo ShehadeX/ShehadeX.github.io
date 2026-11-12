@@ -177,19 +177,21 @@ watch(selectedProject, () => {
           <p class="mt-3 text-[13.5px] leading-[1.85] text-ink-muted">
             {{
               isEn
-                ? `${cats.length} domains, ${allStackItems.length} technologies. Use the project filter above to narrow the view, or hover any node to see how it is actually used.`
-                : `${cats.length} 个领域、${allStackItems.length} 项技术。点上方项目筛选可以只看某个项目用到的部分；悬停任意节点查看它的实际用法。`
+                ? "Hover any node to see how the technology is actually used, or pick a project above to narrow the graph down to that project's stack."
+                : '悬停任意节点查看这项技术的实际用法，或点上方项目筛选，把图谱收窄到某个项目用到的部分。'
             }}
           </p>
-          <div class="mt-4 space-y-2.5">
-            <div v-for="c in cats" :key="c.id">
-              <p class="flex items-baseline gap-2 text-[13px] font-semibold text-ink">
-                <span class="claude-num">{{ c.items.length }}</span>
-                {{ c.name }}
-              </p>
-              <p class="mt-0.5 pl-6 text-[12px] text-ink-faint">{{ c.caption }}</p>
-            </div>
-          </div>
+          <ul class="mt-4 space-y-1.5">
+            <li
+              v-for="c in cats"
+              :key="c.id"
+              class="flex items-baseline gap-2.5 text-[12.5px] text-ink-muted"
+            >
+              <span class="claude-num shrink-0">{{ String(c.items.length).padStart(2, '0') }}</span>
+              <span class="text-ink">{{ c.name }}</span>
+              <span class="truncate text-[11.5px] text-ink-faint">{{ c.caption }}</span>
+            </li>
+          </ul>
         </template>
       </div>
     </div>
