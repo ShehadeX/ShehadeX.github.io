@@ -14,8 +14,10 @@ export interface StackSelection {
   id: string
   name: string
   kind: 'hub' | 'item'
-  /** 所属分类名称（画布抛出） */
+  /** 所属分类 id（用于回查该分类下的技术清单） */
   category: string
+  /** 所属分类名称 */
+  categoryName: string
   note: string
   projects: string[]
   count: number

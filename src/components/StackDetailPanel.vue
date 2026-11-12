@@ -23,6 +23,7 @@ interface Props {
     name: string
     kind: 'hub' | 'item'
     category: string
+    categoryName: string
     note: string
     projects: string[]
     count: number
@@ -51,7 +52,7 @@ const itemProjects = computed(() =>
       <h3 class="display text-[19px] leading-tight">{{ props.hovered?.name }}</h3>
     </div>
 
-    <p class="mt-1 font-mono text-[11px] text-ink-faint">{{ props.hovered?.category }}</p>
+    <p class="mt-1 font-mono text-[11px] text-ink-faint">{{ props.hovered?.categoryName }}</p>
 
     <p class="mt-2.5 text-[13px] leading-[1.75] text-ink-body">{{ props.hovered?.note }}</p>
 

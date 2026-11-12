@@ -97,46 +97,12 @@ const toggleProject = (slug: string) => {
     </div>
 
     <!--
-      紧凑模式（首页 About 区）：
-      详情面板是覆盖在画布底部的浮层，不占据文档流高度。
-      这样右栏高度恒定，外层的 sticky 锁定才能一直有效 ——
-      否则悬停时右栏突然变高，图谱就会重新开始「独立滑动」。
+      紧凑模式（首页 About 区）：只显示节点，不挂任何详情浮层。
+      节点详情统一搬到左栏的技术选型面板里展示，
+      这里保持纯图谱，右栏高度恒定，sticky 锁定不受影响。
     -->
     <div v-if="compact" class="relative">
       <StackCanvas :cats="cats" :active-ids="activeIds" @hover="hoveredNode = $event" @select="toggleNode($event)" />
-
-      <!-- 浮层详情 -->
-      <div
-        v-if="focused || (selectedProject && currentProject)"
-        class="pointer-events-none absolute inset-x-0 bottom-0 z-10"
-      >
-        <div
-          class="pointer-events-auto border-t border-ink/12 bg-base/95 px-4 py-3.5 backdrop-blur-sm"
-        >
-          <StackDetailPanel
-            v-if="focused"
-            :hovered="focused"
-            :hub-items="cats.find((c) => c.id === focused!.id)?.items ?? []"
-          />
-
-          <div v-else-if="selectedProject && currentProject">
-            <div class="flex items-baseline gap-2.5">
-              <span class="claude-num">PROJECT</span>
-              <h3 class="display text-[19px] leading-tight">{{ currentProject.name }}</h3>
-            </div>
-            <p class="mt-1 text-[12.5px] text-ink-muted">{{ currentProject.caption }}</p>
-            <ul class="mt-3 flex flex-wrap gap-1.5">
-              <li
-                v-for="it in allStackItems.filter((i) => i.projects.includes(currentProject!.slug))"
-                :key="it.id"
-                class="rounded-[3px] bg-raised px-2 py-0.5 text-[11.5px] text-ink-muted"
-              >
-                {{ it.name }}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- 宽屏模式：图谱 + 右侧独立详情栏 -->

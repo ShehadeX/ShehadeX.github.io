@@ -42,10 +42,23 @@ interface Props {
 
 const props = defineProps<Props>()
 
+interface NodePayload {
+  id: string
+  name: string
+  kind: 'hub' | 'item'
+  /** 分类 id */
+  category: string
+  /** 分类名称 */
+  categoryName: string
+  note: string
+  projects: string[]
+  count: number
+}
+
 const emit = defineEmits<{
-  (e: 'hover', payload: { id: string; name: string; kind: 'hub' | 'item'; category: string; note: string; projects: string[]; count: number } | null): void
+  (e: 'hover', payload: NodePayload | null): void
   /** 点击节点：用于持久选中（与悬停区分开） */
-  (e: 'select', payload: { id: string; name: string; kind: 'hub' | 'item'; category: string; note: string; projects: string[]; count: number } | null): void
+  (e: 'select', payload: NodePayload | null): void
 }>()
 
 /* ------------------------------------------------------------------ */
@@ -547,7 +560,10 @@ const onPointerMove = (evt: PointerEvent | MouseEvent) => {
         id: hov.id,
         name: hov.name,
         kind: hov.kind,
-        category: hov.categoryName,
+        /** 分类 id（用于回查该分类下的技术清单） */
+        category: hov.category,
+        /** 分类名称（用于展示） */
+        categoryName: hov.categoryName,
         note: hov.note,
         projects: hov.projects,
         count: hov.count,
@@ -580,7 +596,8 @@ const onClick = (evt: MouseEvent) => {
     id: hov.id,
     name: hov.name,
     kind: hov.kind,
-    category: hov.categoryName,
+    category: hov.category,
+    categoryName: hov.categoryName,
     note: hov.note,
     projects: hov.projects,
     count: hov.count,
