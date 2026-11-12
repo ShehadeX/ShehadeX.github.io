@@ -238,7 +238,7 @@ const internships = [
               不受各列文案长度差异影响。
             -->
             <div
-              class="mt-11 grid gap-x-6 gap-y-5 border-t border-ink/12 pt-6 sm:grid-cols-3 sm:grid-rows-[auto_auto_auto_1fr]"
+              class="mt-16 grid gap-x-6 gap-y-5 border-t border-ink/12 pt-6 sm:grid-cols-3 sm:grid-rows-[auto_auto_auto_1fr]"
             >
               <!-- 卡片 1 -->
               <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">

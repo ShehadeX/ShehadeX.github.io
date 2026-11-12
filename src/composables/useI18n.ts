@@ -76,9 +76,9 @@ const zh: Dict = {
   'hero.m2.desc':
     '中国科学院深圳先进技术研究院-神经接口实验室\n中电信数智科技有限公司-研发中心，广电计量集团-计量事业部',
   'hero.m3.num': '1篇',
-  'hero.m3.title': 'ICLR 2027：Dissecting the Score: Calibrated Diagnosis of EEG Foundation Models',
+  'hero.m3.title': 'ICLR 2027',
   'hero.m3.desc':
-    '第二作者，EEG Foundation 模型「开盒」分析，正处于 Rebuttal 阶段。',
+    'Dissecting the Score: Calibrated Diagnosis of EEG Foundation Models。第二作者，EEG Foundation 模型「开盒」分析，正处于 Rebuttal 阶段。',
   'hero.m3.status': 'REBUTTAL',
 
   'hero.profile.focus': '前沿大模型应用与开发、软件工程、深度学习模型构建',
@@ -202,9 +202,9 @@ const en: Dict = {
   'hero.m2.desc':
     'SIAT — Neural Interface Lab\nChina Telecom Digital Intelligence — R&D Center, GRGT — Metrology Division',
   'hero.m3.num': '1',
-  'hero.m3.title': 'ICLR 2027: Dissecting the Score: Calibrated Diagnosis of EEG Foundation Models',
+  'hero.m3.title': 'ICLR 2027',
   'hero.m3.desc':
-    'Second author — opening the black box of EEG foundation models. Currently in rebuttal.',
+    'Dissecting the Score: Calibrated Diagnosis of EEG Foundation Models. Second author — opening the black box of EEG foundation models. Currently in rebuttal.',
   'hero.m3.status': 'REBUTTAL',
 
   'hero.profile.focus': 'Frontier model application & development, software engineering, deep learning model construction',
