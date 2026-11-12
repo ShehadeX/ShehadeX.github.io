@@ -74,10 +74,6 @@ const steps = [
           </div>
         </li>
       </ol>
-
-      <p class="mt-6 border-t border-ink/10 pt-4 text-[12.5px] leading-relaxed text-ink-muted">
-        {{ t('flow.note') }}
-      </p>
     </div>
   </div>
 </template>

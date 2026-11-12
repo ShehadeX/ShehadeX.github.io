@@ -111,7 +111,6 @@ const zh: Dict = {
   'flow.s3.d': '详细实现',
   'flow.s4.t': 'GitHub',
   'flow.s4.d': '版本管理',
-  'flow.note': '四步串行，每一步的产出都是下一步的输入。',
 
   'about.eyebrow': '关于我',
   'about.title': '我在做的三件事',

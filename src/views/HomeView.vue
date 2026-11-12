@@ -523,8 +523,12 @@ const internships = [
         </div>
 
         <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
-          <!-- 左：描述（压缩） -->
-          <div>
+          <!--
+            左：描述（压缩）
+            sticky + self-start：右栏图谱很高，左栏内容短，
+            用 sticky 让描述在滚动时跟随视口，避免左下角出现大片空白。
+          -->
+          <div class="self-start lg:sticky lg:top-24">
             <h2 class="max-w-[20ch] break-keep text-[24px] leading-[1.2] sm:text-[30px]">
               {{ t('about.title') }}
             </h2>
