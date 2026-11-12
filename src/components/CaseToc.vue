@@ -107,6 +107,14 @@ const pickActive = () => {
   }
 }
 
+/**
+ * 阅读进度（0–1）。
+ *
+ * 以「正文区域」为基准：从内容顶部开始，到内容底部结束，
+ * 当前滚动位置映射成百分比。贴在目录底部作为位置指示。
+ */
+const progress = ref(0)
+
 const measure = () => {
   distances.clear()
   for (const id of allIds.value) {
@@ -115,6 +123,20 @@ const measure = () => {
     distances.set(id, el.getBoundingClientRect().top)
   }
   pickActive()
+
+  // 进度：取最后一个锚点作为内容底部的近似
+  const ids = allIds.value
+  if (ids.length) {
+    const last = document.getElementById(ids[ids.length - 1]!)
+    const first = document.getElementById(ids[0]!)
+    if (last && first) {
+      const top = first.getBoundingClientRect().top
+      const bottom = last.getBoundingClientRect().bottom
+      const span = bottom - top
+      const scrolled = -top
+      progress.value = span > 0 ? Math.min(1, Math.max(0, scrolled / span)) : 0
+    }
+  }
 }
 
 let scrollRaf = 0
@@ -145,12 +167,25 @@ const scrollActiveIntoView = () => {
 
 const navEl = ref<HTMLElement | null>(null)
 
+/**
+ * 目录容器高度：从固定顶栏下方一直到视口底部。
+ *
+ * 用 JS 计算而不是 CSS calc 任意值，避开 Tailwind 转义坑；
+ * 视口高度变化时（旋转屏幕 / 拖窗口）跟着更新。
+ */
+const tocHeight = ref('calc(100vh - 5rem)')
+const updateHeight = () => {
+  tocHeight.value = `calc(100vh - 5rem)`
+}
+onMounted(updateHeight)
+
 watch([activeId, activeChildId], () => {
   requestAnimationFrame(scrollActiveIntoView)
 })
 
 onMounted(() => {
   measure()
+  updateHeight()
   window.addEventListener('scroll', onScroll, { passive: true })
   window.addEventListener('resize', onScroll, { passive: true })
 })
@@ -188,16 +223,33 @@ const isChildActive = (id: string) => activeChildId.value === id
 
 <template>
   <!--
-    目录高度占满可用视口（calc(100vh - 5rem) 减去顶部偏移），
-    而不是只占上半屏。条目多时目录自身滚动，
-    当前项会被自动滚进视野。
+    目录占满视口高度（从顶栏下方一直到屏幕底部）。
+
+    之前用的是 max-h，内容少的时候容器仍然按内容收缩，
+    目录只占上半屏 —— 这正是要修的。
+    改成 flex 布局：
+      - 外层 h-[calc(100vh-5rem)] 撑满视口
+      - nav flex-1 吃掉剩余高度，条目多时自身滚动
+      - 底部的阅读进度条贴在视口底部
   -->
-  <nav
-    ref="navEl"
-    class="max-h-[calc(100vh-6rem)] overflow-y-auto pr-1"
-  >
+  <!--
+    高度用 inline style 计算，而不是 Tailwind 任意值：
+    Tailwind 的 calc 任意值要求写成 calc(100vh_-_5rem)，
+    写成 calc(100vh-5rem) 会被原样输出成无效 CSS（缺空格），
+    结果容器直接塌成内容高度 —— 就是之前目录只占上半屏的原因。
+  -->
+  <div class="flex flex-col" :style="{ height: tocHeight }">
+    <nav
+      ref="navEl"
+      class="min-h-0 flex-1 overflow-y-auto pr-1"
+    >
     <p class="eyebrow">Contents</p>
-    <ul class="mt-4 space-y-1">
+    <!--
+      条目在纵向空间里均匀铺开：
+      用 flex + justify-between 让条目撑满整列高度，
+      底部不会留一大段空白。条目多到超出时自动转为自身滚动。
+    -->
+    <ul class="mt-4 flex min-h-full flex-col justify-between gap-0.5">
       <li v-for="s in items" :key="s.id">
         <a
           :href="`#${s.id}`"
@@ -240,5 +292,24 @@ const isChildActive = (id: string) => activeChildId.value === id
         </ul>
       </li>
     </ul>
-  </nav>
+    </nav>
+
+    <!--
+      阅读进度：贴着视口底部的一条竖向轨道，
+      表示当前在整篇 case study 中的位置。
+      既利用了底部空间，也给「目录占满全屏」一个视觉锚点。
+    -->
+    <div class="mt-4 shrink-0 border-t border-ink/10 pt-3">
+      <div class="flex items-center justify-between font-mono text-[10px] text-ink-faint">
+        <span>READING</span>
+        <span class="tnum">{{ Math.round(progress * 100) }}%</span>
+      </div>
+      <div class="mt-2 h-px w-full bg-ink/12">
+        <div
+          class="h-px bg-claude transition-[width] duration-150"
+          :style="{ width: `${Math.min(100, Math.max(0, progress * 100))}%` }"
+        />
+      </div>
+    </div>
+  </div>
 </template>

@@ -151,7 +151,10 @@ const tocItems = computed(() =>
         </div>
 
         <div class="mt-8 grid gap-12 lg:grid-cols-[220px_1fr] lg:gap-16">
-          <!-- sticky nav：跟随视觉焦点高亮 + 自动滚动 -->
+          <!--
+            sticky nav：跟随视觉焦点高亮 + 自动滚动。
+            top-20 对齐固定顶栏，目录高度自行撑到视口底部。
+          -->
           <div class="hidden lg:block">
             <div class="sticky top-20">
               <CaseToc :items="tocItems" />
