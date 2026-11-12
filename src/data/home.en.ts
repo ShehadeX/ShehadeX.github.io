@@ -79,6 +79,7 @@ export const timelineEn = [
     period: '2025.09 – 2026.02',
     org: 'Dayunwu Studio Crowdfunding Platform',
     role: 'Software Development Team Member',
+    logo: '/img/logos/gdut.png',
     points: [
       'Led several projects in parallel, scheduled member tasks and managed the laboratory servers.',
       'Worked with multiple supervisors on horizontal development, vertical research and industry-education integration tasks.',

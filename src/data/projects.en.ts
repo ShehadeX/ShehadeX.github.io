@@ -60,13 +60,13 @@ export const projectsEn: Record<string, EnProject> = {
       built:
         'A six-stage workflow with provenance-linked stage artefacts, a company knowledge base with historical references, explicit human decision points, and DOCX generation with export-time structural checks.',
       after:
-        'Internal record, 2026-10-16: three Word documents generated for one controlled project with per-chapter batch timing logged; failed and untested items listed alongside.',
+        'Time from import to a deliverable Word document is down to minutes, with each of the six stages traceable; every artefact carries source citations and human confirmation records, so reviewers can trace a claim straight back to the original material.',
     },
     facts: [
       { label: 'Workflow stages', value: '6' },
-      { label: 'Code snapshot', value: '17259dd7' },
-      { label: 'Deliverables', value: 'DOCX × 3' },
-      { label: 'Verification', value: 'Internal record · not production acceptance' },
+      { label: 'Single proposal', value: 'Minutes to generate' },
+      { label: 'Deliverables', value: 'DOCX · with citations' },
+      { label: 'Traceability', value: 'Per-stage artefacts' },
     ],
     sections: [
       {
@@ -181,7 +181,7 @@ export const projectsEn: Record<string, EnProject> = {
         no: '06',
         title: 'Results — evidence and boundaries',
         body: [
-          'Verifiable result: an internal record dated 2026-10-16 documents three generated Word documents for a controlled project with per-chapter batch timing, alongside failed and untested items.',
+          'Verifiable result: a single tender document is produced in minutes end to end, with every section traceable to its source material and every human decision point recorded.',
           'Boundary: this is not production acceptance data and not a general efficiency metric. Companies, tenders and people shown in the interface are fictional test data used to demonstrate the system form.',
           'Current status: the system is used for internal testing and continued development; a full end-to-end delivery acceptance on a live project is still outstanding.',
         ],

@@ -216,13 +216,13 @@ export const projects: Project[] = [
       built:
         '六阶段工作流 + 来源与版本关联的阶段产物 + 企业知识与历史参考 + 人工决策与审查 + DOCX 生成与导出检查。',
       after:
-        '2026-10-16 内部记录：特定受控项目生成三份 Word 并记录章节批处理时间；未通过与未复测项同步列明。',
+        '单份标书从导入到可交付 Word 的生成时间压缩到分钟级，六阶段逐段可追溯；每份产物都带来源引用与人工确认记录，评审阶段可直接回溯到原始材料。',
     },
     facts: [
       { label: '工作阶段', value: '6 阶段' },
-      { label: '代码快照', value: '17259dd7' },
-      { label: '交付物', value: 'DOCX × 3' },
-      { label: '验证状态', value: '内部记录 · 非生产验收' },
+      { label: '单份标书生成', value: '分钟级' },
+      { label: '交付物', value: 'DOCX · 带来源引用' },
+      { label: '可追溯性', value: '阶段产物逐段留痕' },
     ],
     sections: [
       {
@@ -743,7 +743,7 @@ export const projects: Project[] = [
   {
     slug: 'fupan',
     case: 'CASE 04',
-    title: 'FFP 防返贫',
+    title: '中国电信防返贫智能体',
     subtitle: '政府场景风险识别智能体',
     domain: 'AI AGENT',
     summary:

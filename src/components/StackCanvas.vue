@@ -174,6 +174,11 @@ const buildSimulation = () => {
     .alphaDecay(0.022)
     .velocityDecay(0.38)
     .on('tick', onTick)
+    // 能量耗尽后自动停机：静止时不再每帧重绘，
+    // 这是 Canvas 图谱能做到「完全零开销静止」的关键。
+    .on('end', () => {
+      draw()
+    })
 }
 
 /* ------------------------------------------------------------------ */
@@ -273,8 +278,13 @@ let hoveredId: string | null = null
 let snappedId: string | null = null
 let activeSet: Set<string> | null = null
 
+let tickCount = 0
+
 function onTick() {
-  layoutLabels()
+  // 标签避让是 O(n²) 的（每个标签都要和已放置的标签比一次），
+  // 但标签位置的变化速度远慢于节点，所以每 3 帧重算一次就够了。
+  tickCount++
+  if (tickCount % 3 === 0) layoutLabels()
   draw()
 }
 
@@ -359,7 +369,12 @@ function draw() {
   ctx.stroke()
 
   // ---- 标签 ----
-  ctx.font = `${narrow ? 10 : 9.5}px ui-monospace, SFMono-Regular, Menlo, monospace`
+  // 字体字符串缓存：ctx.font 每次赋值都会触发字体解析，
+  // 61 个标签在每帧重新赋值是纯浪费。
+  const font = narrow
+    ? '10px ui-monospace, SFMono-Regular, Menlo, monospace'
+    : '9.5px ui-monospace, SFMono-Regular, Menlo, monospace'
+  if (ctx.font !== font) ctx.font = font
   ctx.textBaseline = 'alphabetic'
 
   for (const n of ns) {
@@ -406,6 +421,9 @@ const onPointerMove = (evt: PointerEvent | MouseEvent) => {
   const target = pickNode(pointer.x, pointer.y, 130)
   snappedId = target?.id ?? null
   if (target && sim) {
+    // 每次指针吸附都补一点能量，让节点能追过来，
+    // 但能量很低（0.08），布局不会被打乱，只是被轻轻吸引。
+    sim.alphaTarget(0.08)
     const dx = pointer.x - (target.x ?? 0)
     const dy = pointer.y - (target.y ?? 0)
     const d = Math.hypot(dx, dy) || 1
@@ -413,7 +431,7 @@ const onPointerMove = (evt: PointerEvent | MouseEvent) => {
     const pull = (d - desired) * 0.12
     target.vx = (target.vx ?? 0) + (dx / d) * pull * 6
     target.vy = (target.vy ?? 0) + (dy / d) * pull * 6
-    sim.alpha(Math.max(sim.alpha(), 0.12)).restart()
+    sim.alpha(Math.max(sim.alpha(), 0.15)).restart()
   }
 
   // 悬停
@@ -434,13 +452,17 @@ const onPointerMove = (evt: PointerEvent | MouseEvent) => {
     } else {
       emit('hover', null)
     }
+    // 悬停态变化需要立刻反映，但重绘统一交给下一帧的 tick 统一处理，
+    // 避免同一个事件里画两次。
+    requestAnimationFrame(draw)
   }
-  draw()
 }
 
 const onPointerLeave = () => {
   pointer.inside = false
   snappedId = null
+  // 释放 alphaTarget，模拟会重新收敛并最终停机
+  sim?.alphaTarget(0)
   if (hoveredId) {
     hoveredId = null
     emit('hover', null)
@@ -469,7 +491,15 @@ function measure() {
       ? Math.round(Math.max(520, Math.min(720, w * 1.5)))
       : Math.round(Math.max(560, Math.min(820, w * 0.92)))
 
-  const ratio = window.devicePixelRatio || 1
+  /**
+   * 设备像素比上限 1.5。
+   *
+   * Retina 屏 devicePixelRatio = 2，827px 宽的画布会变成 1654 真实像素，
+   * 每帧全量清屏 + 重绘的像素量是 1.5x 方案的 1.78 倍。
+   * 图谱是线稿风格，1.5x 的清晰度已经足够（文字仍按 CSS 像素尺寸绘制），
+   * 但省下的这部分像素填充对低端机是实打实的流畅度。
+   */
+  const ratio = Math.min(window.devicePixelRatio || 1, 1.5)
   dpr.value = ratio
   cssW.value = w
   cssH.value = targetH

@@ -181,17 +181,6 @@ watch(selectedProject, () => {
                 : '悬停任意节点查看这项技术的实际用法，或点上方项目筛选，把图谱收窄到某个项目用到的部分。'
             }}
           </p>
-          <ul class="mt-4 space-y-1.5">
-            <li
-              v-for="c in cats"
-              :key="c.id"
-              class="flex items-baseline gap-2.5 text-[12.5px] text-ink-muted"
-            >
-              <span class="claude-num shrink-0">{{ String(c.items.length).padStart(2, '0') }}</span>
-              <span class="text-ink">{{ c.name }}</span>
-              <span class="truncate text-[11.5px] text-ink-faint">{{ c.caption }}</span>
-            </li>
-          </ul>
         </template>
       </div>
     </div>

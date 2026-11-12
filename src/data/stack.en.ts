@@ -186,7 +186,7 @@ export const stackCategoriesEn: StackCategoryEn[] = [
       {
         id: 'rag',
         name: 'RAG',
-        note: 'Medication knowledge base and policy retrieval — both PolyMed’s queries and FFP’s policy matching depend on it.',
+        note: 'Medication knowledge base and policy retrieval — both PolyMed’s queries and anti-poverty policy matching depend on it.',
         projects: ['fupan', 'polymed'],
       },
       {
@@ -398,7 +398,7 @@ export const stackProjectsEn = [
   { slug: 'bidos', name: 'BidOS', caption: 'Enterprise AI bidding workspace' },
   { slug: 'cga-smart', name: 'CGA-Smart', caption: 'Geriatric assessment system' },
   { slug: 'moca', name: 'MoCA', caption: 'Cognitive assessment + EEG tagging' },
-  { slug: 'fupan', name: 'FFP', caption: 'Anti-poverty risk agent' },
+  { slug: 'fupan', name: 'Anti-poverty', caption: 'China Telecom anti-poverty risk agent' },
   { slug: 'polymed', name: 'PolyMed', caption: 'Medication management mini-app' },
   { slug: 'research', name: 'ICLR 2027', caption: 'EEG decoding diagnostic benchmark' },
 ]

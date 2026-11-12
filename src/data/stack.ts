@@ -192,7 +192,7 @@ export const stackCategories: StackCategory[] = [
       {
         id: 'rag',
         name: 'RAG',
-        note: '用药知识库与政策动态检索，PolyMed 问药与 FFP 政策匹配都依赖它。',
+        note: '用药知识库与政策动态检索，PolyMed 问药与防返贫政策匹配都依赖它。',
         projects: ['fupan', 'polymed'],
       },
       {
@@ -405,7 +405,7 @@ export const stackProjects = [
   { slug: 'bidos', name: 'BidOS', caption: '企业 AI 招投标工作台' },
   { slug: 'cga-smart', name: 'CGA-Smart', caption: '老年综合评估智能系统' },
   { slug: 'moca', name: 'MoCA', caption: '认知评估与脑电打标' },
-  { slug: 'fupan', name: 'FFP', caption: '防返贫风险识别智能体' },
+  { slug: 'fupan', name: '防返贫', caption: '中国电信防返贫风险识别智能体' },
   { slug: 'polymed', name: 'PolyMed', caption: '智能用药管理小程序' },
   { slug: 'research', name: 'ICLR 2027', caption: 'EEG 解码诊断基准' },
 ]
