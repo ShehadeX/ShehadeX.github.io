@@ -26,11 +26,18 @@ const capabilities = [
   },
 ]
 
+const internships = [
+  { name: '中国科学院深圳先进技术研究院', src: '/img/logos/siat.png' },
+  { name: '中国电信数智科技有限公司', src: '/img/logos/mark-chinatelecom.png' },
+  { name: '广电计量集团', src: '/img/logos/mark-grgt.png' },
+]
+
 const timeline = [
   {
     period: '2026.07.16 – 至今',
     org: '中国科学院深圳先进技术研究院 · 神经接口实验室',
     role: '科研软件开发实习生',
+    logo: '/img/logos/siat.png',
     points: [
       '与深圳第二人民医院神经接口科合作采集患者 SEEG 数据，覆盖认知任务、MI 运动想象与 Seize 癫痫任务',
       '把 MoCA 阿兹海默认知系统从实验室推向病房，通过真实患者测试迭代实验范式，降低非刺激因素干扰',
@@ -40,8 +47,9 @@ const timeline = [
   },
   {
     period: '2026.07.06 – 2026.07.31',
-    org: '中电信数智科技有限公司 · 海南分公司研发中心',
+    org: '中国电信数智科技有限公司 · 海南分公司研发中心',
     role: 'AI 应用研发实习生',
+    logo: '/img/logos/mark-chinatelecom.png',
     points: [
       '设计海南省「防返贫」大模型原型，负责功能研发与测试',
       '基于 Spring AI 对接内网模型服务，ReactAgent 编排工具注册、模型选工具与上下文总结',
@@ -53,6 +61,7 @@ const timeline = [
     period: '2026.04.01 – 2026.12.01',
     org: '广电计量集团 · 广州总部计量事业部',
     role: '实习生',
+    logo: '/img/logos/mark-grgt.png',
     points: [
       '全链路全栈开发：拆解业务需求、开发并测试全套代码、部署生产与后续调优',
       '用 python-docx 抽取结构化信息并调用 LLM 标注原始格式，把「复制粘贴」变成代码化的一次成稿',
@@ -121,70 +130,61 @@ const research = [
               AI ENGINEERING / AGENT / DEPLOYMENT
             </p>
 
-            <h1 class="mt-5 text-[38px] leading-[1.1] sm:text-[46px]">
-              我是肖致浩，<br />
-              <span class="text-ink-muted">用 AI 与软件系统解决真实问题。</span>
+            <h1 class="mt-5 text-[40px] leading-[1.08] sm:text-[58px]">
+              I'm <span class="text-claude">肖致浩</span> Shehade
             </h1>
 
-            <p class="mt-6 text-[16px] leading-[1.85] text-ink-body">
-              广东工业大学计算机科学与技术专业 2028 届学生，GPA 3.6/5、专业前 5%。
-              我的工作方向是<strong class="font-semibold text-ink">机器学习、Agent 开发与前沿部署</strong>——
-              把业务需求拆成可追踪的流程，用模型与工程把流程真正跑起来，再部署到它该在的地方。
+            <p class="mt-6 text-[22px] leading-[1.45] text-ink sm:text-[26px]">
+              我用 AI 与软件系统
+              <br class="hidden sm:block" />
+              解决真实问题。
             </p>
 
-            <div class="mt-8 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-2">
-              <div class="bg-base p-5">
-                <p class="eyebrow">Education</p>
-                <p class="mt-2 text-[14px] leading-relaxed text-ink">
-                  广东工业大学 · 国际教育学院
-                </p>
-                <p class="mt-1 text-[13px] text-ink-muted">
-                  计算机科学与技术 · 2024.09 – 2028.06
-                </p>
-                <p class="mt-1 text-[13px] text-ink-muted">
-                  GPA 3.6/5 · 专业前 5% · 雅思 6.5
+            <p class="mt-6 max-w-[52ch] text-[15px] leading-[1.85] text-ink-muted">
+              <img
+                src="/img/logos/gdut.png"
+                alt="广东工业大学"
+                class="mr-2 inline-block h-6 w-6 -translate-y-0.5 object-contain align-middle"
+              />
+              广东工业大学计算机科学与技术 · 2028 届 · GPA 3.6/5、专业前 5%。
+              方向是机器学习、Agent 开发与前沿部署——把业务需求拆成可追踪的流程，用模型与工程把流程真正跑起来。
+            </p>
+
+            <!-- 三个关键点：大标题 -->
+            <div class="mt-10 grid gap-x-8 gap-y-8 sm:grid-cols-3">
+              <div>
+                <p class="tnum text-[44px] font-semibold leading-none text-ink">5</p>
+                <p class="mt-2.5 text-[15px] font-semibold text-ink">交付的生产级系统</p>
+                <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
+                  招投标、老年评估、脑电打标、防返贫 Agent、用药小程序
                 </p>
               </div>
-              <div class="bg-base p-5">
-                <p class="eyebrow">Research</p>
-                <p class="mt-2 text-[14px] leading-relaxed text-ink">
-                  ICLR 2027 · 第二作者
+              <div>
+                <p class="tnum text-[44px] font-semibold leading-none text-ink">3</p>
+                <p class="mt-2.5 text-[15px] font-semibold text-ink">段实习</p>
+                <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
+                  中国科学院先进院 · 中国电信数智 · 广电计量
                 </p>
-                <p class="mt-1 text-[13px] leading-relaxed text-ink-muted">
-                  Dissecting the Score：跨架构 EEG 解码诊断基准，当前处于 Rebuttal 阶段。
+                <div class="mt-3 flex items-center gap-3">
+                  <img
+                    v-for="l in internships"
+                    :key="l.src"
+                    :src="l.src"
+                    :alt="l.name"
+                    class="h-9 w-auto max-w-[72px] shrink-0 object-contain object-left"
+                  />
+                </div>
+              </div>
+              <div>
+                <p class="tnum text-[44px] font-semibold leading-none text-ink">ICLR</p>
+                <p class="mt-2.5 text-[15px] font-semibold text-ink">2027 论文 · 第二作者</p>
+                <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
+                  跨架构 EEG 解码诊断基准，当前 Rebuttal 阶段
                 </p>
               </div>
             </div>
 
-            <div class="mt-6 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-3">
-              <div class="bg-raised p-5">
-                <p class="eyebrow">System</p>
-                <p class="tnum mt-2 text-[26px] font-semibold text-ink">5</p>
-                <p class="mt-1 text-[13px] leading-snug text-ink-muted">
-                  独立或主责交付的生产级系统
-                </p>
-              </div>
-              <div class="bg-raised p-5">
-                <p class="eyebrow">Internship</p>
-                <p class="tnum mt-2 text-[26px] font-semibold text-ink">3</p>
-                <p class="mt-1 text-[13px] leading-snug text-ink-muted">
-                  中科院先进院 · 中电信数智 · 广电计量
-                </p>
-              </div>
-              <div class="bg-raised p-5">
-                <p class="eyebrow">Clinical</p>
-                <p class="tnum mt-2 text-[26px] font-semibold text-ink">3</p>
-                <p class="mt-1 text-[13px] leading-snug text-ink-muted">
-                  家三甲医院完成 20+ 例患者测试
-                </p>
-              </div>
-            </div>
-
-            <p class="mt-8 text-[15px] leading-[1.85] text-ink-muted">
-              正在寻找 <span class="text-ink">AI 工程、Agent 开发与前沿部署</span>方向的实习与校招机会。
-            </p>
-
-            <div class="mt-6 flex flex-wrap items-center gap-3">
+            <div class="mt-10 flex flex-wrap items-center gap-3">
               <a
                 href="mailto:2912698300@qq.com"
                 class="inline-flex h-10 items-center rounded-[3px] bg-overlay px-5 font-mono text-[12px] text-base transition-opacity duration-150 hover:opacity-90"
@@ -211,7 +211,7 @@ const research = [
           </div>
 
           <!-- avatar -->
-          <div class="lg:sticky lg:top-20 lg:w-[300px]">
+          <div class="lg:sticky lg:top-20 lg:w-[320px]">
             <div
               class="overflow-hidden rounded-[15px] border border-ink/15 bg-raised"
             >
@@ -247,12 +247,6 @@ const research = [
           <span class="tag">Deep Learning</span>
           <span class="tag">Deployment</span>
         </div>
-
-        <div class="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 font-mono text-[12px] text-ink-faint">
-          <span>广东工业大学 · 计算机科学与技术 · 2028 届</span>
-          <span class="hidden h-3 w-px bg-ink/20 sm:block" />
-          <span>GPA 3.6/5 · 综测 86/100 · 专业前 5%</span>
-        </div>
       </div>
     </section>
 
@@ -266,21 +260,33 @@ const research = [
 
         <div class="mt-10 grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div>
-            <p class="text-[17px] leading-[1.75] text-ink-body">
-              我是肖致浩，广东工业大学计算机科学与技术专业 2028 届学生，方向是
-              <span class="text-ink">机器学习、Agent 开发与前沿部署</span>。
-              目前在三个方向并行推进：AI 工程系统（招投标智能体、政府场景风险识别 Agent）、
-              医疗健康软件（老年综合评估、MoCA 认知评估与脑电打标）、
-              以及神经科学方向的深度学习研究。
-            </p>
-            <p class="mt-6 text-[15px] leading-[1.8] text-ink-muted">
+            <h2 class="max-w-[20ch] text-[28px] leading-[1.25] sm:text-[36px]">
+              我在做的三件事
+            </h2>
+            <div class="mt-8 space-y-8">
+              <div>
+                <p class="text-[19px] font-semibold text-ink">AI 工程系统</p>
+                <p class="mt-2 text-[14.5px] leading-[1.8] text-ink-muted">
+                  企业招投标智能体、政府场景防返贫风险识别 Agent。关注从需求到交付的完整链路，而不是只做模型调用的那一层。
+                </p>
+              </div>
+              <div>
+                <p class="text-[19px] font-semibold text-ink">医疗健康软件</p>
+                <p class="mt-2 text-[14.5px] leading-[1.8] text-ink-muted">
+                  老年综合评估系统、MoCA 认知评估与脑电实时打标。软件要能在真实病房里跑，而不是只在演示环境里跑。
+                </p>
+              </div>
+              <div>
+                <p class="text-[19px] font-semibold text-ink">神经科学方向的深度学习研究</p>
+                <p class="mt-2 text-[14.5px] leading-[1.8] text-ink-muted">
+                  以 ICLR 2027 论文为例，尝试把 EEG 解码模型的「黑盒」打开，让能力来源可被量化归因。
+                </p>
+              </div>
+            </div>
+            <p class="mt-9 text-[15px] leading-[1.85] text-ink-body">
               我的工作方式有两条固定的线。第一条是把模糊需求拆成可追踪的输入、来源、确认与输出；
               第二条是对模型输出保持边界意识——先定义模型可以做范围、证据要求、失败恢复方式与人工决策点，
               再谈它能带来多少提效。
-            </p>
-            <p class="mt-6 text-[15px] leading-[1.8] text-ink-muted">
-              我偏爱在真实约束里做工程：内网模型端点、医院病房里的串口设备、
-              评审中心的门禁格式检查。这些环境会直接告诉你设计哪里站不住。
             </p>
           </div>
 
@@ -333,7 +339,7 @@ const research = [
           <span class="rule flex-1" />
         </div>
 
-        <h2 class="mt-8 max-w-[24ch] text-[28px] leading-[1.2] sm:text-[33px]">
+        <h2 class="mt-8 max-w-[24ch] text-[30px] leading-[1.2] sm:text-[38px]">
           按 AI 开发流程组织的能力矩阵
         </h2>
 
@@ -345,7 +351,7 @@ const research = [
           >
             <div class="flex items-baseline gap-3">
               <span class="font-mono text-[11px] text-ink-faint">0{{ i + 1 }}</span>
-              <h3 class="text-[20px]">{{ c.key }}</h3>
+              <h3 class="text-[24px]">{{ c.key }}</h3>
             </div>
             <p class="mt-3 text-[14px] leading-relaxed text-ink-muted">{{ c.desc }}</p>
             <div class="mt-5 flex flex-wrap gap-1.5">
@@ -364,7 +370,7 @@ const research = [
           <span class="rule flex-1" />
         </div>
 
-        <h2 class="mt-8 max-w-[26ch] text-[28px] leading-[1.2] sm:text-[33px]">
+        <h2 class="mt-8 max-w-[26ch] text-[30px] leading-[1.2] sm:text-[38px]">
           精选项目，每项都有可核查的工程证据
         </h2>
 
@@ -421,8 +427,18 @@ const research = [
               />
               <span v-if="i < timeline.length - 1" class="absolute left-[3px] top-[18px] h-full w-px bg-ink/12" />
               <p class="font-mono text-[11px] tracking-[0.08em] text-ink-faint">{{ t.period }}</p>
-              <h3 class="mt-1.5 text-[16px] leading-snug">{{ t.org }}</h3>
-              <p class="mt-1 text-[13px] text-ink-muted">{{ t.role }}</p>
+              <div class="mt-2 flex items-start gap-3">
+                <img
+                  v-if="t.logo"
+                  :src="t.logo"
+                  :alt="t.org"
+                  class="mt-0.5 h-10 w-auto max-w-[72px] shrink-0 object-contain object-left"
+                />
+                <div class="min-w-0">
+                  <h3 class="text-[16px] leading-snug">{{ t.org }}</h3>
+                  <p class="mt-1 text-[13px] text-ink-muted">{{ t.role }}</p>
+                </div>
+              </div>
               <ul class="mt-3 space-y-1.5">
                 <li
                   v-for="pt in t.points"

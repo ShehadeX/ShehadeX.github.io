@@ -28,7 +28,11 @@ onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
   >
     <div class="mx-auto flex h-14 max-w-[1400px] items-center gap-6 px-5 sm:px-8">
       <RouterLink to="/" class="flex items-center gap-2.5 shrink-0">
-        <span class="term flex h-6 w-6 items-center justify-center rounded-[3px] text-[10px] font-bold">$</span>
+        <img
+          src="/img/logos/gdut.png"
+          alt="广东工业大学"
+          class="h-7 w-7 shrink-0 object-contain"
+        />
         <span class="font-mono text-[13px] text-ink">ShehadeProfile</span>
       </RouterLink>
 

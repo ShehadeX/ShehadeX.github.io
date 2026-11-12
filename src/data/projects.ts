@@ -511,7 +511,7 @@ export const projects: Project[] = [
     stack: ['串口设备通信', '实时事件打标', '实验范式设计', '数字化量表', 'Python', 'Electron / 桌面端'],
     period: '2025.10 – 至今',
     role: '组长 & 开发者（科研软件开发实习生）',
-    org: '中科院深圳先进院 · 神经接口实验室 · 阿兹海默症图示训练系统',
+    org: '中国科学院深圳先进技术研究院 · 神经接口实验室 · 阿兹海默症图示训练系统',
     bba: {
       before:
         '认知量表靠纸质或人工计分，脑电实验依赖厂商工具标记事件，两套时间轴对不齐，事后无法把某个认知环节和脑电信号段对应。',
@@ -739,7 +739,7 @@ export const projects: Project[] = [
     stack: ['Spring AI / Spring AI Alibaba', 'ReactAgent', 'OpenAI-compatible 适配', 'vLLM / Qwen 本地部署', 'Next.js', 'LangGraph'],
     period: '2026.07.06 – 2026.07.31',
     role: 'AI 应用研发实习生',
-    org: '中电信数智科技 · 海南分公司研发中心',
+    org: '中国电信数智科技有限公司 · 海南分公司研发中心',
     bba: {
       before:
         '防返贫监测依赖人工比对贫困户资料与政府数据库，数据项分散、规则复杂，基层核对周期长且难留痕。',

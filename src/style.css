@@ -26,6 +26,8 @@
   /* accents */
   --color-accent: #5e6ad2;
   --color-terminal: #d4a157;
+  /* Claude 品牌橙：用于人名与关键强调 */
+  --color-claude: #d97757;
 
   /* 4px grid */
   --spacing: 4px;
