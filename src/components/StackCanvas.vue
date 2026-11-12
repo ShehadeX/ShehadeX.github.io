@@ -1,25 +1,34 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import {
+  forceCenter,
+  forceCollide,
+  forceLink,
+  forceManyBody,
+  forceSimulation,
+  forceX,
+  forceY,
+  type Simulation,
+  type SimulationNodeDatum,
+} from 'd3-force'
+import type { SimulationLinkDatum } from 'd3-force'
 import type { StackCategory } from '@/data/stack'
 
 /**
- * 技术栈图谱画布（独立组件）。
+ * 技术栈图谱画布（Canvas + d3-force）。
  *
- * 为什么单独拆一个组件：
- *   指针位置、悬停节点这些高频变化的数据，如果放在父组件里，
- *   每次鼠标移动都会触发父组件整个模板重渲染（包含 61 个 SVG 节点组），
- *   主线程直接被压死。这里把高频状态全部关在画布内部，
- *   并用**命令式 DOM 更新**代替 Vue 的 diff，
- *   帧率才稳得住。
+ * 为什么整体换掉原来的 SVG 实现：
+ *   原方案每帧要更新 61 个 <text> + 122 个 <circle> 的属性，
+ *   浏览器对 SVG 文本的排版与重绘代价极高，
+ *   再叠加 Vue 响应式与力计算的 O(n²) 斥力，稍复杂的机器就会卡住。
  *
- * 渲染策略：
- *   - Vue 只负责**首次结构渲染**（节点、边、标签）
- *   - 之后的每帧动画用 setAttribute 直接改坐标，零 diff
+ * 新方案：
+ *   - 物理引擎用 d3-force（业界标准，forceManyBody 用 Barnes-Hut 近似，O(n log n)）
+ *   - 渲染用 Canvas 2D，一次 drawImage 级别的绘制，没有 DOM、没有文本节点
+ *   - 指针吸附直接改 simulation 的节点位置，走 d3 的 tick 事件
  *
- * 缩放策略：
- *   viewBox 与 CSS 像素 1:1（vw/vh 即容器实测尺寸），
- *   svg 用 width:100% + aspect-ratio 填充容器，
- *   因此实际渲染比例恒为 1:1，文字永远不会被缩放变形。
+ * 标签排布仍然自己做避让，但结果只是「画到 canvas 上」，
+ * 不涉及 DOM 布局，所以开销可以忽略。
  */
 
 interface Props {
@@ -35,16 +44,12 @@ const emit = defineEmits<{
 }>()
 
 /* ------------------------------------------------------------------ */
-/*  节点模型                                                          */
+/*  数据模型                                                          */
 /* ------------------------------------------------------------------ */
 
-interface Node {
+interface GNode extends SimulationNodeDatum {
   id: string
   name: string
-  x: number
-  y: number
-  vx: number
-  vy: number
   r: number
   kind: 'hub' | 'item'
   category: string
@@ -52,61 +57,30 @@ interface Node {
   note: string
   projects: string[]
   count: number
-  /** 标签文本 */
-  label: string
-  /** 标签锚点 */
-  anchor: 'start' | 'end' | 'middle'
-  /** 标签基线 y */
-  ly: number
-  /** 标签锚点 x */
+  /** 标签绘制信息（避让后回填） */
   lx: number
+  ly: number
+  anchor: 'start' | 'end' | 'middle'
 }
 
-interface Edge {
-  from: string
-  to: string
+interface GLink extends SimulationLinkDatum<GNode> {
+  source: string | GNode
+  target: string | GNode
 }
 
-/* ------------------------------------------------------------------ */
-/*  尺寸：跟随容器，1:1 映射 CSS 像素                                  */
-/* ------------------------------------------------------------------ */
+const nodes = shallowRef<GNode[]>([])
+const links = shallowRef<GLink[]>([])
 
-const wrapEl = ref<HTMLDivElement | null>(null)
-const svgEl = ref<SVGSVGElement | null>(null)
+const buildData = () => {
+  const ns: GNode[] = []
+  const ls: GLink[] = []
 
-const vw = ref(900)
-const vh = ref(620)
-
-const CX = () => vw.value / 2
-const CY = () => vh.value / 2
-
-/** 窄屏：标签无法全部放下，降级为只显示分类名 */
-const isNarrow = computed(() => vw.value < 560)
-
-/* ------------------------------------------------------------------ */
-/*  初始布局：黄金角螺旋（确定性，首屏稳定）                           */
-/* ------------------------------------------------------------------ */
-
-const GOLDEN = Math.PI * (3 - Math.sqrt(5))
-
-const buildLayout = (): { nodes: Node[]; edges: Edge[] } => {
-  const nodes: Node[] = []
-  const edges: Edge[] = []
-  const cx = CX()
-  const cy = CY()
-  const base = Math.min(vw.value, vh.value)
-
-  const hubCount = props.cats.length
-  const hubR = base * 0.12
-  props.cats.forEach((cat, ci) => {
-    const a = -Math.PI / 2 + (ci * Math.PI * 2) / hubCount
-    nodes.push({
+  for (const cat of props.cats) {
+    ns.push({
       id: cat.id,
       name: cat.name,
-      x: cx + hubR * Math.cos(a),
-      y: cy + hubR * Math.sin(a),
-      vx: 0,
-      vy: 0,
+      x: 0,
+      y: 0,
       r: 9,
       kind: 'hub',
       category: cat.id,
@@ -114,256 +88,92 @@ const buildLayout = (): { nodes: Node[]; edges: Edge[] } => {
       note: cat.caption,
       projects: [...new Set(cat.items.flatMap((i) => i.projects))],
       count: cat.items.length,
-      label: cat.name,
-      anchor: 'middle',
       lx: 0,
       ly: 0,
+      anchor: 'middle',
     })
-  })
-
-  let k = 0
-  for (const cat of props.cats) {
     for (const it of cat.items) {
-      const a = k * GOLDEN
-      const rad = base * 0.22 + base * 0.055 * Math.sqrt(k)
-      const count = it.projects.length
-      nodes.push({
+      ns.push({
         id: it.id,
         name: it.name,
-        x: cx + rad * Math.cos(a),
-        y: cy + rad * Math.sin(a),
-        vx: 0,
-        vy: 0,
-        r: 3.6 + count * 1.15,
+        x: 0,
+        y: 0,
+        r: 3.4 + it.projects.length * 1.1,
         kind: 'item',
         category: cat.id,
         categoryName: cat.name,
         note: it.note,
         projects: it.projects,
-        count,
-        label: it.name,
-        anchor: 'start',
+        count: it.projects.length,
         lx: 0,
         ly: 0,
+        anchor: 'start',
       })
-      edges.push({ from: cat.id, to: it.id })
-      k++
+      ls.push({ source: cat.id, target: it.id })
     }
   }
-
-  return { nodes, edges }
-}
-
-/**
- * 节点集合用 shallowRef：
- * 物理模拟直接改写对象属性，若用深响应式 ref，每次改坐标都会触发
- * 依赖更新，整棵 SVG 会被反复 patch。shallowRef 只在结构变化时通知。
- */
-const nodes = shallowRef<Node[]>([])
-const edges = shallowRef<Edge[]>([])
-
-/**
- * 模板用的只读代理。
- *
- * Vue 模板里直接写 `edges.length` / `v-for="n in nodeList"` 依赖的是
- * 模板编译器的 ref 解包行为，一旦这层解包因为 shallowRef / 编译差异
- * 失效，表达式就会在渲染期抛 TypeError，
- * 而 Vue 会把出错的组件静默替换成空注释节点（<!---->）——
- * 页面上就表现为「图谱区域一片空白」，极难排查。
- *
- * 这里统一用 computed 暴露，模板只依赖 computed 的解包（这是 Vue 明确保证的），
- * 彻底绕开这层不确定性。
- */
-const nodeList = computed(() => nodes.value)
-const edgeCount = computed(() => edges.value.length)
-
-/**
- * id → 节点的索引。
- *
- * 注意声明顺序：必须在 resetLayout() 首次调用**之前**完成声明，
- * 否则会踩到 const 的暂时性死区（TDZ），
- * 报 "Cannot access 'x' before initialization"，
- * 组件 setup 直接抛错、被 Vue 静默替换成空注释节点，
- * 页面上表现为「图谱区域一片空白」。
- */
-const nodeById = new Map<string, Node>()
-
-const resetLayout = () => {
-  const l = buildLayout()
-  nodes.value = l.nodes
-  edges.value = l.edges
-  nodeById.clear()
-  for (const n of l.nodes) nodeById.set(n.id, n)
-  // 重新渲染结构后需要重新收集 DOM 引用
-  requestAnimationFrame(() => collectEls())
-}
-
-resetLayout()
-
-/* ------------------------------------------------------------------ */
-/*  命令式 DOM 引用                                                   */
-/* ------------------------------------------------------------------ */
-
-interface NodeEls {
-  dot: SVGCircleElement
-  hit: SVGCircleElement
-  text: SVGTextElement
-}
-const nodeEls = new Map<string, NodeEls>()
-let edgeEls: SVGLineElement[] = []
-
-function collectEls() {
-  nodeEls.clear()
-  edgeEls = []
-  const svg = svgEl.value
-  if (!svg) return
-  const groups = svg.querySelectorAll<SVGGElement>('g[data-node]')
-  groups.forEach((g) => {
-    const id = g.dataset.node!
-    const dot = g.querySelector<SVGCircleElement>('circle.dot')
-    const hit = g.querySelector<SVGCircleElement>('circle.hit')
-    const text = g.querySelector<SVGTextElement>('text.lbl')
-    if (dot && hit && text) nodeEls.set(id, { dot, hit, text })
-  })
-  edgeEls = Array.from(svg.querySelectorAll<SVGLineElement>('g[data-edges] line'))
+  return { ns, ls }
 }
 
 /* ------------------------------------------------------------------ */
-/*  物理参数                                                          */
+/*  画布                                                              */
 /* ------------------------------------------------------------------ */
 
-const params = () => {
-  const base = Math.min(vw.value, vh.value)
-  if (isNarrow.value) {
-    return {
-      repulsion: base * base * 1.05,
-      repulsionRange: base * 0.42,
-      spring: 0.022,
-      springLen: base * 0.3,
-      centerPull: 0.0024,
-      damping: 0.9,
-      maxStep: base * 0.006,
-      snapRange: 100,
-      snapStrength: 0.16,
-    }
-  }
-  return {
-    repulsion: base * base * 0.55,
-    repulsionRange: base * 0.28,
-    spring: 0.03,
-    springLen: base * 0.2,
-    centerPull: 0.0032,
-    damping: 0.88,
-    maxStep: base * 0.004,
-    snapRange: 120,
-    snapStrength: 0.16,
-  }
-}
+const wrapEl = ref<HTMLDivElement | null>(null)
+const canvasEl = ref<HTMLCanvasElement | null>(null)
 
-/* 高频状态用普通变量，不进响应式系统 */
-let pointer: { x: number; y: number } | null = null
-let snappedId: string | null = null
-let hoverId: string | null = null
+const dpr = ref(1)
+const cssW = ref(900)
+const cssH = ref(620)
 
-let raf = 0
-let running = false
-let last = 0
-/** 标签避让的重算节流计数器 */
-let frameNo = 0
+/** 窄屏：标签放不下，只显示分类名 */
+const isNarrow = computed(() => cssW.value < 560)
 
-function step(dt: number) {
-  const ns = nodes.value
-  const n = ns.length
-  if (!n) return
-  const P = params()
-  const cx = CX()
-  const cy = CY()
+let ctx: CanvasRenderingContext2D | null = null
+let sim: Simulation<GNode, GLink> | null = null
 
-  // ---- 斥力 ----
-  for (let i = 0; i < n; i++) {
-    const a = ns[i]!
-    for (let j = i + 1; j < n; j++) {
-      const b = ns[j]!
-      let dx = b.x - a.x
-      let dy = b.y - a.y
-      let d2 = dx * dx + dy * dy
-      if (d2 < 0.01) {
-        dx = (i % 5) - 2
-        dy = (j % 7) - 3
-        d2 = dx * dx + dy * dy + 0.01
-      }
-      const d = Math.sqrt(d2)
-      if (d > P.repulsionRange) continue
-      const falloff = 1 - d / P.repulsionRange
-      const force = ((P.repulsion * (1 + (a.r + b.r) * 2)) / d2) * falloff * falloff
-      const fx = (dx / d) * force
-      const fy = (dy / d) * force
-      a.vx -= fx
-      a.vy -= fy
-      b.vx += fx
-      b.vy += fy
-    }
-  }
+/* ------------------------------------------------------------------ */
+/*  物理引擎：d3-force                                               */
+/* ------------------------------------------------------------------ */
 
-  // ---- 弹簧（分类 → 技术）----
-  for (const e of edges.value) {
-    const a = nodeById.get(e.from)
-    const b = nodeById.get(e.to)
-    if (!a || !b) continue
-    const dx = b.x - a.x
-    const dy = b.y - a.y
-    const d = Math.hypot(dx, dy) || 1
-    const f = (d - P.springLen) * P.spring
-    a.vx += (dx / d) * f
-    a.vy += (dy / d) * f
-    b.vx -= (dx / d) * f
-    b.vy -= (dy / d) * f
-  }
+const buildSimulation = () => {
+  sim?.stop()
 
-  // ---- 向心力 ----
-  for (const node of ns) {
-    node.vx += (cx - node.x) * P.centerPull
-    node.vy += (cy - node.y) * P.centerPull
-  }
+  const { ns, ls } = buildData()
+  nodes.value = ns
+  links.value = ls
 
-  // ---- 指针磁吸 ----
-  if (pointer) {
-    const p = pointer
-    let best: Node | null = null
-    let bestDist = Infinity
-    for (const node of ns) {
-      const d = Math.hypot(node.x - p.x, node.y - p.y)
-      if (d < P.snapRange && d < bestDist) {
-        bestDist = d
-        best = node
-      }
-    }
-    snappedId = best?.id ?? null
-    if (best) {
-      const dx = p.x - best.x
-      const dy = p.y - best.y
-      const d = Math.hypot(dx, dy) || 1
-      const target = best.r + 22
-      const pull = (d - target) * P.snapStrength
-      best.vx += (dx / d) * pull
-      best.vy += (dy / d) * pull
-    }
-  } else {
-    snappedId = null
-  }
+  const base = Math.min(cssW.value, cssH.value)
 
-  // ---- 积分 ----
-  for (const node of ns) {
-    node.vx *= P.damping
-    node.vy *= P.damping
-    node.vx = Math.max(-P.maxStep, Math.min(P.maxStep, node.vx))
-    node.vy = Math.max(-P.maxStep, Math.min(P.maxStep, node.vy))
-    node.x += node.vx * dt
-    node.y += node.vy * dt
-    const m = node.r + 10
-    node.x = Math.max(m, Math.min(vw.value - m, node.x))
-    node.y = Math.max(m, Math.min(vh.value - m, node.y))
-  }
+  sim = forceSimulation<GNode, GLink>(ns)
+    // 电荷斥力：Barnes-Hut 近似，d3 内部实现，复杂度 O(n log n)
+    .force(
+      'charge',
+      forceManyBody<GNode>()
+        .strength(isNarrow.value ? -80 : -130)
+        .distanceMax(base * (isNarrow.value ? 0.6 : 0.5)),
+    )
+    // 分类 → 技术 的弹簧：拉近，保证技术项聚在各自分类周围
+    .force(
+      'link',
+      forceLink<GNode, GLink>(ls)
+        .id((d) => d.id)
+        .distance(isNarrow.value ? base * 0.18 : base * 0.115)
+        .strength(0.6),
+    )
+    // 向心力：整体收拢在画布内，X 略强于 Y，形成横向展开的观感
+    .force('center', forceCenter(cssW.value / 2, cssH.value / 2).strength(0.14))
+    .force('x', forceX<GNode>(cssW.value / 2).strength(0.075))
+    .force('y', forceY<GNode>(cssH.value / 2).strength(0.035))
+    // 节点防重叠
+    .force(
+      'collide',
+      forceCollide<GNode>((d) => d.r + 8).strength(1).iterations(2),
+    )
+    .alpha(1)
+    .alphaDecay(0.022)
+    .velocityDecay(0.38)
+    .on('tick', onTick)
 }
 
 /* ------------------------------------------------------------------ */
@@ -380,30 +190,26 @@ const labelWidth = (name: string) => {
 }
 
 /**
- * 标签避让排布（确定性）。
+ * 标签避让（确定性）。
  *
  * 每个标签有两个候选位置：节点右侧 / 节点左侧。
  * 依次尝试「右侧、左侧、右侧上移、左侧上移、右侧下移、左侧下移……」
  * 取第一个不与已放置标签相交的位置。
- *
- * 双侧策略是关键：只用单侧时，长标签会把整列挤成一条线；
- * 双侧交替后标签自然分布在节点两侧，重叠几乎完全消失。
  */
 function layoutLabels() {
   const ns = nodes.value
   const placed: { x1: number; x2: number; y: number }[] = []
   const H = 12
 
-  const sorted = [...ns].sort((a, b) => a.y - b.y || a.x - b.x)
+  const sorted = [...ns].sort((a, b) => (a.y ?? 0) - (b.y ?? 0) || (a.x ?? 0) - (b.x ?? 0))
 
   for (const node of sorted) {
-    const w = labelWidth(node.label)
+    const w = labelWidth(node.name)
 
     if (node.kind === 'hub') {
-      // 枢纽标签在节点正上方居中
-      const x1 = node.x - w / 2
-      const x2 = node.x + w / 2
-      const baseY = node.y - node.r - 6
+      const x1 = (node.x ?? 0) - w / 2
+      const x2 = (node.x ?? 0) + w / 2
+      const baseY = (node.y ?? 0) - node.r - 7
       let y = baseY
       for (let attempt = 0; attempt < 16; attempt++) {
         const hit = placed.some(
@@ -414,15 +220,17 @@ function layoutLabels() {
         y = baseY + dir * (Math.floor(attempt / 2) + 1) * (H + 2)
       }
       placed.push({ x1, x2, y })
-      node.lx = node.x
+      node.lx = node.x ?? 0
       node.ly = y
       node.anchor = 'middle'
       continue
     }
 
-    const rightX = node.x + node.r + 4
-    const leftX = node.x - node.r - 4
-    const baseY = node.y + 3.4
+    const cx = node.x ?? 0
+    const cy = node.y ?? 0
+    const rightX = cx + node.r + 4
+    const leftX = cx - node.r - 4
+    const baseY = cy + 3.4
 
     let chosen: { x1: number; x2: number; y: number; anchor: 'start' | 'end' } | null = null
 
@@ -438,14 +246,10 @@ function layoutLabels() {
       const hit = placed.some(
         (p) => x1 < p.x2 + 4 && p.x1 - 4 < x2 && Math.abs(y - p.y) < H,
       )
-      if (!hit) {
-        chosen = { x1, x2, y, anchor: side === 'right' ? 'start' : 'end' }
-      }
+      if (!hit) chosen = { x1, x2, y, anchor: side === 'right' ? 'start' : 'end' }
     }
 
-    if (!chosen) {
-      chosen = { x1: rightX, x2: rightX + w, y: baseY, anchor: 'start' }
-    }
+    if (!chosen) chosen = { x1: rightX, x2: rightX + w, y: baseY, anchor: 'start' }
 
     placed.push({ x1: chosen.x1, x2: chosen.x2, y: chosen.y })
     node.anchor = chosen.anchor
@@ -455,202 +259,269 @@ function layoutLabels() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  命令式渲染：每帧只改属性，不走 Vue diff                           */
+/*  绘制                                                              */
 /* ------------------------------------------------------------------ */
 
-const activeSet = computed(() => (props.activeIds ? new Set(props.activeIds) : null))
+const BG = '#ece9e0'
+const INK = 'rgba(32,31,29,0.55)'
+const INK_STRONG = '#201f1d'
+const LABEL = 'rgba(98,95,89,0.95)'
+const CLAUDE = '#d97757'
+const CLAUDE_DEEP = '#b4553a'
 
-function paint() {
+let hoveredId: string | null = null
+let snappedId: string | null = null
+let activeSet: Set<string> | null = null
+
+function onTick() {
+  layoutLabels()
+  draw()
+}
+
+function draw() {
+  const c = canvasEl.value
+  if (!c || !ctx) return
+
+  const w = cssW.value
+  const h = cssH.value
+
+  ctx.clearRect(0, 0, w, h)
+  ctx.fillStyle = BG
+  ctx.fillRect(0, 0, w, h)
+
   const ns = nodes.value
-  const act = activeSet.value
+  const ls = links.value
   const narrow = isNarrow.value
 
-  for (const node of ns) {
-    const el = nodeEls.get(node.id)
-    if (!el) continue
+  // ---- 边 ----
+  ctx.strokeStyle = 'rgba(32,31,29,0.13)'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  for (const l of ls) {
+    const a = l.source as GNode
+    const b = l.target as GNode
+    if (typeof a === 'string' || typeof b === 'string') continue
+    ctx.moveTo(a.x ?? 0, a.y ?? 0)
+    ctx.lineTo(b.x ?? 0, b.y ?? 0)
+  }
+  ctx.stroke()
 
-    const cx = node.x.toFixed(2)
-    const cy = node.y.toFixed(2)
-    if (el.dot.getAttribute('cx') !== cx) el.dot.setAttribute('cx', cx)
-    if (el.dot.getAttribute('cy') !== cy) el.dot.setAttribute('cy', cy)
-    if (el.hit.getAttribute('cx') !== cx) el.hit.setAttribute('cx', cx)
-    if (el.hit.getAttribute('cy') !== cy) el.hit.setAttribute('cy', cy)
-
-    const hot = hoverId === node.id || snappedId === node.id
-    if (node.kind === 'item') {
-      const fill = act?.has(node.id) ? '#d97757' : 'rgba(32,31,29,0.55)'
-      const stroke = hot ? '#d97757' : 'rgba(32,31,29,0.25)'
-      const sw = hot ? '1.8' : '1'
-      if (el.dot.getAttribute('fill') !== fill) el.dot.setAttribute('fill', fill)
-      if (el.dot.getAttribute('stroke') !== stroke) el.dot.setAttribute('stroke', stroke)
-      if (el.dot.getAttribute('stroke-width') !== sw) el.dot.setAttribute('stroke-width', sw)
-    }
-
-    // 窄屏：技术项不画标签
-    const showText = !narrow || node.kind === 'hub'
-    if (showText) {
-      // 标签只在「位置真的变了」或「高亮态变了」时才写属性：
-      // 61 个 <text> 每帧无条件 setAttribute 会让浏览器重排整个 SVG 文本树，
-      // 这是图谱最贵的一笔开销。
-      const lx = node.lx.toFixed(2)
-      const ly = node.ly.toFixed(2)
-      if (el.text.getAttribute('x') !== lx) el.text.setAttribute('x', lx)
-      if (el.text.getAttribute('y') !== ly) el.text.setAttribute('y', ly)
-      if (el.text.getAttribute('text-anchor') !== node.anchor) {
-        el.text.setAttribute('text-anchor', node.anchor)
-      }
-      const fill = hot ? '#b4553a' : 'rgba(98,95,89,0.95)'
-      if (el.text.getAttribute('fill') !== fill) el.text.setAttribute('fill', fill)
-      if (el.text.style.display !== '') el.text.style.display = ''
-    } else if (el.text.style.display !== 'none') {
-      el.text.style.display = 'none'
-    }
-
-    // 选中项目时未使用的节点淡出
-    const dim = act
-      ? node.kind === 'hub'
-        ? !node.projects.some((p) => act.has(node.id) || act.has(p))
-        : !act.has(node.id)
+  // ---- 节点 ----
+  for (const n of ns) {
+    const x = n.x ?? 0
+    const y = n.y ?? 0
+    const dim = activeSet
+      ? n.kind === 'hub'
+        ? !n.projects.some((p) => activeSet!.has(p))
+        : !activeSet.has(n.id)
       : false
-    const g = el.dot.parentElement as SVGGElement | null
-    if (g) g.setAttribute('opacity', dim ? '0.18' : '1')
+    const hot = hoveredId === n.id || snappedId === n.id
+
+    ctx.globalAlpha = dim ? 0.18 : 1
+
+    if (n.kind === 'hub') {
+      // 分类节点：实心 + 浅色外环，视觉上作为「簇中心」
+      ctx.beginPath()
+      ctx.arc(x, y, n.r + 4, 0, Math.PI * 2)
+      ctx.fillStyle = 'rgba(32,31,29,0.08)'
+      ctx.fill()
+      ctx.beginPath()
+      ctx.arc(x, y, n.r, 0, Math.PI * 2)
+      ctx.fillStyle = INK_STRONG
+      ctx.fill()
+    } else {
+      ctx.beginPath()
+      ctx.arc(x, y, n.r, 0, Math.PI * 2)
+      ctx.fillStyle = activeSet?.has(n.id) ? CLAUDE : INK
+      ctx.fill()
+      ctx.lineWidth = hot ? 1.8 : 1
+      ctx.strokeStyle = hot ? CLAUDE : 'rgba(32,31,29,0.25)'
+      ctx.stroke()
+    }
   }
 
-  // 边：预先建好 from→to 的索引，避免每帧 find()（O(n²)）
-  const es = edges.value
-  for (let i = 0; i < edgeEls.length; i++) {
-    const line = edgeEls[i]
-    const e = es[i]
-    if (!line || !e) continue
-    const a = nodeById.get(e.from)
-    const b = nodeById.get(e.to)
-    if (!a || !b) continue
-    const x1 = a.x.toFixed(2)
-    const y1 = a.y.toFixed(2)
-    const x2 = b.x.toFixed(2)
-    const y2 = b.y.toFixed(2)
-    if (line.getAttribute('x1') !== x1) line.setAttribute('x1', x1)
-    if (line.getAttribute('y1') !== y1) line.setAttribute('y1', y1)
-    if (line.getAttribute('x2') !== x2) line.setAttribute('x2', x2)
-    if (line.getAttribute('y2') !== y2) line.setAttribute('y2', y2)
+  // ---- 标签引导线 ----
+  // 标签被避让推开后，节点和文字之间会有一段距离，
+  // 画一条极淡的引导线，保证「这个标签属于这个点」的关系一眼可读。
+  ctx.globalAlpha = 1
+  ctx.strokeStyle = 'rgba(32,31,29,0.14)'
+  ctx.lineWidth = 0.75
+  ctx.beginPath()
+  for (const n of ns) {
+    if (narrow && n.kind === 'item') continue
+    const nx = n.x ?? 0
+    const ny = n.y ?? 0
+    // 标签锚点与节点中心的距离太近就不画，避免糊成一片
+    if (Math.abs(n.lx - nx) < 12 && Math.abs(n.ly - ny) < 6) continue
+    ctx.moveTo(nx, ny)
+    ctx.lineTo(n.lx, n.ly - 3)
   }
+  ctx.stroke()
+
+  // ---- 标签 ----
+  ctx.font = `${narrow ? 10 : 9.5}px ui-monospace, SFMono-Regular, Menlo, monospace`
+  ctx.textBaseline = 'alphabetic'
+
+  for (const n of ns) {
+    // 窄屏只显示分类名
+    if (narrow && n.kind === 'item') continue
+    const hot = hoveredId === n.id || snappedId === n.id
+    ctx.textAlign = n.anchor === 'middle' ? 'center' : n.anchor
+    ctx.fillStyle = hot ? CLAUDE_DEEP : LABEL
+    ctx.fillText(n.name, n.lx, n.ly)
+  }
+
+  ctx.globalAlpha = 1
 }
 
 /* ------------------------------------------------------------------ */
-/*  主循环                                                            */
+/*  指针交互                                                          */
 /* ------------------------------------------------------------------ */
 
-function tick(ts: number) {
-  if (!running) return
-  const dt = last ? Math.min(2, (ts - last) / 16.67) : 1
-  last = ts
-  step(dt)
+const pointer = { x: 0, y: 0, inside: false }
 
-  // 标签避让每 4 帧重算一次即可（标签位置变化很慢）
-  frameNo++
-  if (frameNo % 4 === 0) layoutLabels()
-
-  paint()
-
-  raf = requestAnimationFrame(tick)
+/** 找到离指针最近的节点 */
+const pickNode = (x: number, y: number, range: number) => {
+  let best: GNode | null = null
+  let bestDist = Infinity
+  for (const n of nodes.value) {
+    const d = Math.hypot((n.x ?? 0) - x, (n.y ?? 0) - y)
+    if (d < range && d < bestDist) {
+      bestDist = d
+      best = n
+    }
+  }
+  return best
 }
 
-function start() {
-  if (running) return
-  running = true
-  last = 0
-  raf = requestAnimationFrame(tick)
+const onPointerMove = (evt: PointerEvent | MouseEvent) => {
+  const c = canvasEl.value
+  if (!c) return
+  const r = c.getBoundingClientRect()
+  pointer.x = evt.clientX - r.left
+  pointer.y = evt.clientY - r.top
+  pointer.inside = true
+
+  // 磁吸：把最近的节点拉向指针，但保持一点点距离，不覆盖指针
+  const target = pickNode(pointer.x, pointer.y, 130)
+  snappedId = target?.id ?? null
+  if (target && sim) {
+    const dx = pointer.x - (target.x ?? 0)
+    const dy = pointer.y - (target.y ?? 0)
+    const d = Math.hypot(dx, dy) || 1
+    const desired = target.r + 24
+    const pull = (d - desired) * 0.12
+    target.vx = (target.vx ?? 0) + (dx / d) * pull * 6
+    target.vy = (target.vy ?? 0) + (dy / d) * pull * 6
+    sim.alpha(Math.max(sim.alpha(), 0.12)).restart()
+  }
+
+  // 悬停
+  const hov = pickNode(pointer.x, pointer.y, 18)
+  const hid = hov?.id ?? null
+  if (hid !== hoveredId) {
+    hoveredId = hid
+    if (hov) {
+      emit('hover', {
+        id: hov.id,
+        name: hov.name,
+        kind: hov.kind,
+        category: hov.categoryName,
+        note: hov.note,
+        projects: hov.projects,
+        count: hov.count,
+      })
+    } else {
+      emit('hover', null)
+    }
+  }
+  draw()
 }
 
-function stop() {
-  running = false
-  cancelAnimationFrame(raf)
+const onPointerLeave = () => {
+  pointer.inside = false
+  snappedId = null
+  if (hoveredId) {
+    hoveredId = null
+    emit('hover', null)
+  }
+  draw()
 }
 
 /* ------------------------------------------------------------------ */
-/*  尺寸测量                                                          */
+/*  尺寸                                                              */
 /* ------------------------------------------------------------------ */
 
 let ro: ResizeObserver | null = null
+let io: IntersectionObserver | null = null
+let visible = true
+let pageVisible = true
 
 function measure() {
   const el = wrapEl.value
-  if (!el) return
+  const c = canvasEl.value
+  if (!el || !c) return
   const w = Math.round(el.clientWidth)
   if (w < 10) return
 
   const targetH =
     w < 560
-      ? Math.round(Math.max(560, Math.min(760, w * 1.6)))
-      : Math.round(Math.max(520, Math.min(900, w * 1.02)))
+      ? Math.round(Math.max(520, Math.min(720, w * 1.5)))
+      : Math.round(Math.max(560, Math.min(820, w * 0.92)))
 
-  if (Math.abs(w - vw.value) < 8 && Math.abs(targetH - vh.value) < 8) return
+  const ratio = window.devicePixelRatio || 1
+  dpr.value = ratio
+  cssW.value = w
+  cssH.value = targetH
 
-  const sx = vw.value ? w / vw.value : 1
-  const sy = vh.value ? targetH / vh.value : 1
-  vw.value = w
-  vh.value = targetH
-  // 已有节点按比例迁移，避免整图重排
-  for (const n of nodes.value) {
-    n.x *= sx
-    n.y *= sy
-  }
+  c.width = Math.round(w * ratio)
+  c.height = Math.round(targetH * ratio)
+  c.style.width = `${w}px`
+  c.style.height = `${targetH}px`
+  ctx = c.getContext('2d')
+  if (ctx) ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
+
+  // 重建模拟（尺寸变了，力参数也要跟着变）
+  buildSimulation()
+  draw()
 }
 
-/**
- * 可见性管理。
- *
- * 图谱的物理模拟每帧都要重算 61 个节点 + 重绘整个 SVG，
- * 如果用户根本没看到它（滚过去了 / 切了标签页），
- * 这些计算就是纯浪费，累积起来会让整页变卡。
- *
- * IntersectionObserver：滚出视口 → 停
- * visibilitychange：切走标签页 → 停
- */
-let io: IntersectionObserver | null = null
-let inView = true
-let pageVisible = true
-
-const syncRun = () => {
-  if (inView && pageVisible) start()
-  else stop()
-}
+/* ------------------------------------------------------------------ */
+/*  生命周期                                                          */
+/* ------------------------------------------------------------------ */
 
 onMounted(() => {
   measure()
-  collectEls()
-  layoutLabels()
-  start()
-
   if (wrapEl.value && 'ResizeObserver' in window) {
-    ro = new ResizeObserver(() => {
-      measure()
-      layoutLabels()
-    })
+    ro = new ResizeObserver(() => measure())
     ro.observe(wrapEl.value)
   }
-
   if (wrapEl.value && 'IntersectionObserver' in window) {
     io = new IntersectionObserver(
       (entries) => {
-        inView = entries[0]?.isIntersecting ?? true
-        syncRun()
+        visible = entries[0]?.isIntersecting ?? true
+        syncSim()
       },
-      { rootMargin: '120px' },
+      { rootMargin: '150px' },
     )
     io.observe(wrapEl.value)
   }
-
   document.addEventListener('visibilitychange', onVisibility)
 })
 
+function syncSim() {
+  if (!sim) return
+  if (visible && pageVisible) sim.alpha(0.35).restart()
+  else sim.stop()
+}
+
 function onVisibility() {
   pageVisible = document.visibilityState === 'visible'
-  syncRun()
+  syncSim()
 }
 
 onBeforeUnmount(() => {
-  stop()
+  sim?.stop()
   ro?.disconnect()
   io?.disconnect()
   document.removeEventListener('visibilitychange', onVisibility)
@@ -659,72 +530,24 @@ onBeforeUnmount(() => {
 // 数据源变化 → 重建
 watch(
   () => props.cats,
-  () => {
-    resetLayout()
-  },
+  () => buildSimulation(),
 )
 
-/* ------------------------------------------------------------------ */
-/*  交互                                                              */
-/* ------------------------------------------------------------------ */
-
-const toSvgPoint = (evt: MouseEvent) => {
-  const el = svgEl.value
-  if (!el) return null
-  const r = el.getBoundingClientRect()
-  if (!r.width) return null
-  const scale = vw.value / r.width
-  return {
-    x: (evt.clientX - r.left) * scale,
-    y: (evt.clientY - r.top) * scale,
-  }
-}
-
-/**
- * 指针位置追踪。
- *
- * 同时监听 pointermove 与 mousemove：
- * 某些环境（嵌入式 webview、旧版 WebKit）只派发其中之一，
- * 监听两个可以保证吸附效果在任何环境下都能生效。
- */
-const onPointerMove = (evt: MouseEvent) => {
-  pointer = toSvgPoint(evt)
-}
-
-const onPointerLeave = () => {
-  pointer = null
-  snappedId = null
-}
-
-const onNodeEnter = (id: string) => {
-  hoverId = id
-  const node = nodes.value.find((n) => n.id === id)
-  if (node) {
-    emit('hover', {
-      id: node.id,
-      name: node.name,
-      kind: node.kind,
-      category: node.categoryName,
-      note: node.note,
-      projects: node.projects,
-      count: node.count,
-    })
-  }
-}
-
-const onNodeLeave = () => {
-  hoverId = null
-  emit('hover', null)
-}
+// 选中项目 → 更新高亮集合
+watch(
+  () => props.activeIds,
+  (v) => {
+    activeSet = v ? new Set(v) : null
+    draw()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
-  <div ref="wrapEl" data-stack-canvas class="relative w-full overflow-hidden">
-    <svg
-      ref="svgEl"
-      :viewBox="`0 0 ${vw} ${vh}`"
-      width="100%"
-      :style="{ aspectRatio: `${vw} / ${vh}` }"
+  <div ref="wrapEl" class="relative w-full overflow-hidden">
+    <canvas
+      ref="canvasEl"
       class="block w-full touch-none select-none"
       role="img"
       aria-label="技术栈关系图谱"
@@ -732,69 +555,6 @@ const onNodeLeave = () => {
       @mousemove="onPointerMove"
       @pointerleave="onPointerLeave"
       @mouseleave="onPointerLeave"
-    >
-      <!-- 归属边 -->
-      <g data-edges>
-        <line
-          v-for="i in edgeCount"
-          :key="i"
-          stroke="rgba(32,31,29,0.13)"
-          stroke-width="1"
-        />
-      </g>
-
-      <!-- 节点 -->
-      <g
-        v-for="n in nodeList"
-        :key="n.id"
-        :data-node="n.id"
-        class="cursor-pointer"
-        @mouseenter="onNodeEnter(n.id)"
-        @mouseleave="onNodeLeave"
-      >
-        <circle
-          v-if="n.kind === 'hub'"
-          class="dot"
-          :r="n.r"
-          fill="#0f0f10"
-          :cx="n.x"
-          :cy="n.y"
-        />
-        <circle
-          v-else
-          class="dot"
-          :r="n.r"
-          fill="rgba(32,31,29,0.55)"
-          stroke="rgba(32,31,29,0.25)"
-          stroke-width="1"
-          :cx="n.x"
-          :cy="n.y"
-        />
-        <!-- 命中区域放大，方便悬停 -->
-        <circle
-          class="hit"
-          :r="Math.max(n.r + 7, 13)"
-          fill="transparent"
-          :cx="n.x"
-          :cy="n.y"
-        />
-        <!-- 标签 -->
-        <text
-          class="lbl"
-          :x="n.lx"
-          :y="n.ly"
-          text-anchor="middle"
-          font-size="9.5"
-          font-family="ui-monospace, monospace"
-          fill="rgba(98,95,89,0.95)"
-          stroke="#ECE9E0"
-          stroke-width="2.8"
-          paint-order="stroke"
-          stroke-linejoin="round"
-        >
-          {{ n.label }}
-        </text>
-      </g>
-    </svg>
+    />
   </div>
 </template>
