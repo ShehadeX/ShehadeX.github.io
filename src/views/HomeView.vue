@@ -522,7 +522,9 @@ const internships = [
           <span class="rule flex-1" />
         </div>
 
-        <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10">
+        <div
+          class="mt-8 grid items-stretch gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10"
+        >
           <!--
             左：描述（压缩）
             不用 sticky —— sticky 会让左栏独立吸附滚动，
@@ -562,13 +564,14 @@ const internships = [
           </div>
 
           <!--
-            右：技术栈图谱（锁定）
-            lg:sticky 让图谱在滚动中固定在视口内，
-            与左侧描述「一起停在同一个位置」，
-            不再出现左栏滑走、右栏还在原地的异步滑动。
-            画布高度已按视口高度收敛，所以锁定后整张图完整可见。
+            右：技术栈图谱
+            不用 sticky —— sticky 会让右栏按内容高度收缩，
+            两栏底部就对不齐了（而且图谱会单独吸附滚动，
+            与左栏产生异步滑动的割裂感）。
+            这里让卡片跟着 grid 行一起拉伸（items-stretch），
+            画布再按卡片高度填满 —— 两栏底部永远在同一高度。
           -->
-          <div class="lg:sticky lg:top-20 lg:self-start">
+          <div class="h-full">
             <StackGraph compact />
           </div>
         </div>

@@ -39,6 +39,14 @@ interface Props {
   /** 选中项目时该项目用到的技术 id；null 表示未筛选 */
   activeIds: string[] | null
   /**
+   * 填满父容器高度。
+   *
+   * 右侧图谱在首页是与左栏视觉对齐的（底部同一高度），
+   * 所以画布不能自己按视口算高度 —— 要跟着卡片容器一起拉伸。
+   * 这样两栏底部永远齐平，且不会因为左栏 hover 变高而抖动。
+   */
+  fill?: boolean
+  /**
    * 持久选中的节点 id。
    *
    * 来自左栏「领域概要」的点击 —— 点了左边的分类，
@@ -653,7 +661,20 @@ function measure() {
     w < 560
       ? Math.round(Math.max(520, Math.min(720, w * 1.5)))
       : Math.round(Math.max(560, Math.min(820, w * 0.92)))
-  const targetH = Math.round(Math.min(desired, maxH))
+  let targetH = Math.round(Math.min(desired, maxH))
+
+  /**
+   * 填满模式：画布高度 = 父容器可用高度。
+   *
+   * 父容器（.relative）被 flex 拉成和左栏等高，
+   * 这里取它的 clientHeight 作为画布高度，两栏底部就齐平了。
+   */
+  if (props.fill) {
+    // 父容器（StackGraph 的 .relative 壳）被 flex 拉成与左栏等高
+    const host = el.parentElement
+    const hostH = host ? host.clientHeight : 0
+    if (hostH > 120) targetH = hostH
+  }
 
   /**
    * 设备像素比上限 1.5。
@@ -721,10 +742,20 @@ watch(
 </script>
 
 <template>
-  <div ref="wrapEl" class="relative w-full overflow-hidden">
+  <!--
+    外层 wrapEl 是画布的测量基准。
+    fill 模式下它取父容器高度（父容器由 flex 拉成与左栏等高），
+    画布绝对定位铺满，避免「画布决定容器高度、容器又决定画布高度」的循环。
+  -->
+  <div
+    ref="wrapEl"
+    class="relative w-full overflow-hidden"
+    :class="fill ? 'h-full' : ''"
+  >
     <canvas
       ref="canvasEl"
       class="block w-full touch-none select-none"
+      :class="fill ? 'absolute inset-0' : ''"
       role="img"
       aria-label="技术栈关系图谱"
       @pointermove="onPointerMove"

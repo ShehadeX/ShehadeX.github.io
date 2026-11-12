@@ -70,7 +70,7 @@ const toggleProject = (slug: string) => {
 </script>
 
 <template>
-  <div class="overflow-hidden rounded-[15px] border border-ink/12 bg-base">
+  <div class="flex h-full flex-col overflow-hidden rounded-[15px] border border-ink/12 bg-base">
     <!-- 头部：项目筛选 -->
     <div class="flex flex-wrap items-center gap-2 border-b border-ink/10 bg-raised px-4 py-2.5">
       <span class="eyebrow mr-1">{{ t('stack.graph') }}</span>
@@ -111,11 +111,12 @@ const toggleProject = (slug: string) => {
       节点详情统一搬到左栏的技术选型面板里展示，
       这里保持纯图谱，右栏高度恒定，sticky 锁定不受影响。
     -->
-    <div v-if="compact" class="relative">
+    <div v-if="compact" class="relative flex-1">
       <StackCanvas
         :cats="cats"
         :active-ids="activeIds"
         :selected-id="selectedId"
+        fill
         @hover="hoveredNode = $event"
         @select="toggleNode($event)"
       />

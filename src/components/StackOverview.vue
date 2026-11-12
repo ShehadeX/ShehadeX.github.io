@@ -66,7 +66,13 @@ const isCategoryActive = (id: string) => focusedNode.value?.category === id
 </script>
 
 <template>
-  <div class="mt-5 border-t border-ink/10 pt-4">
+  <!--
+    固定最小高度：概要态与选中态内容长度差别很大，
+    不锁定的话左栏会在 hover 时突然变高/变矮，
+    右侧图谱跟着拉伸 → 抖动。
+    锁定后左栏高度恒定，右栏画布按它填满，两栏底部永远齐平。
+  -->
+  <div class="mt-5 min-h-[420px] border-t border-ink/10 pt-4">
     <!-- 头部 -->
     <div class="flex items-baseline gap-2.5">
       <span class="eyebrow">{{ isEn ? 'Tech Stack' : '技术选型' }}</span>

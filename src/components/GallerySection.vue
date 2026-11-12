@@ -17,10 +17,13 @@ const eyebrow = computed(() => (isEn.value ? 'Gallery' : '画廊'))
 const title = computed(() =>
   isEn.value ? 'Outside the codebase' : '项目之外',
 )
+/** 全部照片总数 */
+const photoCount = computed(() => galleries.reduce((n, g) => n + g.photos.length, 0))
+
 const intro = computed(() =>
   isEn.value
     ? 'Photographs from the places these projects actually happened — wards, labs, server rooms, and everywhere else I have been. Each gallery opens into its own record.'
-    : '这些项目真实发生过的现场照片 —— 病房、实验室、机房，以及我去过的其他地方。点进任意一个画廊，可以看到每张照片背后的记录。',
+    : '这些项目真实发生过的现场照片 —— 病房、实验室、机房，以及我去过的其他地方。自动轮播全部照片，点开任意一张可以进入它所属的画廊，看到背后的记录。',
 )
 </script>
 
@@ -31,7 +34,8 @@ const intro = computed(() =>
         <span class="eyebrow">{{ eyebrow }}</span>
         <span class="rule flex-1" />
         <span class="font-mono text-[10.5px] text-ink-faint">
-          {{ galleries.length }} {{ isEn ? 'galleries' : '个画廊' }}
+          {{ galleries.length }} {{ isEn ? 'galleries' : '个画廊' }} ·
+          {{ photoCount }} {{ isEn ? 'photos' : '张照片' }}
         </span>
       </div>
 
@@ -45,7 +49,7 @@ const intro = computed(() =>
       </div>
 
       <div class="mt-10">
-        <GalleryCarousel :galleries="galleries" />
+        <GalleryCarousel />
       </div>
     </div>
   </section>
