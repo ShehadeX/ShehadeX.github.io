@@ -25,6 +25,16 @@ jobs:
           node-version: 20
           cache: npm
 
+      # package-lock.json 里的 tarball 指向 npmmirror 镜像，
+      # 在 GitHub Actions（海外节点）上偶发拉取超时。
+      # 这里显式切到官方 registry 并在安装时回退，避免构建直接失败。
+      - name: Configure npm registry
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          npm config set fetch-retries 5
+          npm config set fetch-retry-maxtimeout 120000
+          npm config set fetch-timeout 300000
+
       - name: Install dependencies
         run: npm ci
 
