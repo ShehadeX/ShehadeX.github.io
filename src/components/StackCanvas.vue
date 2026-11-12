@@ -153,16 +153,29 @@ function buildLayout() {
   const nCat = Math.max(1, props.cats.length)
   /** 每个领域占的角度 */
   const sector = (Math.PI * 2) / nCat
-  /** 扇形张角（留一点间隙，视觉上分得开） */
-  const wedge = sector * 0.88
-  /** 枢纽椭圆环的半径 */
-  const rx = w * 0.27
-  const ry = h * 0.25
+  /**
+   * 扇形张角。
+   *
+   * 雪花瓣细而长：瓣与瓣之间留出明显间隙（分得清领域），
+   * 瓣内部的空间尽量紧凑（项贴着枢纽）。
+   */
+  const wedge = sector * 0.78
+  /**
+   * 枢纽圆环的半径。
+   *
+   * 雪花状要求枢纽向中心聚拢 —— 整个花簇挤在画布中央，
+   * 6 个瓣从中心向外展开，四周留出呼吸的空白。
+   *
+   * 用**正圆**而不是椭圆：椭圆在横向会伸得更长，
+   * 导致左右两瓣顶到边框。圆环保证 6 个瓣到中心的距离一致，
+   * 花瓣形状均匀。
+   */
+  const hubR = base * 0.17
 
   props.cats.forEach((cat, ci) => {
     const a = -Math.PI / 2 + ci * sector
-    const hx = cx + rx * Math.cos(a)
-    const hy = cy + ry * Math.sin(a)
+    const hx = cx + hubR * Math.cos(a)
+    const hy = cy + hubR * Math.sin(a)
 
     ns.push({
       id: cat.id,
@@ -192,8 +205,8 @@ function buildLayout() {
     )
     const n = items.length
 
-    /** 需要几圈来放 n 个项（每圈最多 6 个，保证弧向间距足够） */
-    const RINGS = Math.max(1, Math.ceil(n / 5))
+    /** 需要几圈来放 n 个项（每圈最多 7 个，瓣内紧凑不松散） */
+    const RINGS = Math.max(1, Math.ceil(n / 7))
     const perRing = Math.ceil(n / RINGS)
 
     items.forEach((it, j) => {
@@ -207,8 +220,14 @@ function buildLayout() {
       /** 绝对角 = 枢纽方向 + 扇形内偏移 */
       const ang = a + spread
 
-      /** 圈半径：离枢纽的距离，越外圈越远 */
-      const ringR = base * (0.2 + ring * 0.09)
+      /**
+       * 圈半径：离枢纽的距离，越外圈越远。
+       *
+       * 内圈几乎贴着枢纽，外圈再往外推一点 ——
+       * 但**总半径被画布短边的一半减去边距约束**，
+       * 保证最外圈的节点不会碰到边框。
+       */
+      const ringR = base * (0.105 + ring * 0.07)
 
       ns.push({
         id: it.id,
@@ -238,6 +257,13 @@ function buildLayout() {
    * 所以技术项永远留在自己领域的那一瓣里。
    */
   const ITER = 140
+  /**
+   * 花簇的最大半径：从中心到最远节点的允许距离。
+   *
+   * 由画布短边的一半减去边距算出 ——
+   * 保证最外圈节点在任何方向上都碰不到边框。
+   */
+  const maxReach = base * 0.36
   const hubByCat = new Map<string, { x: number; y: number; a: number }>()
   props.cats.forEach((cat, ci) => {
     const a = -Math.PI / 2 + ci * sector
@@ -282,7 +308,27 @@ function buildLayout() {
           n.y = hub.y + d * Math.sin(fixed)
         }
       }
-      const m = n.kind === 'hub' ? 46 : 30
+      /**
+       * 限制在画布内 + 限制在花簇半径内。
+       *
+       * maxReach 是从中心出发的最大允许距离 ——
+       * 由画布短边的一半减去边距算出，
+       * 这样无论瓣指向哪个方向都不会撞到边框。
+       */
+      /**
+       * 限制在花簇半径内 + 限制在画布内。
+       *
+       * 边距留得比较大（标签要挂在节点旁边，
+       * 贴边的话标签会被裁掉）。
+       */
+      const m = n.kind === 'hub' ? 52 : 44
+      const dx = n.x - cx
+      const dy = n.y - cy
+      const dist = Math.hypot(dx, dy)
+      if (dist > maxReach) {
+        n.x = cx + (dx / dist) * maxReach
+        n.y = cy + (dy / dist) * maxReach
+      }
       n.x = Math.min(w - m, Math.max(m, n.x))
       n.y = Math.min(h - m, Math.max(m, n.y))
     }
@@ -334,6 +380,8 @@ function layoutLabels() {
         const dir = attempt % 2 === 0 ? -1 : 1
         y = baseY + dir * (Math.floor(attempt / 2) + 1) * (H + 2)
       }
+      if (y > cssH.value - 4) y = cssH.value - 4
+      if (y < 10) y = 10
       placed.push({ x1, x2, y })
       node.lx = node.x
       node.ly = y
@@ -365,6 +413,25 @@ function layoutLabels() {
     }
 
     if (!chosen) chosen = { x1: rightX, x2: rightX + w, y: baseY, anchor: 'start' }
+
+    /**
+     * 标签必须完整落在画布内。
+     *
+     * 避让算法只管"不互相重叠"，不管"会不会超出画布"——
+     * 贴边的节点标签会被裁掉，所以这里做一次边界收敛：
+     * 右侧放不下就翻到左侧，上下同理。
+     */
+    const maxX = cssW.value
+    if (chosen.x2 > maxX - 4) {
+      const flipX = cx - node.r - 4 - w
+      if (flipX > 4) {
+        chosen.x1 = flipX
+        chosen.x2 = flipX + w
+        chosen.anchor = 'end'
+      }
+    }
+    if (chosen.y > cssH.value - 4) chosen.y = cssH.value - 4
+    if (chosen.y < 10) chosen.y = 10
 
     placed.push({ x1: chosen.x1, x2: chosen.x2, y: chosen.y })
     node.anchor = chosen.anchor
