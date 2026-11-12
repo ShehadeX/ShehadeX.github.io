@@ -145,6 +145,18 @@ const filteredProjects = computed(() =>
     : projects.value.filter((p: { domain: string }) => p.domain === activeFilter.value),
 )
 
+/* 项目小图标：五个已交付系统的品牌标识 */
+/*
+ * 项目小图标：只放有官方品牌标识的三个。
+ * MoCA 与防返贫是自研系统、没有可用的品牌 logo，
+ * 硬凑一个图标反而显得不专业，因此留空。
+ */
+const projectIcons = [
+  { slug: 'bidos', name: 'BidOS 招投标智能体', icon: '/img/logos/icon-bidos.png' },
+  { slug: 'cga-smart', name: 'CGA 老年综合评估系统', icon: '/img/logos/icon-cga.png' },
+  { slug: 'polymed', name: 'PolyMed 用药小程序', icon: '/img/logos/icon-polymed.png' },
+]
+
 const internships = [
   { name: '中国科学院深圳先进技术研究院', src: '/img/logos/siat.png' },
   { name: '中国电信数智科技有限公司', src: '/img/logos/mark-chinatelecom.png' },
@@ -180,22 +192,20 @@ const internships = [
               {{ t('hero.eyebrow') }}
             </p>
 
-            <h1 class="mt-5 text-[42px] leading-[1.06] sm:text-[62px]">
+            <h1 class="mt-5 text-[40px] leading-[1.08] sm:text-[58px]">
+              <span class="display rise rise-2">{{ t('hero.greeting') }}</span>
               <span class="display rise rise-2">I'm </span>
               <span class="marker marker-reveal text-claude rise rise-2">{{ t('hero.name.cn') }}</span>
               <span class="display rise rise-2"> Shehade</span>
             </h1>
 
-            <p class="mt-7 max-w-[20ch] text-[23px] leading-[1.4] text-ink sm:text-[27px]">
+            <p class="mt-7 max-w-[26ch] text-[22px] leading-[1.42] text-ink sm:text-[26px]">
               <span class="rise rise-3">{{ t('hero.tagline') }}</span>
+              <br class="hidden sm:block" />
+              <span class="squiggle squiggle-reveal rise rise-4">{{ t('hero.tagline2') }}</span>
             </p>
 
-            <p class="mt-6 max-w-[52ch] text-[15px] leading-[1.85] text-ink-muted">
-              <img
-                src="/img/logos/gdut.png"
-                alt="广东工业大学"
-                class="mr-2 inline-block h-6 w-6 -translate-y-0.5 object-contain align-middle"
-              />
+            <p class="mt-6 max-w-[54ch] text-[15px] leading-[1.85] text-ink-muted">
               {{ t('hero.school') }}
               {{ t('hero.school2') }}
             </p>
@@ -205,16 +215,38 @@ const internships = [
               class="mt-8 grid gap-x-7 gap-y-6 border-t border-ink/12 pt-7 sm:grid-cols-3"
             >
               <div>
-                <p class="display tnum text-[40px] leading-none text-ink">5</p>
+                <!-- 数字与姓名同款字体：display 衬线 + 橙色 marker -->
+                <p class="display text-[40px] leading-none text-ink">
+                  <span class="marker marker-reveal text-claude">{{ t('hero.m1.num') }}</span>
+                </p>
                 <p class="mt-2 text-[14.5px] font-semibold text-ink">
                   {{ t('hero.m1.title') }}
                 </p>
                 <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
                   {{ t('hero.m1.desc') }}
                 </p>
+                <!-- 项目小图标 -->
+                <div class="mt-3 flex items-center gap-2">
+                  <RouterLink
+                    v-for="p in projectIcons"
+                    :key="p.slug"
+                    :to="`/project/${p.slug}`"
+                    class="group/img relative flex h-9 w-9 items-center justify-center rounded-[5px] border border-ink/12 bg-base transition-colors duration-150 hover:border-claude/50 hover:bg-raised"
+                    :title="p.name"
+                    :aria-label="p.name"
+                  >
+                    <img
+                      :src="p.icon"
+                      :alt="p.name"
+                      class="h-6 w-6 object-contain transition-transform duration-200 ease-out group-hover/img:scale-110"
+                    />
+                  </RouterLink>
+                </div>
               </div>
               <div>
-                <p class="display tnum text-[40px] leading-none text-ink">3</p>
+                <p class="display text-[40px] leading-none text-ink">
+                  <span class="marker marker-reveal text-claude">{{ t('hero.m2.num') }}</span>
+                </p>
                 <p class="mt-2 text-[14.5px] font-semibold text-ink">{{ t('hero.m2.title') }}</p>
                 <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
                   {{ t('hero.m2.desc') }}
@@ -230,7 +262,9 @@ const internships = [
                 </div>
               </div>
               <div>
-                <p class="display tnum text-[40px] leading-none text-ink">ICLR</p>
+                <p class="display text-[40px] leading-none text-ink">
+                  <span class="marker marker-reveal text-claude">{{ t('hero.m3.num') }}</span>
+                </p>
                 <p class="mt-2 text-[14.5px] font-semibold text-ink">
                   {{ t('hero.m3.title') }}
                 </p>
