@@ -235,13 +235,29 @@
     background-size: 4px 4px;
   }
 
+  /*
+   * 入场动画。
+   *
+   * 早期版本用 IntersectionObserver 监听后给元素加 .in 类，但 IO 在
+   * 嵌入式 webview / 后台标签页中不投递回调，元素会永久停在 opacity: 0，
+   * 表现为「标题在、内容整块空白」。
+   *
+   * 现在改成纯 CSS 动画：动画到终态后由 animation-fill-mode 保持可见，
+   * 不依赖任何 JS，也不存在「回调没来就永远透明」的可能。
+   * keyframes 里从 opacity:0 起步，即使 fill-mode 失效也只会退回透明，
+   * 因此同时在 keyframes 末帧显式写回 opacity: 1。
+   */
   .fade-up {
+    animation: fade-up 420ms ease-out both;
+  }
+}
+
+@keyframes fade-up {
+  from {
     opacity: 0;
     transform: translateY(12px);
-    transition: opacity 420ms ease-out, transform 420ms ease-out;
   }
-
-  .fade-up.in {
+  to {
     opacity: 1;
     transform: none;
   }
@@ -253,9 +269,9 @@
   }
 
   .fade-up {
+    animation: none;
     opacity: 1;
     transform: none;
-    transition: none;
   }
 
   *,
