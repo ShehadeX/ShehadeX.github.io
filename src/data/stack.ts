@@ -1,0 +1,368 @@
+/**
+ * 技术栈知识图谱。
+ *
+ * 结构仿 Obsidian 的 Graph View：
+ *   - 分类是枢纽节点（hub），技术项挂在其周围
+ *   - 边 = 分类归属；选中项目后，边 = 项目 → 该项目用到的技术
+ *   - 节点大小 = 该技术在多少个项目里出现过（使用频次）
+ *
+ * 布局完全确定性（不使用随机数），保证每次渲染位置一致。
+ */
+
+export interface StackItem {
+  id: string
+  name: string
+  /** 一句话说明：这个东西我实际用它做了什么 */
+  note: string
+  /** 使用该技术的项目 slug */
+  projects: string[]
+}
+
+export interface StackCategory {
+  id: string
+  name: string
+  caption: string
+  items: StackItem[]
+}
+
+export const stackCategories: StackCategory[] = [
+  {
+    id: 'frontend',
+    name: '前端工程',
+    caption: '界面与交互的交付层',
+    items: [
+      {
+        id: 'vue3',
+        name: 'Vue 3',
+        note: 'BidOS 工作台与 CGA-Smart 评估端的主框架，全部项目型界面都基于它。',
+        projects: ['bidos', 'cga-smart'],
+      },
+      {
+        id: 'vite',
+        name: 'Vite',
+        note: 'CGA-Smart 的构建工具，冷启动快，改量表定义时不需要等打包。',
+        projects: ['cga-smart'],
+      },
+      {
+        id: 'typescript',
+        name: 'TypeScript',
+        note: '把量表题型、评分规则与接口契约写成类型，让规则引擎的改动能被编译器拦住。',
+        projects: ['cga-smart'],
+      },
+      {
+        id: 'elementplus',
+        name: 'Element Plus',
+        note: 'CGA-Smart 评估工作台的表单与表格，21 条量表导航靠它撑起密度。',
+        projects: ['cga-smart'],
+      },
+      {
+        id: 'pinia',
+        name: 'Pinia',
+        note: 'CGA-Smart 全局状态管理，评估进度与实时风险提示共享同一份状态。',
+        projects: ['cga-smart'],
+      },
+      {
+        id: 'echarts',
+        name: 'ECharts',
+        note: 'CGA-Smart 各维度分项与风险雷达的可视化层。',
+        projects: ['cga-smart'],
+      },
+      {
+        id: 'nextjs',
+        name: 'Next.js',
+        note: '防返贫 Agent 的前端工作台与结果复核页。',
+        projects: ['fupan'],
+      },
+      {
+        id: 'miniprogram',
+        name: '微信小程序',
+        note: 'PolyMed 患者端与家属端，用药提醒、处方识别与语音问药都在这里跑。',
+        projects: ['polymed'],
+      },
+      {
+        id: 'tailwind',
+        name: 'Tailwind CSS',
+        note: '本作品集自身的样式层，用 4px 栅格与受限色板保证视觉一致性。',
+        projects: ['portfolio'],
+      },
+      {
+        id: 'signature',
+        name: 'signature_pad',
+        note: 'CGA-Smart 的签名板采集，评估结论需患者与评估员签字确认。',
+        projects: ['cga-smart'],
+      },
+    ],
+  },
+  {
+    id: 'backend',
+    name: '服务端与交付形态',
+    caption: '业务逻辑与运行形态',
+    items: [
+      {
+        id: 'springboot',
+        name: 'Spring Boot',
+        note: 'CGA-Smart 后端，量表定义库、计分引擎与数据抽象分层。',
+        projects: ['cga-smart'],
+      },
+      {
+        id: 'springai',
+        name: 'Spring AI / Alibaba',
+        note: '防返贫项目的 Agent 底座：工具注册、模型选工具、上下文总结做成可组合部件。',
+        projects: ['fupan'],
+      },
+      {
+        id: 'flask',
+        name: 'Flask',
+        note: 'BidOS 后端，REST 接口层 + 六阶段工作流状态机。',
+        projects: ['bidos'],
+      },
+      {
+        id: 'python',
+        name: 'Python',
+        note: '模型适配、脚本化数据处理与设备通信的主力语言。',
+        projects: ['bidos', 'moca', 'fupan', 'polymed'],
+      },
+      {
+        id: 'fastapi',
+        name: 'FastAPI',
+        note: '模型服务的标准化接口层，统一 OpenAI-compatible 协议。',
+        projects: ['fupan'],
+      },
+      {
+        id: 'electron',
+        name: 'Electron',
+        note: 'MoCA 打标软件的桌面端形态，需要独占串口与持续在线。',
+        projects: ['moca'],
+      },
+      {
+        id: 'restapi',
+        name: 'REST API',
+        note: '前后端解耦的标准契约，也是产品能独立部署的前提。',
+        projects: ['bidos', 'cga-smart', 'fupan'],
+      },
+    ],
+  },
+  {
+    id: 'ai',
+    name: 'AI 与模型',
+    caption: '从编排到多模态',
+    items: [
+      {
+        id: 'reactagent',
+        name: 'ReactAgent',
+        note: '防返贫项目的 Agent 模式：工具注册 → 模型选工具 → 上下文总结 Hook。',
+        projects: ['fupan'],
+      },
+      {
+        id: 'langgraph',
+        name: 'LangGraph',
+        note: '把流程拆成有状态的图节点，支持中断、恢复与人工介入。',
+        projects: ['fupan'],
+      },
+      {
+        id: 'mcp',
+        name: 'MCP Tools',
+        note: '把业务能力封装成工具，Agent 通过标准协议调用而非硬编码。',
+        projects: ['fupan'],
+      },
+      {
+        id: 'dify',
+        name: 'Dify',
+        note: '多模态文件输入与报告生成的工作流编排，配合 Spring AI 补足工程化部分。',
+        projects: ['fupan'],
+      },
+      {
+        id: 'rag',
+        name: 'RAG',
+        note: '用药知识库与政策动态检索，PolyMed 问药与 FFP 政策匹配都依赖它。',
+        projects: ['fupan', 'polymed'],
+      },
+      {
+        id: 'qwen',
+        name: 'Qwen / Qwen-VL',
+        note: '本地部署的量化模型，敏感数据不出内网；VL 版本补全 OCR 无法分辨的信息。',
+        projects: ['fupan'],
+      },
+      {
+        id: 'vllm',
+        name: 'vLLM',
+        note: '本地模型推理服务，OpenAI-compatible 适配让上层无需感知部署细节。',
+        projects: ['fupan'],
+      },
+      {
+        id: 'workflow',
+        name: 'LLM Workflow',
+        note: 'BidOS 的六阶段工作流：材料导入 → 初判 → 深度分析 → 目录 → 准备 → 导出。',
+        projects: ['bidos'],
+      },
+      {
+        id: 'ocr',
+        name: 'Qwen OCR',
+        note: '招标与帮扶材料的关键信息抽取，输出结构化字段供后续规则初判使用。',
+        projects: ['bidos', 'fupan'],
+      },
+      {
+        id: 'ttsasr',
+        name: 'TTS / ASR',
+        note: 'PolyMed 语音问药与播报；CGA-Smart 语音伴侣的播报链路。',
+        projects: ['polymed'],
+      },
+      {
+        id: 'eeg',
+        name: 'EEG 解码',
+        note: '冻结骨干 + 线性读出，配合八种预注册干预协议定位模型真正依赖的信号结构。',
+        projects: ['research'],
+      },
+    ],
+  },
+  {
+    id: 'data',
+    name: '数据与存储',
+    caption: '状态、产物与设备',
+    items: [
+      {
+        id: 'sqlite',
+        name: 'SQLite',
+        note: 'BidOS 阶段状态与结构化产物入库，大文件走文件系统避免数据库膨胀。',
+        projects: ['bidos'],
+      },
+      {
+        id: 'repo',
+        name: 'Repository 抽象',
+        note: 'CGA-Smart 数据访问统一抽象，原型期用 localStorage 模拟后端，替换时业务零改动。',
+        projects: ['cga-smart'],
+      },
+      {
+        id: 'fsartifact',
+        name: '文件系统产物',
+        note: '源文件、导出物与版本分离存放，每份产物带来源标记。',
+        projects: ['bidos'],
+      },
+      {
+        id: 'vector',
+        name: '向量检索',
+        note: '按项目背景精准召回，而不是全库碰运气。',
+        projects: ['fupan', 'polymed'],
+      },
+      {
+        id: 'serial',
+        name: '串口设备通信',
+        note: 'MoCA 打标软件与 EEG 采集设备的实时通信，事件标记精度到毫秒。',
+        projects: ['moca'],
+      },
+      {
+        id: 'paradigm',
+        name: '实验范式设计',
+        note: 'MoCA 任务的刺激呈现与作答时序定义，决定了信号段能否被精确切分。',
+        projects: ['moca'],
+      },
+    ],
+  },
+  {
+    id: 'devops',
+    name: '部署与运维',
+    caption: '从代码到线上',
+    items: [
+      {
+        id: 'docker',
+        name: 'Docker',
+        note: 'BidOS 与各服务的打包交付，保证甲方环境可复现。',
+        projects: ['bidos'],
+      },
+      {
+        id: 'k8s',
+        name: 'Kubernetes',
+        note: 'BidOS 在甲方主机的集群部署与滚动更新。',
+        projects: ['bidos'],
+      },
+      {
+        id: 'ecs',
+        name: 'ECS / 云主机',
+        note: '线上服务与模型服务的算力承载，含本作品集自身的部署。',
+        projects: ['bidos', 'fupan'],
+      },
+      {
+        id: 'cicd',
+        name: 'CI / CD',
+        note: 'GPT-Dots 自动构建与 24 小时监控，异常自动告警。',
+        projects: ['portfolio'],
+      },
+      {
+        id: 'nginx',
+        name: 'Nginx',
+        note: '静态资源分发与反向代理。',
+        projects: ['portfolio'],
+      },
+      {
+        id: 'lowcost',
+        name: '低成本部署',
+        note: 'CGA-Smart 用二手迷你主机 + 平板把整套设备压到 5k 以内，可接入医院内网。',
+        projects: ['cga-smart'],
+      },
+    ],
+  },
+  {
+    id: 'tooling',
+    name: '协作与知识管理',
+    caption: '我如何工作',
+    items: [
+      {
+        id: 'aicoding',
+        name: 'AI 协同开发',
+        note: 'Codex / Claude / Cursor / DeepSeek Harness 并行推进，把重复实现交给模型。',
+        projects: ['portfolio'],
+      },
+      {
+        id: 'git',
+        name: 'Git',
+        note: '保留完整提交历史，作品集里的架构图直接取自代码快照而非事后补画。',
+        projects: ['bidos', 'portfolio'],
+      },
+      {
+        id: 'obsidian',
+        name: 'Obsidian',
+        note: 'idea 与文献的本地知识库，双链组织成可检索的 idea 图谱。',
+        projects: ['portfolio'],
+      },
+      {
+        id: 'notion',
+        name: 'Notion',
+        note: '需求、任务与项目文档的托管。',
+        projects: ['portfolio'],
+      },
+      {
+        id: 'zotero',
+        name: 'Zotero',
+        note: '文献管理，论文笔记与引用直接回流到写作。',
+        projects: ['research'],
+      },
+      {
+        id: 'mermaid',
+        name: 'Mermaid',
+        note: '架构图与流程图以代码维护，改代码即改图，图与系统不会脱节。',
+        projects: ['portfolio'],
+      },
+    ],
+  },
+]
+
+/** 项目 → 展示信息（用于图谱的项目筛选条） */
+export const stackProjects = [
+  { slug: 'bidos', name: 'BidOS', caption: '企业 AI 招投标工作台' },
+  { slug: 'cga-smart', name: 'CGA-Smart', caption: '老年综合评估智能系统' },
+  { slug: 'moca', name: 'MoCA', caption: '认知评估与脑电打标' },
+  { slug: 'fupan', name: 'FFP', caption: '防返贫风险识别智能体' },
+  { slug: 'polymed', name: 'PolyMed', caption: '智能用药管理小程序' },
+  { slug: 'research', name: 'ICLR 2027', caption: 'EEG 解码诊断基准' },
+]
+
+/** 所有技术项的扁平列表 */
+export const allStackItems = stackCategories.flatMap((c) =>
+  c.items.map((it) => ({ ...it, category: c.id, categoryName: c.name })),
+)
+
+/** 某技术被多少个项目使用 —— 决定节点大小 */
+export const usageCount = (itemId: string): number => {
+  const item = allStackItems.find((i) => i.id === itemId)
+  return item ? item.projects.length : 0
+}

@@ -3,6 +3,8 @@ import { projects } from '@/data/projects'
 import ProjectCard from '@/components/ProjectCard.vue'
 import { asset } from '@/utils/asset'
 import ParallaxBackdrop from '@/components/ParallaxBackdrop.vue'
+import StackGraph from '@/components/StackGraph.vue'
+import { stackCategories, allStackItems } from '@/data/stack'
 import { computed, ref } from 'vue'
 
 const projectFilters = [
@@ -381,7 +383,7 @@ const research = [
           <span class="rule flex-1" />
         </div>
 
-        <div class="mt-10 grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+        <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:gap-16">
           <div>
             <h2 class="max-w-[20ch] text-[30px] leading-[1.25] sm:text-[38px]">
               我在做的<span class="marker">三件事</span>
@@ -413,44 +415,43 @@ const research = [
             </p>
           </div>
 
-          <div class="self-start overflow-hidden rounded-[15px] border border-ink/12 bg-base">
-            <div class="border-b border-ink/10 bg-raised px-5 py-3">
-              <p class="eyebrow">Toolbox</p>
-            </div>
-            <dl class="divide-y divide-ink/10">
-              <div class="px-5 py-4">
-                <dt class="text-[13px] font-semibold text-ink">AI 开发与编排</dt>
-                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
-                  Codex / Claude / Cursor / DeepSeek Harness 协同开发，Dify + LangGraph 把构想转成稳定 Workflow。
-                </dd>
-              </div>
-              <div class="px-5 py-4">
-                <dt class="text-[13px] font-semibold text-ink">部署与运维</dt>
-                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
-                  Docker + K8s + ECS 交付上线，GPT-Dots 做 24 小时监控与自动构建。
-                </dd>
-              </div>
-              <div class="px-5 py-4">
-                <dt class="text-[13px] font-semibold text-ink">应用架构</dt>
-                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
-                  Vue 3 / TypeScript / Spring Boot / Flask / Python / Electron。
-                </dd>
-              </div>
-              <div class="px-5 py-4">
-                <dt class="text-[13px] font-semibold text-ink">知识管理</dt>
-                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
-                  Notion + Obsidian + Zotero 托管 idea 与文献，Git 记录同步进知识图谱。
-                </dd>
-              </div>
-              <div class="px-5 py-4">
-                <dt class="text-[13px] font-semibold text-ink">模型与多模态</dt>
-                <dd class="mt-2 text-[13px] leading-relaxed text-ink-muted">
-                  阿里云 Qwen OCR、火山引擎 TTS/ASR、聚合平台接入 GPT-image / Nano Banana 多模态模型。
-                </dd>
-              </div>
-            </dl>
+          <!-- 技术栈图谱：通栏 -->
+          <div class="lg:col-span-2">
+            <StackGraph />
           </div>
         </div>
+
+        <!-- 技术栈清单：可展开的完整列表 -->
+        <details class="group mt-8 overflow-hidden rounded-[15px] border border-ink/12 bg-base">
+          <summary
+            class="flex cursor-pointer items-center gap-3 border-b border-ink/10 bg-raised px-5 py-3.5 transition-colors duration-150 hover:bg-raised/70"
+          >
+            <span class="eyebrow">Full Stack Inventory</span>
+            <span class="font-mono text-[11px] text-ink-faint">
+              {{ allStackItems.length }} 项技术 · {{ stackCategories.length }} 个领域
+            </span>
+            <span
+              class="ml-auto font-mono text-[11px] text-ink-muted transition-transform duration-200 group-open:rotate-90"
+            >
+              ▸
+            </span>
+          </summary>
+          <div class="grid gap-px bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
+            <div v-for="c in stackCategories" :key="c.id" class="bg-base p-5">
+              <div class="flex items-baseline gap-2.5">
+                <span class="claude-num">{{ String(c.items.length).padStart(2, '0') }}</span>
+                <h3 class="text-[15px] font-semibold text-ink">{{ c.name }}</h3>
+              </div>
+              <p class="mt-1 font-mono text-[11px] text-ink-faint">{{ c.caption }}</p>
+              <ul class="mt-3.5 space-y-2">
+                <li v-for="it in c.items" :key="it.id" class="text-[13px] leading-relaxed">
+                  <span class="text-ink">{{ it.name }}</span>
+                  <span class="text-ink-faint"> — {{ it.note }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </details>
       </div>
     </section>
 
