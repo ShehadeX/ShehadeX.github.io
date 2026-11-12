@@ -15,6 +15,20 @@ export interface GalleryItem {
   note?: string
   /** 这张图背后的开发历程 */
   story?: string
+  /** 分组标签，如「管理后台」「采集端」 */
+  tag?: string
+}
+
+/**
+ * 项目 Gallery。
+ *
+ * 与 sections 里的 media 不同，这里收纳的是**没有在正文展开讲过**的其他界面，
+ * 作为实习期工作痕迹的补充记录：每张图配一段说明与一段过程记录。
+ */
+export interface ProjectGallery {
+  /** 段落引导语 */
+  intro?: string
+  entries: GalleryItem[]
 }
 
 export interface CaseSubsection {
@@ -60,7 +74,8 @@ export interface Project {
   org: string
   bba: Bba
   sections: CaseSection[]
-  gallery: GalleryItem[]
+  /** 补充图集：把正文没讲到的其他界面收进来 */
+  gallery: ProjectGallery
   diagrams: { id: string; title: string; code: string }[]
   facts: { label: string; value: string }[]
   link?: string
@@ -424,15 +439,90 @@ export const projects: Project[] = [
         ],
       },
     ],
-    gallery: [
-      { src: asset('/img/bidos/cover-bidos.webp'), caption: 'BidOS 招投标智能编制系统主界面' },
-      { src: asset('/img/bidos/01.webp'), caption: '材料导入' },
-      { src: asset('/img/bidos/02.webp'), caption: '招标深度分析' },
-      { src: asset('/img/bidos/03.webp'), caption: '目录与企业知识库绑定' },
-      { src: asset('/img/bidos/04.webp'), caption: 'DOCX 编制工作台' },
-      { src: asset('/img/bidos/05.webp'), caption: '系统管理总览' },
-      { src: asset('/img/bidos/08.webp'), caption: '项目概览' },
-    ],
+    gallery: {
+      intro:
+        '下面这些界面没有在正文展开讲，但它们是我在实习期间实际做过的部分。放在一起算是把这段工作留下的痕迹原样存下来 —— 包括那些当时觉得不起眼、回头看却决定了产品能不能落地的细节。',
+      entries: [
+        {
+          src: asset('/img/bidos/07.webp'),
+          caption: '章节编写与来源核对',
+          tag: '编制工作台',
+          note:
+            '章节正文、右侧来源与状态在同一屏内。写一段、查一条来源、确认一次状态，是编制员实际的动作序列 —— 这个布局就是照着这个序列排的。',
+          story:
+            '最初版本把来源面板做成了独立页面，编制员要来回切。后来发现他们真正的工作节奏是「写一句、回头看一句出处」，就把来源面板压到右侧同屏，操作从跳转变成平移。',
+        },
+        {
+          src: asset('/img/bidos/01.webp'),
+          caption: '材料导入',
+          tag: '编制工作台',
+          note:
+            '招标原文、企业资质、历史标书三类输入统一进入工作台，导入阶段就完成文件指纹登记，为后续「来源可查」打底。',
+          story:
+            '投标文件格式千差万别，直接丢给模型只会得到一段看起来通顺但对不上招标要求的文字。所以第一步先把材料切开、编号、登记来源，把「这批材料是什么」变成系统里的确定性事实，再交给模型做理解。',
+        },
+        {
+          src: asset('/img/bidos/02.webp'),
+          caption: '招标深度分析',
+          tag: '编制工作台',
+          note:
+            '深度分析界面把招标要求逐条拆成可勾选的条目，每一条都挂在具体来源段落上，分析结果本身也是可编辑的结构化产物。',
+          story:
+            '这一屏是从「读文档」转向「读要求」的关键改造。原来的做法是让模型写一篇分析，评审人只能通读判断；改成条目化之后，编制员可以直接在条目上确认、修改、驳回。',
+        },
+        {
+          src: asset('/img/bidos/03.webp'),
+          caption: '目录与企业知识库绑定',
+          tag: '编制工作台',
+          note:
+            '生成的目录与知识库分类双向绑定，章节写作时自动召回对应资质、业绩、法律条文，而不是全库检索。',
+          story:
+            '企业知识库是这次项目里投入最大的部分。分析了 23 份历史人工稿件，构建出材料图谱，把散落的历史文档整理成一级、二级分类。',
+        },
+        {
+          src: asset('/img/bidos/04.webp'),
+          caption: 'DOCX 编制工作台',
+          tag: '编制工作台',
+          note:
+            '左侧章节树、中间正文编辑、右侧来源与状态，编制员在同屏内完成「写—核对—确认」闭环。',
+          story:
+            '格式稳定性最终是用 harness 堆出来的。OOXML 的段落属性写成 JSON schema 约束模型输出，再在导出前跑一遍结构检查工具。',
+        },
+        {
+          src: asset('/img/bidos/06.webp'),
+          caption: '知识库与材料图谱管理',
+          tag: '知识与素材',
+          note:
+            '企业材料按一级 / 二级分类归档，来源文件与结构化条目一一对应，是自动召回能成立的前提。',
+          story:
+            '这一块是最脏也最关键的活：23 份历史人工稿件要逐份拆解成结构化分类。做完之后生成阶段才有可能「知道该引用哪一类材料」。',
+        },
+        {
+          src: asset('/img/bidos/05.webp'),
+          caption: '系统管理总览',
+          tag: '知识与素材',
+          note:
+            '模型配置、知识库分类、用户与审计记录集中管理，便于在客户现场调整而不改代码。',
+          story:
+            '甲方现场和开发环境的模型服务地址、密钥策略完全不同，所以所有模型配置外置到管理界面。现场人员能自己切模型、调参数，不需要提工单等我们远程改。',
+        },
+        {
+          src: asset('/img/bidos/08.webp'),
+          caption: '项目概览',
+          tag: '知识与素材',
+          note:
+            '概览页把项目、阶段状态、待确认项与产物目录集中呈现，是每个阶段收尾时的确认面板。',
+          story:
+            '阶段产物与来源的绑定关系在这里被可视化成一张图。早期版本产物散在各阶段目录里，出问题时没人说得清哪一版是最新版。',
+        },
+        {
+          src: asset('/img/bidos/cover-bidos.webp'),
+          caption: 'BidOS 招投标智能编制系统主界面',
+          tag: '知识与素材',
+          note: '系统入口页，左侧为项目与阶段导航，右侧为待办与产物概览。',
+        },
+      ],
+    },
     diagrams: [
       { id: 'bidos-workflow', title: '六阶段工作流', code: bidosWorkflow },
       { id: 'bidos-arch', title: '系统架构分层', code: bidosArchitecture },
@@ -580,16 +670,109 @@ export const projects: Project[] = [
         ],
       },
     ],
-    gallery: [
-      { src: asset('/img/cga/cover.webp'), caption: 'CGA-Smart 老年综合评估系统首页' },
-      { src: asset('/img/cga/voice.webp'), caption: '语音伴侣交互' },
-      { src: asset('/img/cga/01.webp'), caption: '系统登录与角色入口' },
-      { src: asset('/img/cga/02.webp'), caption: '评估工作台与风险提示' },
-      { src: asset('/img/cga/04.webp'), caption: '量表管理' },
-      { src: asset('/img/cga/06.webp'), caption: '患者管理' },
-      { src: asset('/img/cga/08.webp'), caption: '评估流程与结果' },
-      { src: asset('/img/cga/11.webp'), caption: '系统管理' },
-    ],
+    gallery: {
+      intro:
+        '这套系统是我在实习期间独立完成的产品化交付。以下界面按使用顺序排列，包含了评估端、管理端与设备侧的全貌 —— 有些在正文提过，有些是当时为了赶临床试用临时补上的界面，现在回看反而更能说明那段时间的工作状态。',
+      entries: [
+        {
+          src: asset('/img/cga/cover.webp'),
+          caption: 'CGA-Smart 老年综合评估系统首页',
+          tag: '评估端',
+          note:
+            '系统入口页。左列是评估流程，中间是待评估列表，右侧是设备状态 —— 评估员一进来就知道今天要做什么、设备能不能用。',
+        },
+        {
+          src: asset('/img/cga/voice.webp'),
+          caption: '语音伴侣交互',
+          tag: '评估端',
+          note:
+            '屏幕上的语音助手会引导老人完成量表作答，用的是项目组自己训练的声音模型，而不是通用 TTS。',
+          story:
+            '老人听不惯机械音。第一版用系统默认 TTS，测试时老人直接说「听不清，不做了」；换成项目组自建的声音模型之后，完成率才提上来。技术问题最后往往落在最朴素的地方。',
+        },
+        {
+          src: asset('/img/cga/01.webp'),
+          caption: '系统登录与角色入口',
+          tag: '评估端',
+          note:
+            '按角色分流：评估员进入评估工作台，管理员进入量表与患者管理，医生进入结果复核。',
+        },
+        {
+          src: asset('/img/cga/02.webp'),
+          caption: '评估工作台与风险提示',
+          tag: '评估端',
+          note:
+            '21 条量表在左，逐题作答在中，实时风险提示在右 —— 跌倒风险、抑郁、营养状况在评估过程中就能读出来。',
+          story:
+            '「让家属参与」是这一版的关键改动：以前只有医生在场，现在家属能陪着、能当场看到解释。沟通成本从「事后解释一遍」变成「当场一起理解」。',
+        },
+        {
+          src: asset('/img/cga/03.webp'),
+          caption: '量表选择与题型配置',
+          tag: '管理端',
+          note:
+            '新增量表时选题型（单选 / 多选 / 评分），题型是配置项而不是代码分支 —— 这是整个量表引擎能扩展的前提。',
+        },
+        {
+          src: asset('/img/cga/05.webp'),
+          caption: '评分规则与结果解释',
+          tag: '管理端',
+          note:
+            '每一档分数对应一段解释文案，解释也是配置项。改一句话不用改代码、不用重新发版。',
+        },
+        {
+          src: asset('/img/cga/04.webp'),
+          caption: '量表管理',
+          tag: '管理端',
+          note:
+            '量表列表与编辑入口。加一条新量表从「改代码并跑回归测试」降到「写一份配置」。',
+        },
+        {
+          src: asset('/img/cga/07.webp'),
+          caption: '评估记录检索',
+          tag: '管理端',
+          note:
+            '按患者、时间、评估员与量表多维检索，历史评估记录可随时回看与打印。',
+        },
+        {
+          src: asset('/img/cga/06.webp'),
+          caption: '患者管理',
+          tag: '管理端',
+          note:
+            '患者档案、历史评估记录与风险趋势集中呈现，家属信息与评估员归属一并管理。',
+          story:
+            '这一屏解决的是「结果沉不下去」的问题。过去纸质评估做完就进档案袋了，康复科想看一个人三个月的变化根本没有入口。现在每次评估都是可查询的记录，时间序列直接可视化成趋势。',
+        },
+        {
+          src: asset('/img/cga/09.webp'),
+          caption: '打印与导出',
+          tag: '管理端',
+          note:
+            '评估结论按模板导出为可打印文件，签名板采集的笔迹一并进入报告。',
+        },
+        {
+          src: asset('/img/cga/10.webp'),
+          caption: '设备连接状态',
+          tag: '设备侧',
+          note:
+            '与评估设备的连接状态实时可见，断连时给出明确的排查提示而不是静默失败。',
+        },
+        {
+          src: asset('/img/cga/08.webp'),
+          caption: '评估流程与结果',
+          tag: '设备侧',
+          note:
+            '评估完成后即时生成结果页，各维度分项与风险雷达同步呈现。',
+        },
+        {
+          src: asset('/img/cga/11.webp'),
+          caption: '系统管理',
+          tag: '设备侧',
+          note:
+            '用户、角色与基础配置的管理入口。',
+        },
+      ],
+    },
     diagrams: [{ id: 'cga-arch', title: '量表引擎与数据层', code: cgaArchitecture }],
   },
 
@@ -810,21 +993,314 @@ export const projects: Project[] = [
         ],
       },
     ],
-    gallery: [
-      { src: asset('/img/moca/cover.webp'), caption: 'MoCA 高质量 EEG 数据采集系统' },
-      { src: asset('/img/moca/moca-01.webp'), caption: '系统首页' },
-      { src: asset('/img/moca/moca-02.webp'), caption: '视空间连线测验' },
-      { src: asset('/img/moca/moca-04.webp'), caption: '立方体复制' },
-      { src: asset('/img/moca/moca-05.webp'), caption: '时钟绘制' },
-      { src: asset('/img/moca/moca-07.webp'), caption: '记忆测试' },
-      { src: asset('/img/moca/moca-20.webp'), caption: '警觉性测试' },
-      { src: asset('/img/moca/moca-25.webp'), caption: '句子复述' },
-      { src: asset('/img/moca/moca-33.webp'), caption: '延迟回忆' },
-      { src: asset('/img/moca/moca-43.webp'), caption: '测试结果' },
-      { src: asset('/img/moca/moca-44.webp'), caption: '导出评估报告' },
-      { src: asset('/img/moca/moca-15.webp'), caption: '码表设置' },
-      { src: asset('/img/moca/moca-13.webp'), caption: '连接状态' },
-    ],
+    gallery: {
+      intro:
+        '这套采集系统是我在神经接口实验室做了一年半的主力工作。这里按「认知任务 → 采集配置 → 结果报告」的顺序，把完整的 44 个界面收进来。它们大多出现在实验现场的平板上，有些界面到今天还在三甲医院的病房里跑着。',
+      entries: [
+        {
+          src: asset('/img/moca/moca-01.webp'),
+          caption: '系统首页',
+          tag: '任务入口',
+          note:
+            '项目首页：左侧为认知任务导航，中间为当前受试者信息，右侧为设备与串口连接状态。',
+          story:
+            '所有环节的入口都在这一屏。设备连接状态常驻显示，因为现场最常见的问题就是「设备没连上」而界面没提示。',
+        },
+        {
+          src: asset('/img/moca/moca-02.webp'),
+          caption: '视空间连线测验',
+          tag: '认知任务',
+          note:
+            '受试者把数字按顺序连起来。刺激呈现、第一笔落下、全部连完分别打标，下游分析才能精确切出运动段。',
+          story:
+            'Trail making 是最能体现精细化打标价值的一环。旧码表只有一个 moduleId，切不出运动段；把呈现、第一笔、完成拆成三个独立事件后，解码侧才能单独对齐运动想象任务的有效区间。',
+        },
+        {
+          src: asset('/img/moca/moca-03.webp'),
+          caption: '数字广度测验',
+          tag: '认知任务',
+          note:
+            '呈现一串数字后让受试者复述，考察工作记忆容量。',
+          story:
+            '数字广度的间隔时长直接决定解码窗口，所以呈现与作答起点必须分别记录，不能合成一个事件。',
+        },
+        {
+          src: asset('/img/moca/moca-04.webp'),
+          caption: '立方体复制',
+          tag: '认知任务',
+          note:
+            '参考图形与绘制区并排，被试照着画。绘图动作本身就是一段可分析的轨迹。',
+          story:
+            '绘图任务对打标延迟最敏感 —— 连续两笔可能只隔几百毫秒。所以这里刻意做成「一笔一个事件」，给分析侧一条真实的笔画轨迹，而不是含糊的「绘图时段」。',
+        },
+        {
+          src: asset('/img/moca/moca-05.webp'),
+          caption: '时钟绘制',
+          tag: '认知任务',
+          note:
+            '让受试者画一个指向指定数字的钟面，考察执行功能与空间定向。',
+          story:
+            '钟表绘制把执行功能量化成了可打标的动作序列，对应额叶功能受损的早期识别。',
+        },
+        {
+          src: asset('/img/moca/moca-06.webp'),
+          caption: '视空间连线测验 · 数字连接',
+          tag: '认知任务',
+          note:
+            '连线任务进行中的实时画面，笔画按序累积。',
+          story:
+            '界面本身要「干净到能看清笔画」—— 任何多余的元素都会干扰受试者，也会让后续的图像处理更难。',
+        },
+        {
+          src: asset('/img/moca/moca-07.webp'),
+          caption: '记忆测试',
+          tag: '认知任务',
+          note:
+            '系统朗读词语，朗读结束后进入回忆阶段，朗读起止各自打标。',
+          story:
+            '记忆任务的时间结构直接影响解码窗口划分。朗读开始、朗读结束、被试开始回忆三个点必须分开标记，否则后面没法区分「听到」和「想」这两种不同神经活动。',
+        },
+        {
+          src: asset('/img/moca/moca-08.webp'),
+          caption: '连线测验完成确认',
+          tag: '认知任务',
+          note:
+            '连线结束后由实验人员确认完成，才写入结束事件。',
+          story:
+            '加确认这一步是怕误触 —— 老人手抖或者误碰都会提前结束任务，直接结束会污染整段数据。',
+        },
+        {
+          src: asset('/img/moca/moca-09.webp'),
+          caption: '数字广度作答',
+          tag: '认知任务',
+          note:
+            '受试者复述听到的数字串，系统记录作答。',
+          story:
+            '数字广度在正常人身上封顶是 7 左右，所以数字序列本身也是一项筛查指标。',
+        },
+        {
+          src: asset('/img/moca/moca-17.webp'),
+          caption: '听觉词汇辨别',
+          tag: '认知任务',
+          note:
+            '通过扬声器播放词语，受试者选择听到的词。',
+          story:
+            '听觉通道和视觉通道的诱发响应差异很大，所以听觉任务必须用同样的打标精度记录，否则两个模态的数据没法对比。',
+        },
+        {
+          src: asset('/img/moca/moca-18.webp'),
+          caption: '听觉词汇辨别 · 选项',
+          tag: '认知任务',
+          note:
+            '选项界面与当前播放进度。',
+          story:
+            '播放过程中不允许受试者翻页，否则反应时数据会被前端交互污染。',
+        },
+        {
+          src: asset('/img/moca/moca-19.webp'),
+          caption: '图形词汇辨别',
+          tag: '认知任务',
+          note:
+            '看图选择对应词语，考察语义通路。',
+          story:
+            '语义任务与记忆任务的神经机制不同，分开打标才能在解码时区分语义编码与记忆巩固。',
+        },
+        {
+          src: asset('/img/moca/moca-21.webp'),
+          caption: '图形词汇辨别 · 结果',
+          tag: '认知任务',
+          note:
+            '作答结果与正确率统计即时反馈。',
+          story:
+            '即时反馈是给受试者的 —— 老年受试者对「做完了没有」非常敏感，缺了反馈会中断任务。',
+        },
+        {
+          src: asset('/img/moca/moca-22.webp'),
+          caption: '语义流畅性测验',
+          tag: '认知任务',
+          note:
+            '在限定时间内说出属于某一类别的词。',
+          story:
+            '语义流畅性的原始记录是「说的词 + 时间戳」，只有逐词打标才能算出单位时间的产出速度。',
+        },
+        {
+          src: asset('/img/moca/moca-23.webp'),
+          caption: '语义流畅性 · 记录中',
+          tag: '认知任务',
+          note:
+            '受试者作答时的实时记录与计时。',
+          story:
+            '说出来的词需要人工转录再校对，这一步耗时最长，所以把它和采集解耦，用文件对时合并。',
+        },
+        {
+          src: asset('/img/moca/moca-24.webp'),
+          caption: '语音输出记录',
+          tag: '认知任务',
+          note:
+            '语音与文本双通道记录，事后人工校对。',
+          story:
+            '语音转写会有识别错误，所以保留原始音频是必须的 —— 语速、停顿这些信息在文本里全丢了。',
+        },
+        {
+          src: asset('/img/moca/moca-26.webp'),
+          caption: '延迟回忆任务提示',
+          tag: '认知任务',
+          note:
+            '提示回忆之前学习过的词语，等待实验人员操作后才进入选择界面。',
+          story:
+            '延迟回忆是整条记忆链路里最接近临床价值的环节 —— 它对应海马相关的真实功能。所以我们给它留了最完整的打标：等待、操作、选择分别成点。',
+        },
+        {
+          src: asset('/img/moca/moca-28.webp'),
+          caption: '记忆选择阶段',
+          tag: '认知任务',
+          note:
+            '从选项中选出之前学过的词，正确与错误分别记录。',
+          story:
+            '这里区分「选中」和「确认」两个事件：老人常常会点一下又改，如果只记最终选择，中间那段犹豫就丢了。',
+        },
+        {
+          src: asset('/img/moca/moca-29.webp'),
+          caption: '连线测验进行中',
+          tag: '认知任务',
+          note:
+            '视空间连线任务的实时画面。',
+          story:
+            '连线的顺序本身就是认知过程的一部分，所以每一条线段单独成事件。',
+        },
+        {
+          src: asset('/img/moca/moca-30.webp'),
+          caption: '数字连接实时画面',
+          tag: '认知任务',
+          note:
+            '数字按序连接过程。',
+          story:
+            '与数字广度配合，构成 Trail making 的两个子任务（数字与字母）。',
+        },
+        {
+          src: asset('/img/moca/moca-31.webp'),
+          caption: '图形复制 · 参考与画布',
+          tag: '认知任务',
+          note:
+            '左侧参考图形，右侧受试者绘制区。',
+          story:
+            '参考图和画布并排而不是上下，是为了让受试者少一次视线跳转 —— 老年受试者的视觉搜索成本比年轻人高得多。',
+        },
+        {
+          src: asset('/img/moca/moca-32.webp'),
+          caption: '立方体复制 · 完成',
+          tag: '认知任务',
+          note:
+            '绘制完成后确认并写入完成事件。',
+          story:
+            '同 08，确认是为了防误触。',
+        },
+        {
+          src: asset('/img/moca/moca-34.webp'),
+          caption: '警觉性测试',
+          tag: '认知任务',
+          note:
+            '受试者按提示对随机出现的信号做出反应，测注意力警觉水平。',
+          story:
+            '警觉性任务是持续性注意的经典范式，反应时分布本身就是指标，所以反应事件必须精确到毫秒。',
+        },
+        {
+          src: asset('/img/moca/moca-35.webp'),
+          caption: '测试结果总览',
+          tag: '结果与报告',
+          note:
+            '各维度分项得分、风险雷达与评估结论集中呈现。',
+          story:
+            '结果是给医生看的，所以把「分数」翻译成「结论」放在第一屏，分数细节放在后面。',
+        },
+        {
+          src: asset('/img/moca/moca-36.webp'),
+          caption: '趋势与对比',
+          tag: '结果与报告',
+          note:
+            '同一受试者多次评估的趋势曲线。',
+          story:
+            '这是把纸质评估变成系统之后才有的能力 —— 过去数据在档案袋里，三个月后的变化根本看不出来。',
+        },
+        {
+          src: asset('/img/moca/moca-37.webp'),
+          caption: '评估报告详情',
+          tag: '结果与报告',
+          note:
+            '逐项得分与解释，支持打印。',
+          story:
+            '报告要让医生能直接用，所以解释文案是配置项，不是写死在代码里的。',
+        },
+        {
+          src: asset('/img/moca/moca-38.webp'),
+          caption: '导出评估报告',
+          tag: '结果与报告',
+          note:
+            '报告导出与打印，签名笔迹一并进入。',
+          story:
+            '签名是合规要求，所以签名板采集的数据直接嵌进报告文件。',
+        },
+        {
+          src: asset('/img/moca/moca-39.webp'),
+          caption: '码表设置',
+          tag: '采集配置',
+          note:
+            '事件码表配置界面，43 个打标点可逐条编辑。',
+          story:
+            '码表是整套系统的单一事实来源。早期版本用 moduleId × 2 的粗规则，只能区分开始与结束；细化到 43 个标签之后，「刺激呈现 / 起笔 / 落笔完成」才能各自独立。',
+        },
+        {
+          src: asset('/img/moca/moca-40.webp'),
+          caption: '串口与设备配置',
+          tag: '采集配置',
+          note:
+            '串口号、波特率与设备参数设置。',
+          story:
+            '现场设备型号多，所以串口参数必须能在界面上配，不能写死在代码里。',
+        },
+        {
+          src: asset('/img/moca/moca-41.webp'),
+          caption: '调试选项',
+          tag: '采集配置',
+          note:
+            '串口日志配合快速测试与连续发送测试，用于检查通信过程与时序。',
+          story:
+            '20ms 级打标精度不是靠运气，是靠能看见每一帧收发。日志和连续发送测试这两个功能是排查时序问题的眼睛。',
+        },
+        {
+          src: asset('/img/moca/moca-42.webp'),
+          caption: '文件与数据管理',
+          tag: '采集配置',
+          note:
+            '采集文件列表、导出与归档。',
+          story:
+            '每次采集产出的数据文件按「受试者-任务-时间」命名，研究员三个月后还能对上号，靠的就是这一层。',
+        },
+        {
+          src: asset('/img/moca/moca-43.webp'),
+          caption: '测试结果',
+          tag: '结果与报告',
+          note:
+            '完成后的结果页与任务小结。',
+        },
+        {
+          src: asset('/img/moca/moca-44.webp'),
+          caption: '导出评估报告',
+          tag: '结果与报告',
+          note:
+            '报告导出与打印入口。',
+        },
+        {
+          src: asset('/img/moca/cover.webp'),
+          caption: 'MoCA 高质量 EEG 数据采集系统',
+          tag: '认知任务',
+          note:
+            '系统启动页：左侧是认知任务列表，中间显示当前任务进度，右侧为串口连接与 EEG 信号状态。',
+          story:
+            '实验室的现场是嘈杂的：设备在报警、护士在走动、家属在旁边问问题。所以这个界面的核心不是好看，而是「一眼看出数据有没有在正常进来」。',
+        },
+      ],
+    },
     diagrams: [{ id: 'moca-seq', title: '打标全流程时序', code: mocaSequence }],
   },
 
@@ -939,11 +1415,67 @@ export const projects: Project[] = [
         ],
       },
     ],
-    gallery: [
-      { src: asset('/img/fupanpolymed/fupan-01.webp'), caption: '防返贫智能体对话' },
-      { src: asset('/img/fupanpolymed/fupan-04.webp'), caption: '风险识别结果与证据' },
-      { src: asset('/img/fupanpolymed/fupan-06.webp'), caption: '多模态文件输入' },
-    ],
+    gallery: {
+      intro:
+        '这是我在中国电信数智科技实习期间做的政府场景原型。项目周期很短，但「证据绑定」这个设计后来成了我做其他 Agent 时的默认前提 —— 下面几张图是那两周里做出来的东西。',
+      entries: [
+        {
+          src: asset('/img/fupanpolymed/fupan-01.webp'),
+          caption: 'Agent 对话',
+          tag: 'Agent 交互',
+          note:
+            '对话里给出的风险判断，同时带着它背后的数据项来源，基层工作人员可以逐条点开核对。',
+          story:
+            '这一屏决定了这个原型能不能在政府场景里用起来。结论没有证据就没人信，所以每一条风险判断都带一个可点击的数据项来源 —— 这一下就把模型从「发言人」压回了「助手」的位置。',
+        },
+        {
+          src: asset('/img/fupanpolymed/fupan-04.webp'),
+          caption: '风险识别结果与证据',
+          tag: 'Agent 交互',
+          note:
+            '输出结构化为「结论 + 数据项 + 来源」，可直接进入人工复核环节。',
+        },
+        {
+          src: asset('/img/fupanpolymed/fupan-02.webp'),
+          caption: '数据项管理',
+          tag: '数据与治理',
+          note:
+            '风险识别的最小单位是「数据项」，不是自由文本。每一条数据项都有来源和采集方式。',
+          story:
+            '把颗粒度定到数据项这一层，是为了让溯源这件事可以被机器检查。如果只存结论文本，来源只能靠人记；存成结构化数据项，来源就是字段。',
+        },
+        {
+          src: asset('/img/fupanpolymed/fupan-03.webp'),
+          caption: '样本与指标管理',
+          tag: '数据与治理',
+          note:
+            '5000 组样本的建设方案在此配置：来源、字段口径、标注规则与质量校验都在这里定义。',
+          story:
+            '政府场景最怕的是「样本口径说不清」。所以我们先花时间把数据项字典和标注规范定下来，再谈模型。',
+        },
+        {
+          src: asset('/img/fupanpolymed/fupan-05.webp'),
+          caption: '审计与合规日志',
+          tag: '数据与治理',
+          note:
+            '每次推理、每次人工确认都留痕，满足政企场景的审计要求。',
+        },
+        {
+          src: asset('/img/fupanpolymed/fupan-06.webp'),
+          caption: '多模态文件输入',
+          tag: '数据与治理',
+          note:
+            'Spring AI 的 E2E 工作流支持多模态文件输入，配合量化模型本地化部署，敏感数据不出内网。',
+        },
+        {
+          src: asset('/img/fupanpolymed/fupan-07.webp'),
+          caption: '模型服务与部署配置',
+          tag: '数据与治理',
+          note:
+            '内网模型服务的地址、密钥与调用参数集中配置，Spring 与现代 JDK 以满足政企安全审计要求。',
+        },
+      ],
+    },
     diagrams: [{ id: 'fupan-arch', title: 'Agent 与模型服务架构', code: fupanArch }],
   },
 
@@ -1097,16 +1629,132 @@ export const projects: Project[] = [
         ],
       },
     ],
-    gallery: [
-      { src: asset('/img/fupanpolymed/polymed-03.webp'), caption: 'PolyMed 智能用药小程序 · 患者端', ratio: '736 / 1600' },
-      { src: asset('/img/fupanpolymed/polymed-01.webp'), caption: '患者端 · 用药助手', ratio: '736 / 1600' },
-      { src: asset('/img/fupanpolymed/polymed-05.webp'), caption: '用药方案与注意事项', ratio: '736 / 1600' },
-      { src: asset('/img/fupanpolymed/polymed-06.webp'), caption: '处方识别与药物匹配', ratio: '736 / 1600' },
-      { src: asset('/img/fupanpolymed/polymed-09.webp'), caption: '家属端监护', ratio: '736 / 1600' },
-      { src: asset('/img/fupanpolymed/polymed-11.webp'), caption: '语音对话问药', ratio: '736 / 1600' },
-      { src: asset('/img/fupanpolymed/polymed-13.webp'), caption: '医生端医嘱', ratio: '736 / 1600' },
-      { src: asset('/img/fupanpolymed/polymed-14.webp'), caption: '出院后关照服务', ratio: '736 / 1600' },
-    ],
+    gallery: {
+      intro:
+        'PolyMed 是一套面向出院老人的智能用药系统，患者、家属、医生三端各做了一部分。最花心思的是「让用药错误可被观测」这件事 —— 它藏在下面每一张图的细节里。',
+      entries: [
+        {
+          src: asset('/img/fupanpolymed/polymed-03.webp'),
+          caption: 'PolyMed 智能用药小程序 · 患者端',
+          ratio: '736 / 1600',
+          tag: '患者端',
+          note:
+            '小程序首页：今日用药清单、待办提醒与问药入口。设计目标是老人能自己看懂 —— 所以字体大、按钮少、每屏只做一件事。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-01.webp'),
+          caption: '患者端 · 用药助手',
+          ratio: '736 / 1600',
+          tag: '患者端',
+          note:
+            '患者用自然语言问「这个药饭前还是饭后吃」，Agent 从他自己的病历和药物库里查，而不是给通用建议。',
+          story:
+            '用药助手最难的不是「不能答错」。所以答案不自由生成：是从该患者自己的结构化医嘱记录里检索出来，再组织成话术 —— 宁可啰嗦，也不要给出与他自己的医嘱相矛盾的建议。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-02.webp'),
+          caption: '患者端 · 我的病历',
+          ratio: '736 / 1600',
+          tag: '患者端',
+          note:
+            '患者的用药史、诊断与过敏信息，Agent 的所有回答都绑定在这里的数据上。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-04.webp'),
+          caption: '家属端 · 绑定与授权',
+          ratio: '736 / 1600',
+          tag: '家属端',
+          note:
+            '家属通过授权绑定患者关系，之后可以查看服药情况与接收异常提醒。',
+          story:
+            '家属端是这个系统里最被低估的部分。老年人自己不一定用得惯手机，但子女用得惯。所以「照护」这件事放在子女那一侧，父母那一侧只保留最简单���操作。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-05.webp'),
+          caption: '用药方案与注意事项',
+          ratio: '736 / 1600',
+          tag: '患者端',
+          note:
+            '每条医嘱都带服用时间、剂量与注意事项，Agent 的回答绑定到具体这条医嘱上。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-07.webp'),
+          caption: '用药提醒与打卡',
+          ratio: '736 / 1600',
+          tag: '患者端',
+          note:
+            '到点提醒 + 打卡确认。打卡记录会实时回流到家属端与医生端。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-08.webp'),
+          caption: '家属端 · 服药监控',
+          ratio: '736 / 1600',
+          tag: '家属端',
+          note:
+            '家属能看到今天几次药吃了、哪些还没吃，异常时收到提醒。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-09.webp'),
+          caption: '家属端 · 异常提醒',
+          ratio: '736 / 1600',
+          tag: '家属端',
+          note:
+            '漏服、错服或指标异常时推送提醒，形成远程照护闭环。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-10.webp'),
+          caption: '家属端 · 健康趋势',
+          ratio: '736 / 1600',
+          tag: '家属端',
+          note:
+            '用药依从性与健康指标的趋势视图，让「这段时间管得好不好」变成看得见的事。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-11.webp'),
+          caption: '语音对话问药',
+          ratio: '736 / 1600',
+          tag: '患者端',
+          note:
+            '粤语或普通话都可以提问，Agent 在检索与生成两侧都要处理方言输入。',
+          story:
+            '患者群体以粤语为主，方言能力直接决定可用性。检索侧要能听懂方言提的药品俗称，生成侧也要用对方听得懂的表达回话。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-12.webp'),
+          caption: '医生端 · 患者列表',
+          ratio: '736 / 1600',
+          tag: '医生端',
+          note:
+            '医生的患者列表与风险分层，优先呈现需要干预的个体。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-13.webp'),
+          caption: '医生端 · 医嘱下达',
+          ratio: '736 / 1600',
+          tag: '医生端',
+          note:
+            '医嘱下发后进入结构化存储，家属端与患者端实时同步。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-14.webp'),
+          caption: '出院后关照服务',
+          ratio: '736 / 1600',
+          tag: '医生端',
+          note:
+            '用药开始后的 15 天、30 天等节点自动发起用药随访与心理评测，并回收反馈。',
+          story:
+            '出院后关照是我们自己加的一环，逻辑来自临床上「出院两周内是问题高发期」的经验。系统按时间节点自动发起随访，把「记得回访」变成系统职责而不是个人自觉。',
+        },
+        {
+          src: asset('/img/fupanpolymed/polymed-15.webp'),
+          caption: '随访结果回收',
+          ratio: '736 / 1600',
+          tag: '医生端',
+          note:
+            '随访问卷与评测结果回流到医生工作台，形成可查询的记录。',
+        },
+      ],
+    },
     diagrams: [{ id: 'polymed-arch', title: '三端与 Agent 服务层', code: polymedArch }],
   },
 ]

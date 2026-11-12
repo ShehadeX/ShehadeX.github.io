@@ -14,8 +14,12 @@ import { t } from '@/composables/useI18n'
 
 const props = defineProps<{ project: LocalizedProject; index: number }>()
 
-/** 轮播帧：项目 gallery 全部截图 */
-const slides = computed(() => props.project.gallery ?? [])
+/**
+ * 轮播帧：项目 gallery 的全部截图。
+ *
+ * gallery 现在是 { intro, entries } 结构，轮播取 entries。
+ */
+const slides = computed(() => props.project.gallery?.entries ?? [])
 
 /**
  * 轮播容器比例。

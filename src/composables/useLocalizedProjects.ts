@@ -52,12 +52,29 @@ export function localizeProject(p: Project): LocalizedProject {
         })),
       }
     }),
-    gallery: en.gallery.map((g, i) => ({
-      ...(p.gallery[i] ?? {}),
-      src: p.gallery[i]?.src ?? g.src,
-      caption: g.caption,
-      ratio: p.gallery[i]?.ratio,
-    })),
+    /**
+     * Gallery 的本地化。
+     *
+     * 结构：intro + entries[]。
+     * 图片路径始终取中文主数据（图片是同一份），
+     * 英文覆盖层只提供 caption / note / story / tag 的翻译。
+     */
+    gallery: {
+      intro: en.gallery?.intro ?? p.gallery.intro,
+      entries: (en.gallery?.entries ?? []).map((g, i) => {
+        const zh = p.gallery.entries[i]
+        return {
+          ...(zh ?? {}),
+          ...g,
+          src: zh?.src ?? g.src,
+          caption: g.caption,
+          note: g.note ?? zh?.note,
+          story: g.story ?? zh?.story,
+          tag: g.tag ?? zh?.tag,
+          ratio: zh?.ratio ?? g.ratio,
+        }
+      }),
+    },
     diagrams: p.diagrams.map((d, i) => ({
       ...d,
       title: en.diagrams[i]?.title ?? d.title,

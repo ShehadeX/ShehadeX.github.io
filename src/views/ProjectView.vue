@@ -5,6 +5,7 @@ import { useLocalizedProjects } from '@/composables/useLocalizedProjects'
 import { lang } from '@/composables/useI18n'
 import BeforeBuiltAfter from '@/components/BeforeBuiltAfter.vue'
 import CaseToc from '@/components/CaseToc.vue'
+import CaseGallery from '@/components/CaseGallery.vue'
 import MermaidDiagram from '@/components/MermaidDiagram.vue'
 import LazyImage from '@/components/LazyImage.vue'
 
@@ -314,33 +315,18 @@ const tocItems = computed(() =>
       </div>
     </section>
 
-    <!-- gallery -->
-    <section v-if="project.gallery.length" class="border-b border-ink/10">
+    <!-- gallery：额外补充与记录 -->
+    <section v-if="project.gallery?.entries?.length" class="border-b border-ink/10">
       <div class="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16">
         <div class="flex items-baseline gap-4">
-          <span class="eyebrow">Screenshots</span>
+          <span class="eyebrow">Gallery</span>
           <span class="rule flex-1" />
+          <span class="font-mono text-[10.5px] text-ink-faint">
+            {{ project.gallery.entries.length }} {{ isEn ? 'records' : '条记录' }}
+          </span>
         </div>
-        <div
-          class="mt-8 grid gap-6"
-          :class="project.gallery[0]?.ratio ? 'sm:grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-2'"
-        >
-          <figure
-            v-for="g in project.gallery"
-            :key="g.src"
-            class="gpu-hover reveal overflow-hidden rounded-[15px] border border-ink/12 bg-raised"
-          >
-            <LazyImage
-              :src="g.src"
-              :alt="g.caption"
-              :ratio="g.ratio || '16 / 10'"
-              fit="contain"
-              class="bg-raised"
-            />
-            <figcaption class="border-t border-ink/10 bg-base px-4 py-2.5 font-mono text-[11px] text-ink-muted">
-              {{ g.caption }}
-            </figcaption>
-          </figure>
+        <div class="mt-8">
+          <CaseGallery :entries="project.gallery.entries" :intro="project.gallery.intro" />
         </div>
       </div>
     </section>
