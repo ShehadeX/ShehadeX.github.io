@@ -52,13 +52,21 @@ function restart() {
   start()
 }
 
+/**
+ * 自动播放计时器。
+ *
+ * 暂停时不是"跳过"，而是整体停表：
+ * 这样鼠标移开后会从当前帧重新计时，而不是立刻跳下一帧。
+ */
 function start() {
   stop()
   if (count.value <= 1) return
   timer = window.setInterval(() => {
-    if (!paused.value) next()
+    if (paused.value) return
+    next()
   }, props.interval)
 }
+
 
 function stop() {
   if (timer !== undefined) {
@@ -71,17 +79,48 @@ onMounted(start)
 onBeforeUnmount(stop)
 watch(() => props.items.length, restart)
 
-/** 轨道位移：每帧等宽（100%），所以位移百分比 = -索引 * 100% */
-const trackStyle = computed(() => ({
-  transform: `translate3d(-${index.value * 100}%, 0, 0)`,
-}))
+/**
+ * 轨道位移。
+ *
+ * 横屏：每帧占满容器（100%），位移 = -索引 * 100%。
+ * 竖屏：手机截图较窄，若仍占满 100% 会在两侧留下大片空白；
+ *      这里让每帧只占一部分宽度并居中，前后帧从两侧露出，
+ *      视觉上就是「几张手机截图并排」，既填满画面又不裁切内容。
+ */
+const trackStyle = computed(() => {
+  if (!allPortrait.value) {
+    return { transform: `translate3d(-${index.value * 100}%, 0, 0)` }
+  }
+  // 步长必须与帧宽一致，相邻帧才正好错开一格
+  const step = 38
+  const offset = index.value * step
+  return {
+    transform: `translate3d(calc(50% - ${offset}%), 0, 0)`,
+  }
+})
 
 const current = computed(() => props.items[index.value] ?? null)
 
-/** 竖屏截图（手机端）用 contain，避免被裁掉 */
+/**
+ * 是否整体为竖屏素材（手机截图）。
+ *
+ * 按**整个 gallery** 判断，而不是只看当前帧：
+ * 若混有横屏与竖屏，逐帧切换 fit 会出现「同一张图忽然被裁 / 忽然留白」的跳变。
+ */
+const allPortrait = computed(() => {
+  if (!props.items.length) return false
+  return props.items.every((it) => {
+    const r = it.ratio
+    if (!r) return false
+    const [w, h] = r.split('/').map((v) => parseFloat(v.trim()))
+    return Number.isFinite(w) && Number.isFinite(h) && h > w
+  })
+})
+
+/** 当前帧是否需要 contain（竖屏素材） */
 const isPortrait = computed(() => {
   const r = current.value?.ratio
-  if (!r) return false
+  if (!r) return allPortrait.value
   const [w, h] = r.split('/').map((v) => parseFloat(v.trim()))
   return Number.isFinite(w) && Number.isFinite(h) && h > w
 })
@@ -90,6 +129,8 @@ const isPortrait = computed(() => {
 <template>
   <div
     class="group/carousel relative overflow-hidden rounded-[10px] border border-ink/10 bg-raised"
+    @pointerenter="paused = true"
+    @pointerleave="paused = false"
     @mouseenter="paused = true"
     @mouseleave="paused = false"
     @focusin="paused = true"
@@ -104,16 +145,21 @@ const isPortrait = computed(() => {
         <div
           v-for="(item, i) in items"
           :key="item.src + i"
-          class="relative h-full w-full shrink-0 grow-0 basis-full"
+          class="relative h-full shrink-0 grow-0"
+          :class="allPortrait ? 'w-[38%]' : 'w-full basis-full'"
           :aria-hidden="i !== index"
         >
+          <!--
+            竖屏素材用 contain 完整显示（不裁切手机界面），
+            并给底衬一点背景色，避免大片空白看起来像图裂了。
+          -->
           <LazyImage
             :src="item.src"
             :alt="item.caption"
             :ratio="ratio"
             :fit="isPortrait ? 'contain' : 'cover'"
             fill
-            class="bg-raised"
+            :class="isPortrait ? 'bg-raised/45' : 'bg-raised'"
           />
         </div>
       </div>

@@ -17,14 +17,20 @@ const props = defineProps<{ project: LocalizedProject; index: number }>()
 /** 轮播帧：项目 gallery 全部截图 */
 const slides = computed(() => props.project.gallery ?? [])
 
-/** 竖屏项目（PolyMed 手机截图）整体用 contain，避免左右留白过多 */
+/**
+ * 轮播容器比例。
+ *
+ * 竖屏素材（PolyMed 手机截图）用 3/4 的竖向比例，
+ * 避免在 16/10 的横框里 contain 后上下大片留白、看起来像"只有一张图"。
+ */
 const ratio = computed(() => {
-  const portrait = slides.value.some((s) => {
+  if (!slides.value.length) return '16 / 10'
+  const portrait = slides.value.every((s) => {
     if (!s.ratio) return false
     const [w, h] = s.ratio.split('/').map((v) => parseFloat(v.trim()))
     return Number.isFinite(w) && Number.isFinite(h) && h > w
   })
-  return portrait ? '4 / 3' : '16 / 10'
+  return portrait ? '16 / 11' : '16 / 10'
 })
 </script>
 
