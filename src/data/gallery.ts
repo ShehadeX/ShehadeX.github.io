@@ -64,7 +64,7 @@ export const galleries: GalleryEntry[] = [
     subtitle: '一年半的病房与实验室',
     category: '现场',
     cover: '/img/gallery/moca-shi-yan-shi-wai-jing.webp',
-    coverRatio: ratio(2000, 1500),
+    coverRatio: ratio(1500, 2000),
     intro:
       '这是我在中科院深圳先进院待得最久的一个地方 —— 一年半，从打标软件的第一版到三家医院的临床试用。这组照片记的是那些不在代码里的部分：病房的走廊、被打断的组会、实验室楼下的傍晚。',
     photos: [
@@ -86,7 +86,7 @@ export const galleries: GalleryEntry[] = [
           '范式调优基本是在这里反复试出来的。同样是想象右手举起，问法不一样，诱发响应强度能差出一倍。试验了十几种引导语，最后定下来的那版并不是理论最优的那版，而是老人最容易听懂的那版。',
         place: '神经接口实验室',
         date: '2026-08',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/moca-ce-shi-da-biao-zu-jian-he-xia-wei-ji-de-lian-jie.webp',
@@ -116,7 +116,7 @@ export const galleries: GalleryEntry[] = [
           '每天下班从这条路上走过。做到后半年已经能一眼看出今天哪层楼还亮着灯 —— 亮着的大概就是在等信号跑完的那几个人。',
         place: '深圳 · 西丽',
         date: '2026-08',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/moca-da-men-wai-jing.webp',
@@ -155,7 +155,7 @@ export const galleries: GalleryEntry[] = [
           '第一次轮到我讲的时候紧张到把时序图画反了。师父没打断我，等我自己发现。那次之后我做每一张图都会先确认坐标轴方向 —— 这个习惯是从那儿留下的。',
         place: '神经接口实验室',
         date: '2026-07',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/moca-hai-bao.webp',
@@ -165,7 +165,7 @@ export const galleries: GalleryEntry[] = [
           '这张海报是师兄做 MoCA 范式时贴的，也是我第一次看到「一个量表怎么变成 EEG 可分析的实验」的过程。后来我的打标系统里那 43 个码表，有一半的思路是从这张海报来的。',
         place: '神经接口实验室',
         date: '2026-08',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/moca-gong-wei.webp',
@@ -195,7 +195,7 @@ export const galleries: GalleryEntry[] = [
           '写代码久了肩颈最先出问题。跑步是我能坚持下来的解压方式 —— 脑子里那些排不进去的 bug，反而在跑的时候自己冒出来。',
         place: '深圳 · 西丽',
         date: '2026-09',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/moca-jian-shen-fang.webp',
@@ -204,7 +204,7 @@ export const galleries: GalleryEntry[] = [
         story: '一次在实验室通宵后直接睡在工位，第二天被师父赶去健身房洗澡。这张照片是那天留下的。',
         place: '深圳 · 西丽',
         date: '2026-11',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
     ],
   },
@@ -218,7 +218,7 @@ export const galleries: GalleryEntry[] = [
     subtitle: '病房、护士站与量表',
     category: '现场',
     cover: '/img/gallery/cga-zheng-zai-he-zhi-ban-yi-shi-hu-gou-tong-you-hua-xi-tong-she-ji.webp',
-    coverRatio: ratio(2000, 1500),
+    coverRatio: ratio(1500, 2000),
     intro:
       '做老年综合评估系统的那几个月，我的角色一半是开发者、一半是产品经理 —— 因为大部分需求不是坐在工位上想出来的，是在病房里跟医生护士聊出来的。',
     photos: [
@@ -230,7 +230,7 @@ export const galleries: GalleryEntry[] = [
           '这一下午推翻了我原本的设计。原方案是让评估员在平板上独立完成全部 21 条量表，但护士说实际流程是「护士先问基础信息、评估员再补充」——两个人来回切屏根本没法用。方案改成双角色协作，评估员端和护士端分开，才真正跑得起来。',
         place: '康颐养医院',
         date: '2026-08',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/cga-can-kao-de-his-xi-tong-zhong-de-xin-li-liang-biao.webp',
@@ -240,7 +240,7 @@ export const galleries: GalleryEntry[] = [
           '做之前先去看别人怎么做的。这套量表在 HIS 里已经有了，但只做记录、不做解释、也没有风险提示。我们最终补上的正是「解释」这一层 —— 让分数能直接变成一个可以跟家属讨论的结论。',
         place: '康颐养医院',
         date: '2026-08',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/cga-ye-wu-qia-tan.webp',
@@ -250,7 +250,7 @@ export const galleries: GalleryEntry[] = [
           '这次洽谈里最关键的一句话是院方问的：「这套东西要多少钱。」之前我一直在想怎么证明它好，直到被问成本，才真正开始算硬件门槛 —— 最后落地成迷你主机加平板，五千以内。技术选型的很多判断，其实是被这类问题逼出来的。',
         place: '康颐养医院',
         date: '2026-08',
-        ratio: ratio(2000, 1780),
+        ratio: ratio(1780, 2000),
       },
       {
         src: '/img/gallery/cga-kang-yi-yang-yuan-jie-shao.webp',
@@ -268,7 +268,7 @@ export const galleries: GalleryEntry[] = [
         story: '同一套系统要跑在不同的院子里，环境差异比想象中大。有的院区网络只有 4G，有的 WiFi 覆盖不全。这直接决定了系统必须支持离线运行。',
         place: '广州 · 港康颐养医院',
         date: '2026-09',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/cga-kang-yi-yang-nei-bu-zou-lang.webp',
@@ -278,7 +278,7 @@ export const galleries: GalleryEntry[] = [
           '我在这条走廊上走了很多次，主要是测 WiFi 覆盖和设备摆放位置。评估的时候老人需要安静环境，而走廊是整个院区最吵的地方 —— 这个约束在办公室是想不到的。',
         place: '广州 · 康颐养医院',
         date: '2026-09',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/cga-guang-dong-sheng-lao-nian-yi-xue-yan-jiu-suo.webp',
@@ -288,7 +288,7 @@ export const galleries: GalleryEntry[] = [
           '量表的临床依据来自这里。开发规范、评分口径、解释话术都是他们给的 —— 这一点很重要：技术做得再漂亮，如果解释不符合临床惯例，医生是不会采信的。',
         place: '广州',
         date: '2026-08',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/cga-guang-dong-sheng-ren-min-yi-yuan.webp',
@@ -297,7 +297,7 @@ export const galleries: GalleryEntry[] = [
         story: '系统在这里做跨机构验证。也正是在不同机构之间跑，才暴露出我在单机构测试里完全没发现的一致性问题。',
         place: '广州',
         date: '2026-08',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
     ],
   },
@@ -370,7 +370,7 @@ export const galleries: GalleryEntry[] = [
           '第一次刷工牌进门的位置。实习结束那天我在这里拍的最后一张照片 —— 门牌换过一次，后来又搬了楼层，但照片里这块牌子还在。',
         place: '海口 · 数智科技',
         date: '2026-07',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/fupan-ban-gong-lou-wai-jing.webp',
@@ -403,7 +403,7 @@ export const galleries: GalleryEntry[] = [
     subtitle: '一次真实的政企交付现场',
     category: '现场',
     cover: '/img/gallery/bidos-vllm-pei-zhi-de-dual-spark.webp',
-    coverRatio: ratio(2000, 1500),
+    coverRatio: ratio(1500, 2000),
     intro:
       'BidOS 这个项目真正难的部分不在代码，在于要把它跑进一个真实的企业环境里。这组照片是那次交付调研时拍的 —— 机房、办公室、还有那台专门为推理采购的服务器。',
     photos: [
@@ -415,7 +415,7 @@ export const galleries: GalleryEntry[] = [
           '这是整个项目里最贵的一件东西。甲方最初的要求是「模型必须跑在客户内网」，但预算只允许买一台机器。所以推理服务必须做共享 —— 一个 vLLM 实例同时服务多个场景，把资源利用率压到极限才勉强够用。采购、部署、调优的那两周，我把这台机器的性能曲线翻来覆去测了很多遍。',
         place: '客户内网机房',
         date: '2026-10',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/bidos-ye-wu-diao-yan.webp',
@@ -453,7 +453,7 @@ export const galleries: GalleryEntry[] = [
         story: '驻场那段时间每天都要刷卡进这道门。',
         place: '客户单位',
         date: '2026-09',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/bidos-shi-yan-shi-zou-lang.webp',
@@ -462,7 +462,7 @@ export const galleries: GalleryEntry[] = [
         story: '交付期间走这条走廊的次数比走自己实验室还多。',
         place: '客户单位',
         date: '2026-09',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
       {
         src: '/img/gallery/bidos-shu-zi-hua-bu-ban-gong-shi.webp',
@@ -472,7 +472,7 @@ export const galleries: GalleryEntry[] = [
           '这是我第一次意识到「交付」的真正含义 —— 不是代码跑通，是有人能接着用下去。所以系统里所有的模型配置都做成了可在界面调整，甲方同事不用找我们就能自己换模型。',
         place: '客户单位 · 数字化部',
         date: '2026-10',
-        ratio: ratio(2000, 1500),
+        ratio: ratio(1500, 2000),
       },
     ],
   },

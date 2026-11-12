@@ -91,12 +91,18 @@ const visible = computed(() => {
  */
 const styleOf = (offset: number) => {
   const a = Math.abs(offset)
-  const scale = offset === 0 ? 1 : a === 1 ? 0.9 : 0.8
-  const opacity = offset === 0 ? 1 : a === 1 ? 0.72 : 0.62
-  const shift = offset === 0 ? 0 : offset * 52
+  const scale = offset === 0 ? 1 : a === 1 ? 0.87 : 0.76
+  const opacity = offset === 0 ? 1 : a === 1 ? 0.7 : 0.52
+  const shift = offset === 0 ? 0 : offset * 50
   const rotate = offset * 3
+  /**
+   * 底部对齐：Y 轴不做居中位移，卡片底边贴着容器底边。
+   *
+   * 所有卡片高度一致（图片区统一 4:3），
+   * 所以底边对齐之后顶边也自然齐平 —— 整排卡片边框完全对齐。
+   */
   return {
-    transform: `translate(-50%, -50%) translateX(${shift}%) scale(${scale}) rotate(${rotate}deg)`,
+    transform: `translateX(-50%) translateX(${shift}%) scale(${scale}) rotate(${rotate}deg)`,
     opacity,
     zIndex: 30 - a,
   }
@@ -170,12 +176,19 @@ onBeforeUnmount(() => {
     @mouseenter="hovering = true; stopTimer()"
     @mouseleave="hovering = false; startTimer()"
   >
-    <!-- 照片带 -->
-    <div class="relative h-[400px] sm:h-[460px]">
+    <!--
+      照片带。
+
+      卡片按各自图片比例撑开（不裁切、不旋转），
+      所以高度本来就不一样 —— 这里让它们**底边对齐**：
+      竖图顶部更高，横图顶部更低，但底边齐平，
+      整排看起来是一条稳定的基线，而不是参差不齐的一堆。
+    -->
+    <div class="relative h-[300px] sm:h-[340px]">
       <div
         v-for="{ photo, offset } in visible"
         :key="`${photo.src}-${offset}`"
-        class="absolute left-1/2 top-1/2 w-[min(46vw,270px)] transition-all duration-500 ease-out sm:w-[min(30vw,300px)]"
+        class="absolute bottom-0 left-1/2 w-[min(46vw,264px)] transition-all duration-500 ease-out sm:w-[min(30vw,300px)]"
         :style="styleOf(offset)"
       >
         <!--
@@ -186,7 +199,7 @@ onBeforeUnmount(() => {
           :is="offset === 0 ? 'RouterLink' : 'button'"
           :to="offset === 0 ? `/gallery/${photo.gallerySlug}` : undefined"
           :type="offset === 0 ? undefined : 'button'"
-          class="group block w-full overflow-hidden rounded-[15px] border bg-raised text-left transition-[border-color,box-shadow] duration-200"
+          class="group relative block w-full overflow-hidden rounded-[15px] border bg-raised text-left transition-[border-color,box-shadow] duration-200"
           :class="
             offset === 0
               ? 'border-ink/15 shadow-[0_16px_44px_-16px_rgba(32,31,29,0.4)] hover:border-claude/45'
@@ -195,15 +208,22 @@ onBeforeUnmount(() => {
           :style="offset === 0 ? {} : { opacity: styleOf(offset).opacity }"
           @click="offset === 0 ? undefined : (userPaused = true, go(index + offset))"
         >
-          <!-- 图片 -->
-          <div class="relative overflow-hidden bg-raised">
+          <!--
+            图片。
+
+            关键：**不旋转、不裁切**，也不让卡片高度随图片变化。
+            做法是给图片区一个统一的 4:3 容器，
+            真实比例的图片用 object-contain 居中放进去 ——
+            竖图两侧自然留白（不裁内容、不变形），
+            而 5 张卡片的边框高度完全一致，视觉上是一整排整齐的卡片。
+          -->
+          <div class="relative aspect-[4/3] overflow-hidden bg-raised">
             <img
               :src="photo.src"
               :alt="photo.caption"
               loading="lazy"
               decoding="async"
-              class="block w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-              :style="{ aspectRatio: photo.ratio }"
+              class="block size-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             />
             <!-- 顶边锐利高光 + 柔和暖色泛光 -->
             <div class="pointer-events-none absolute inset-x-0 top-0 h-px bg-ink/20" />
@@ -212,30 +232,30 @@ onBeforeUnmount(() => {
             />
           </div>
 
-          <!-- 说明：主图显示完整信息，侧卡只留标题 -->
-          <div class="border-t border-ink/10 p-3" :class="offset === 0 ? '' : 'p-2.5'">
+          <!--
+            说明：主图用浮层压在图片底部（absolute），
+            不占布局高度 —— 这样主卡和侧卡的总高度一致，
+            整排底边与顶边都在同一条基线上。
+          -->
+          <div
+            v-if="offset === 0"
+            class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/88 via-ink/78 to-transparent px-3.5 pb-3 pt-10"
+          >
             <div class="flex items-baseline gap-2">
-              <span class="claude-num">{{ photo.category }}</span>
-              <span
-                v-if="offset === 0"
-                class="ml-auto truncate font-mono text-[10px] text-ink-faint"
-              >
+              <span class="font-mono text-[10px] uppercase tracking-[0.12em] text-base/70">
+                {{ photo.category }}
+              </span>
+              <span class="ml-auto truncate font-mono text-[10px] text-base/60">
                 {{ photo.place }}
               </span>
             </div>
-            <p class="mt-1 text-[13px] font-semibold leading-snug text-ink">
+            <p class="mt-1 text-[13px] font-semibold leading-snug text-base">
               {{ photo.caption }}
             </p>
-            <p
-              v-if="offset === 0"
-              class="mt-1.5 line-clamp-2 text-[11.5px] leading-[1.65] text-ink-muted"
-            >
+            <p class="mt-1 line-clamp-1 text-[11.5px] leading-[1.6] text-base/75">
               {{ photo.note }}
             </p>
-            <p
-              v-if="offset === 0"
-              class="mt-2 inline-flex items-center gap-1.5 font-mono text-[10.5px] text-claude-deep"
-            >
+            <p class="mt-1.5 inline-flex items-center gap-1.5 font-mono text-[10.5px] text-claude">
               {{ photo.galleryTitle }} <span aria-hidden="true">→</span>
             </p>
           </div>
