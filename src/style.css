@@ -71,7 +71,16 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    /* 全局启用 GPU 合成层，滚动与过渡动画走合成器而非主线程 */
+  }
+
+  /*
+   * GPU 合成层提升放在 #app 而不是 body 上。
+   *
+   * 原因：body 上加 transform 会让 position: fixed 的包含块变成 body，
+   * 导致 Teleport 到 body 的弹窗（微信二维码）高度撑满整页、无法固定在视口。
+   * #app 是普通块级容器，同样能吃到合成层提升，且不影响 fixed 定位。
+   */
+  #app {
     transform: translateZ(0);
     backface-visibility: hidden;
   }

@@ -56,8 +56,9 @@ const zh: Dict = {
   'hero.eyebrow': 'AI 工程 / 智能体 / 部署',
   'hero.name.cn': '肖致浩',
   'hero.greeting': 'Hi！',
-  'hero.tagline': '很高兴认识你，我以 Native-AI 和第一性原理',
-  'hero.tagline2': '解决真实计算机问题',
+  'hero.tagline': '很高兴认识你，我以',
+  'hero.tagline.native': 'AI-Native',
+  'hero.tagline2': '和第一性原理',
   'hero.school':
     '广东工业大学计算机科学与技术 · 2028 届 · GPA 3.6/5、专业前 5%，三等学业奖学金。',
   'hero.school2':
@@ -71,10 +72,13 @@ const zh: Dict = {
   'hero.m1.desc': 'BidOS 招投标智能体、CGA 老年综合评估系统、MoCA 认知刺激标注系统、中国电信防返贫智能体、PolyMed 用药小程序',
   'hero.m2.num': '3段',
   'hero.m2.title': '实习',
-  'hero.m2.desc': '中国科学院深先院、中国电信数智、广电计量',
+  'hero.m2.desc':
+    '中国科学院深圳先进技术研究院-神经接口实验室\n中电信数智科技有限公司-研发中心，广电计量集团-计量事业部',
   'hero.m3.num': '1篇',
   'hero.m3.title': 'ICLR 2027：Dissecting the Score: Calibrated Diagnosis of EEG Foundation Models',
-  'hero.m3.desc': '第二作者，EEG Foundation 模型「开盒」分析，正处于 Rebuttal 阶段',
+  'hero.m3.desc':
+    '第二作者，EEG Foundation 模型「开盒」分析，正处于 Rebuttal 阶段。',
+  'hero.m3.status': 'REBUTTAL',
 
   'hero.profile.focus': '前沿大模型应用与开发、软件工程、深度学习模型构建',
   'hero.profile.stack': 'Flask、Dify、LangGraph、Spring AI、vLLM、Vue、MySQL、OSS',
@@ -135,6 +139,12 @@ const zh: Dict = {
   'contact.status': '状态',
   'contact.status.v': '开放机会',
 
+  'social.github': 'GitHub',
+  'social.gitee': 'Gitee',
+  'social.gmail': 'Gmail',
+  'social.wechat': 'WeChat',
+  'social.wechat.scan': '点击扫码添加',
+
   'stack.graph': '技术栈图谱',
   'stack.detail': '详情',
   'stack.usedin': '使用于',
@@ -159,8 +169,9 @@ const en: Dict = {
   'hero.eyebrow': 'AI ENGINEERING / AGENT / DEPLOYMENT',
   'hero.name.cn': 'Xiaozhihao',
   'hero.greeting': 'Hi!',
-  'hero.tagline': 'Nice to meet you. I work with Native-AI thinking',
-  'hero.tagline2': 'and first principles to solve real computing problems',
+  'hero.tagline': 'Nice to meet you. I work with',
+  'hero.tagline.native': 'AI-Native',
+  'hero.tagline2': 'and first principles',
   'hero.school':
     'B.S. Computer Science, Guangdong University of Technology · Class of 2028 · GPA 3.6/5, top 5%, Third-Class Academic Scholarship.',
   'hero.school2':
@@ -174,10 +185,13 @@ const en: Dict = {
   'hero.m1.desc': 'BidOS bidding agent, CGA geriatric assessment, MoCA cognitive stimulation tagging, China Telecom anti-poverty agent, PolyMed medication mini-app',
   'hero.m2.num': '3',
   'hero.m2.title': 'internships',
-  'hero.m2.desc': 'SIAT · China Telecom · GRGT',
+  'hero.m2.desc':
+    'SIAT — Neural Interface Lab\nChina Telecom Digital Intelligence — R&D Center, GRGT — Metrology Division',
   'hero.m3.num': '1',
-  'hero.m3.title': 'ICLR 2027: Dissecting the Score — Calibrated Diagnosis of EEG Foundation Models',
-  'hero.m3.desc': 'Second author. Opening the black box of EEG foundation models. Currently in rebuttal.',
+  'hero.m3.title': 'ICLR 2027: Dissecting the Score: Calibrated Diagnosis of EEG Foundation Models',
+  'hero.m3.desc':
+    'Second author — opening the black box of EEG foundation models. Currently in rebuttal.',
+  'hero.m3.status': 'REBUTTAL',
 
   'hero.profile.focus': 'Frontier model application & development, software engineering, deep learning model construction',
   'hero.profile.stack': 'Flask, Dify, LangGraph, Spring AI, vLLM, Vue, MySQL, OSS',
@@ -237,6 +251,12 @@ const en: Dict = {
   'contact.location.v': 'Guangzhou, China',
   'contact.status': 'Status',
   'contact.status.v': 'Open to opportunities',
+
+  'social.github': 'GitHub',
+  'social.gitee': 'Gitee',
+  'social.gmail': 'Gmail',
+  'social.wechat': 'WeChat',
+  'social.wechat.scan': 'Scan to add',
 
   'stack.graph': 'Stack Graph',
   'stack.detail': 'Detail',

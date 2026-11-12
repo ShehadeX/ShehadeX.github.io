@@ -3,6 +3,7 @@ import ProjectCard from '@/components/ProjectCard.vue'
 import { asset } from '@/utils/asset'
 import ParallaxBackdrop from '@/components/ParallaxBackdrop.vue'
 import StackGraph from '@/components/StackGraph.vue'
+import WeChatModal from '@/components/WeChatModal.vue'
 import { stackCategories, allStackItems } from '@/data/stack'
 import { stackCategoriesEn } from '@/data/stack.en'
 import {
@@ -16,6 +17,9 @@ import { t, lang } from '@/composables/useI18n'
 import { computed, ref } from 'vue'
 
 const { all: projects } = useLocalizedProjects()
+
+/** 微信二维码弹窗开关 */
+const wechatOpen = ref(false)
 
 /** 切换语言时重新取本地化数据 */
 const zhOnly = {
@@ -199,9 +203,20 @@ const internships = [
               <span class="display rise rise-2"> Shehade</span>
             </h1>
 
-            <p class="mt-7 max-w-[26ch] text-[22px] leading-[1.42] text-ink sm:text-[26px]">
+            <!-- 副标题：整行不换行，AI-Native 带橙色机器人图标 -->
+            <p
+              class="mt-7 flex flex-nowrap items-center gap-2 whitespace-nowrap text-[20px] leading-[1.4] text-ink sm:text-[24px]"
+            >
               <span class="rise rise-3">{{ t('hero.tagline') }}</span>
-              <br class="hidden sm:block" />
+              <span class="rise rise-3 inline-flex shrink-0 items-center gap-1.5">
+                <img
+                  src="/img/social/robot.png"
+                  alt=""
+                  class="h-[1.05em] w-[1.05em] shrink-0 object-contain"
+                  aria-hidden="true"
+                />
+                <span class="marker marker-reveal text-claude">{{ t('hero.tagline.native') }}</span>
+              </span>
               <span class="squiggle squiggle-reveal rise rise-4">{{ t('hero.tagline2') }}</span>
             </p>
 
@@ -210,23 +225,29 @@ const internships = [
               {{ t('hero.school2') }}
             </p>
 
-            <!-- 三个关键点：置于左栏，与右侧头像/profile 栏底部对齐 -->
+            <!--
+              三个关键点：置于左栏，与右侧头像/profile 栏底部对齐。
+
+              视觉对齐做法：父网格显式声明 4 条行轨道（数字 / 标题 / 描述 / 图标），
+              每个卡片用 subgrid 继承同一套轨道，
+              这样三列的「数字基线、标题基线、描述首行、图标行」严格横向对齐，
+              不受各列文案长度差异影响。
+            -->
             <div
-              class="mt-8 grid gap-x-7 gap-y-6 border-t border-ink/12 pt-7 sm:grid-cols-3"
+              class="mt-8 grid gap-x-7 gap-y-6 border-t border-ink/12 pt-7 sm:grid-cols-3 sm:grid-rows-[auto_auto_auto_1fr]"
             >
-              <div>
-                <!-- 数字与姓名同款字体：display 衬线 + 橙色 marker -->
-                <p class="display text-[40px] leading-none text-ink">
+              <!-- 卡片 1 -->
+              <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
+                <p class="display self-start text-[40px] leading-none text-ink">
                   <span class="marker marker-reveal text-claude">{{ t('hero.m1.num') }}</span>
                 </p>
-                <p class="mt-2 text-[14.5px] font-semibold text-ink">
+                <p class="mt-2 self-start text-[14.5px] font-semibold leading-snug text-ink">
                   {{ t('hero.m1.title') }}
                 </p>
-                <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
+                <p class="mt-1.5 self-start text-[12.5px] leading-relaxed text-ink-muted">
                   {{ t('hero.m1.desc') }}
                 </p>
-                <!-- 项目小图标 -->
-                <div class="mt-3 flex items-center gap-2">
+                <div class="mt-3 flex items-start gap-2 self-start">
                   <RouterLink
                     v-for="p in projectIcons"
                     :key="p.slug"
@@ -243,15 +264,19 @@ const internships = [
                   </RouterLink>
                 </div>
               </div>
-              <div>
-                <p class="display text-[40px] leading-none text-ink">
+
+              <!-- 卡片 2 -->
+              <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
+                <p class="display self-start text-[40px] leading-none text-ink">
                   <span class="marker marker-reveal text-claude">{{ t('hero.m2.num') }}</span>
                 </p>
-                <p class="mt-2 text-[14.5px] font-semibold text-ink">{{ t('hero.m2.title') }}</p>
-                <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
+                <p class="mt-2 self-start text-[14.5px] font-semibold leading-snug text-ink">
+                  {{ t('hero.m2.title') }}
+                </p>
+                <p class="mt-1.5 self-start whitespace-pre-line text-[12.5px] leading-relaxed text-ink-muted">
                   {{ t('hero.m2.desc') }}
                 </p>
-                <div class="mt-3 flex items-center gap-2.5">
+                <div class="mt-3 flex items-start gap-2.5 self-start">
                   <img
                     v-for="l in internships"
                     :key="l.src"
@@ -261,16 +286,27 @@ const internships = [
                   />
                 </div>
               </div>
-              <div>
-                <p class="display text-[40px] leading-none text-ink">
+
+              <!-- 卡片 3 -->
+              <div class="sm:grid sm:row-span-4 sm:grid-rows-subgrid">
+                <p class="display self-start text-[40px] leading-none text-ink">
                   <span class="marker marker-reveal text-claude">{{ t('hero.m3.num') }}</span>
                 </p>
-                <p class="mt-2 text-[14.5px] font-semibold text-ink">
+                <p class="mt-2 self-start text-[14.5px] font-semibold leading-snug text-ink">
                   {{ t('hero.m3.title') }}
                 </p>
-                <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
+                <p class="mt-1.5 self-start text-[12.5px] leading-relaxed text-ink-muted">
                   {{ t('hero.m3.desc') }}
                 </p>
+                <!-- Rebuttal 状态标签：与左两列的图标行对齐 -->
+                <div class="mt-3 flex items-start self-start">
+                  <span
+                    class="inline-flex items-center gap-1.5 rounded-[3px] border border-claude/35 bg-claude/8 px-2 py-1 font-mono text-[10.5px] tracking-[0.06em] text-claude"
+                  >
+                    <span class="pulse-dot h-1.5 w-1.5 rounded-full bg-claude" aria-hidden="true" />
+                    {{ t('hero.m3.status') }}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -690,21 +726,75 @@ const internships = [
             <p class="mt-5 max-w-[46ch] text-[15px] leading-relaxed text-ink-muted">
               {{ t('contact.p1') }}
             </p>
-            <div class="mt-7 flex flex-wrap gap-3">
+            <div class="mt-7 flex flex-wrap items-center gap-2.5">
+              <!-- 邮件：主按钮 -->
               <a
-                href="mailto:2912698300@qq.com"
-                class="inline-flex h-10 items-center rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
+                href="mailto:2912698300cn@gmail.com"
+                class="inline-flex h-11 items-center gap-2.5 rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
               >
+                <svg viewBox="0 0 16 16" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="1.6" y="3.4" width="12.8" height="9.2" rx="1.6" />
+                  <path d="M2.2 4.6 8 9.2l5.8-4.6" />
+                </svg>
                 {{ t('hero.cta.mail') }}
               </a>
-              <a
-                href="https://github.com/ShehadeX"
-                target="_blank"
-                rel="noopener"
-                class="inline-flex h-10 items-center rounded-[3px] border border-ink/20 px-5 font-mono text-[12px] text-ink transition-colors duration-150 hover:bg-raised"
-              >
-                GitHub ↗
-              </a>
+
+              <!-- 社交图标组 -->
+              <div class="flex items-center gap-2">
+                <a
+                  href="https://github.com/ShehadeX"
+                  target="_blank"
+                  rel="noopener"
+                  class="group/social flex h-11 w-11 items-center justify-center rounded-[3px] border border-ink/20 bg-base transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/35 hover:bg-raised"
+                  title="GitHub"
+                  :aria-label="t('social.github')"
+                >
+                  <img
+                    src="/img/social/github.png"
+                    alt="GitHub"
+                    class="h-5 w-5 object-contain opacity-85 transition-opacity duration-150 group-hover/social:opacity-100"
+                  />
+                </a>
+                <a
+                  href="https://gitee.com/ShehadeX"
+                  target="_blank"
+                  rel="noopener"
+                  class="group/social flex h-11 w-11 items-center justify-center rounded-[3px] border border-ink/20 bg-base transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/35 hover:bg-raised"
+                  title="Gitee"
+                  :aria-label="t('social.gitee')"
+                >
+                  <img
+                    src="/img/social/gitee.png"
+                    alt="Gitee"
+                    class="h-5 w-5 object-contain opacity-85 transition-opacity duration-150 group-hover/social:opacity-100"
+                  />
+                </a>
+                <a
+                  href="mailto:2912698300cn@gmail.com"
+                  class="group/social flex h-11 w-11 items-center justify-center rounded-[3px] border border-ink/20 bg-base transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/35 hover:bg-raised"
+                  title="Gmail"
+                  :aria-label="t('social.gmail')"
+                >
+                  <img
+                    src="/img/social/gmail.png"
+                    alt="Gmail"
+                    class="h-5 w-5 object-contain opacity-85 transition-opacity duration-150 group-hover/social:opacity-100"
+                  />
+                </a>
+                <button
+                  type="button"
+                  class="group/social flex h-11 w-11 items-center justify-center rounded-[3px] border border-ink/20 bg-base transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/35 hover:bg-raised"
+                  title="WeChat"
+                  :aria-label="t('social.wechat')"
+                  @click="wechatOpen = true"
+                >
+                  <img
+                    src="/img/social/wechat.png"
+                    alt="WeChat"
+                    class="h-5 w-5 object-contain opacity-85 transition-opacity duration-150 group-hover/social:opacity-100"
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -730,7 +820,7 @@ const internships = [
                   EMAIL
                 </dt>
                 <dd class="text-[14px] text-ink">
-                  <a href="mailto:2912698300@qq.com" class="ul">2912698300@qq.com</a>
+                  <a href="mailto:2912698300cn@gmail.com" class="ul">2912698300cn@gmail.com</a>
                 </dd>
               </div>
               <div class="flex items-baseline gap-4 px-5 py-3.5">
@@ -743,7 +833,8 @@ const internships = [
                 <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
                   GITHUB
                 </dt>
-                <dd class="text-[14px] text-ink">
+                <dd class="flex items-center gap-2 text-[14px] text-ink">
+                  <img src="/img/social/github.png" alt="" class="h-4 w-4 shrink-0 object-contain opacity-85" />
                   <a href="https://github.com/ShehadeX" target="_blank" rel="noopener" class="ul">
                     github.com/ShehadeX
                   </a>
@@ -753,10 +844,22 @@ const internships = [
                 <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
                   GITEE
                 </dt>
-                <dd class="text-[14px] text-ink">
+                <dd class="flex items-center gap-2 text-[14px] text-ink">
+                  <img src="/img/social/gitee.png" alt="" class="h-4 w-4 shrink-0 object-contain opacity-85" />
                   <a href="https://gitee.com/ShehadeX" target="_blank" rel="noopener" class="ul">
                     gitee.com/ShehadeX
                   </a>
+                </dd>
+              </div>
+              <div class="flex items-baseline gap-4 px-5 py-3.5">
+                <dt class="w-20 shrink-0 font-mono text-[11px] tracking-[0.1em] text-ink-faint">
+                  WECHAT
+                </dt>
+                <dd class="flex items-center gap-2 text-[14px] text-ink">
+                  <img src="/img/social/wechat.png" alt="" class="h-4 w-4 shrink-0 object-contain opacity-85" />
+                  <button type="button" class="ul" @click="wechatOpen = true">
+                    {{ t('social.wechat.scan') }}
+                  </button>
                 </dd>
               </div>
               <div class="flex items-baseline gap-4 px-5 py-3.5">
@@ -770,5 +873,8 @@ const internships = [
         </div>
       </div>
     </section>
+
+    <!-- 微信二维码弹窗 -->
+    <WeChatModal v-model:open="wechatOpen" />
   </div>
 </template>
