@@ -124,21 +124,19 @@ let ctx: CanvasRenderingContext2D | null = null
 /* ------------------------------------------------------------------ */
 
 /**
- * 静态布局：**玫瑰式（rose / pinwheel）**。
+ * 静态布局：**雪花晶簇（snowflake）**。
  *
  * 结构：
- *   - 6 个枢纽排在椭圆环上，彼此等角分布
- *   - 每个领域的技术项在**该枢纽的扇形里**，呈同心弧排列
- *     （内圈 → 中圈 → 外圈），扇形沿"背离中心"的方向张开
- *   - 同一圈内的项按角位置均匀铺开，弧向间距恒定 —— 不重叠、不拥挤
+ *   - 6 个领域瓣按 60° 均分方向排布（旋转对称）。
+ *   - 每个领域的技术项组成一个**旋转的矩形晶格**（晶簇），
+ *     晶格间距固定，节点之间保证不重叠、不压字。
+ *   - 晶簇沿瓣方向向外生长，长短不一的列形成晶体阶梯感。
  *
- * 关键改进（相比之前的随机半径 + 自由松弛）：
- *   1. **无随机**。位置完全由 (领域序号, 项序号) 决定，
- *      每次渲染结果一模一样，不会跳动。
- *   2. **有秩序**。同一领域的技术在视觉上是一个紧凑的花簇，
- *      一眼能看出"这个领域有哪些技术"。
- *   3. **不越界**。松弛时限制每个项的角度必须在自己的扇形内，
- *      所以不会跑到隔壁领域的地盘上。
+ * 为什么不用「同心弧 + 松弛」：
+ *   同心弧要把 n 个点塞进 46° 的窄扇区，
+ *   弧长不够 → 必然靠松弛硬推 → 挤成一团、标签压叠。
+ *   改成矩形晶格后，间距是**算出来的**而不是推出来的，
+ *   每一项都有自己独立的格子，永远不会重叠。
  */
 function buildLayout() {
   const w = cssW.value
@@ -153,29 +151,28 @@ function buildLayout() {
   const nCat = Math.max(1, props.cats.length)
   /** 每个领域占的角度 */
   const sector = (Math.PI * 2) / nCat
+
   /**
-   * 扇形张角。
+   * 晶格间距（px）。
    *
-   * 雪花瓣细而长：瓣与瓣之间留出明显间隙（分得清领域），
-   * 瓣内部的空间尽量紧凑（项贴着枢纽）。
+   * 节点圆心距 —— 标签宽约 40~70px、字高 12px，
+   * 这个间距保证上下两行的标签不会互相压叠。
    */
-  const wedge = sector * 0.78
-  /**
-   * 枢纽圆环的半径。
-   *
-   * 雪花状要求枢纽向中心聚拢 —— 整个花簇挤在画布中央，
-   * 6 个瓣从中心向外展开，四周留出呼吸的空白。
-   *
-   * 用**正圆**而不是椭圆：椭圆在横向会伸得更长，
-   * 导致左右两瓣顶到边框。圆环保证 6 个瓣到中心的距离一致，
-   * 花瓣形状均匀。
-   */
-  const hubR = base * 0.17
+  const GAP = base * 0.072
+  /** 枢纽到中心的距离 */
+  const hubD = base * 0.125
 
   props.cats.forEach((cat, ci) => {
     const a = -Math.PI / 2 + ci * sector
-    const hx = cx + hubR * Math.cos(a)
-    const hy = cy + hubR * Math.sin(a)
+    /** 径向单位向量（瓣的生长方向） */
+    const ux = Math.cos(a)
+    const uy = Math.sin(a)
+    /** 切向单位向量（晶格的横向） */
+    const tx = -uy
+    const ty = ux
+
+    const hx = cx + ux * hubD
+    const hy = cy + uy * hubD
 
     ns.push({
       id: cat.id,
@@ -195,144 +192,92 @@ function buildLayout() {
     })
 
     /**
-     * 技术项排布。
+     * 技术项排布：旋转矩形晶格。
      *
-     * 按「被项目用得最多」排序 → 用得多的放内圈（更靠近枢纽），
-     * 这与放射关联的语义一致：枢纽附近是这个领域的核心。
+     * 先按「被项目用得最多」排序 —— 用得多的放在靠内的列，
+     * 这与放射关联的语义一致：靠近枢纽的是这个领域的核心。
      */
     const items = [...cat.items].sort(
-      (p, q) => q.projects.length - p.projects.length || p.name.localeCompare(q.name),
+      (p, q) => q.projects.length - p.projects.length || p.name.localeCompare(p.name),
     )
     const n = items.length
+    if (n === 0) return
 
-    /** 需要几圈来放 n 个项（每圈最多 7 个，瓣内紧凑不松散） */
-    const RINGS = Math.max(1, Math.ceil(n / 7))
-    const perRing = Math.ceil(n / RINGS)
+    /**
+     * 晶格形状：尽量接近正方形。
+     *
+     * rows = 列数（径向方向），cols = 行数（切向方向）…
+     * 这里让「列」沿径向生长，每列的高度尽量均分，
+     * 于是晶簇外形像晶体生长出来的阶梯，而不是一个方块。
+     */
+    const cols = Math.ceil(Math.sqrt(n))
+    const baseH = Math.floor(n / cols)
+    const extra = n % cols
 
-    items.forEach((it, j) => {
-      const ring = Math.min(RINGS - 1, Math.floor(j / perRing))
-      const inRing = j - ring * perRing
-      const inRingCount = Math.min(perRing, n - ring * perRing)
+    /** 每一列（径向列）上的节点数 */
+    const colH: number[] = []
+    for (let c = 0; c < cols; c++) colH.push(baseH + (c < extra ? 1 : 0))
+    const maxH = Math.max(...colH)
 
-      /** 该项在扇形内的角位置 */
-      const t = (inRing + 0.5) / inRingCount
-      const spread = (t - 0.5) * wedge
-      /** 绝对角 = 枢纽方向 + 扇形内偏移 */
-      const ang = a + spread
+    /**
+     * 晶簇中心（径向坐标）。
+     *
+     * 以枢纽为中心向两侧生长 —— 这样晶簇自然包住枢纽，
+     * 中心不会留出一圈空白环。
+     */
+    const uCenter = hubD
+    /** 切向：所有列顶对齐，形成阶梯 */
+    const vTop = -((maxH - 1) * GAP) / 2
 
-      /**
-       * 圈半径：离枢纽的距离，越外圈越远。
-       *
-       * 内圈几乎贴着枢纽，外圈再往外推一点 ——
-       * 但**总半径被画布短边的一半减去边距约束**，
-       * 保证最外圈的节点不会碰到边框。
-       */
-      const ringR = base * (0.105 + ring * 0.07)
+    let idx = 0
+    for (let c = 0; c < cols; c++) {
+      const h = colH[c]!
+      /** 该列的径向偏移 */
+      const du = (c - (cols - 1) / 2) * GAP
+      for (let rr = 0; rr < h; rr++) {
+        const it = items[idx]!
+        idx++
+        /** 该节点的切向偏移 */
+        const dv = vTop + rr * GAP
 
-      ns.push({
-        id: it.id,
-        name: it.name,
-        x: hx + ringR * Math.cos(ang),
-        y: hy + ringR * Math.sin(ang),
-        r: 3.4 + it.projects.length * 1.1,
-        kind: 'item',
-        category: cat.id,
-        categoryName: cat.name,
-        note: it.note,
-        projects: it.projects,
-        count: it.projects.length,
-        lx: 0,
-        ly: 0,
-        anchor: 'start',
-      })
-      ls.push({ source: cat.id, target: it.id })
-    })
-  })
+        /**
+         * 晶格坐标 → 画布坐标。
+         *
+         * 算完后再做一次**边界收敛**：把越界的节点沿
+         * 「指向中心」的方向拉回来，而不是平移 —— 保持晶格的
+         * 相对结构不变，只压缩外扩的幅度。
+         */
+        let px = cx + ux * (uCenter + du) + tx * dv
+        let py = cy + uy * (uCenter + du) + ty * dv
+        /** 边距：下方要放标签，所以留更多 */
+        const mx = 52
+        const myTop = 30
+        const myBot = 40
+        if (px < mx) px = mx
+        if (px > w - mx) px = w - mx
+        if (py < myTop) py = myTop
+        if (py > h - myBot) py = h - myBot
 
-  /**
-   * 静态松弛：把重叠推开，但**不许离开自己的扇形**。
-   *
-   * 这不是物理模拟 —— 有限次迭代的确定性求解，算完即止。
-   * 每次推开后立刻把角度夹回扇形范围内，
-   * 所以技术项永远留在自己领域的那一瓣里。
-   */
-  const ITER = 140
-  /**
-   * 花簇的最大半径：从中心到最远节点的允许距离。
-   *
-   * 由画布短边的一半减去边距算出 ——
-   * 保证最外圈节点在任何方向上都碰不到边框。
-   */
-  const maxReach = base * 0.36
-  const hubByCat = new Map<string, { x: number; y: number; a: number }>()
-  props.cats.forEach((cat, ci) => {
-    const a = -Math.PI / 2 + ci * sector
-    const h = ns.find((n) => n.id === cat.id)!
-    hubByCat.set(cat.id, { x: h.x, y: h.y, a })
-  })
-
-  for (let step = 0; step < ITER; step++) {
-    for (let i = 0; i < ns.length; i++) {
-      for (let j = i + 1; j < ns.length; j++) {
-        const a = ns[i]!
-        const b = ns[j]!
-        const dx = b.x - a.x
-        const dy = b.y - a.y
-        const d = Math.hypot(dx, dy)
-        const min = a.r + b.r + 14
-        if (d >= min || d < 0.001) continue
-        const push = (min - d) / 2
-        const ux = dx / d
-        const uy = dy / d
-        a.x -= ux * push
-        a.y -= uy * push
-        b.x += ux * push
-        b.y += uy * push
+        ns.push({
+          id: it.id,
+          name: it.name,
+          x: px,
+          y: py,
+          r: 3.4 + it.projects.length * 1.1,
+          kind: 'item',
+          category: cat.id,
+          categoryName: cat.name,
+          note: it.note,
+          projects: it.projects,
+          count: it.projects.length,
+          lx: 0,
+          ly: 0,
+          anchor: 'middle',
+        })
+        ls.push({ source: cat.id, target: it.id })
       }
     }
-
-    // 夹回扇形 + 限制在画布内
-    for (const n of ns) {
-      if (n.kind === 'item') {
-        const hub = hubByCat.get(n.category)!
-        const ang = Math.atan2(n.y - hub.y, n.x - hub.x)
-        let rel = ang - hub.a
-        // 归一化到 [-π, π]
-        while (rel > Math.PI) rel -= Math.PI * 2
-        while (rel < -Math.PI) rel += Math.PI * 2
-        const lim = wedge / 2
-        if (rel > lim || rel < -lim) {
-          const fixed = hub.a + Math.max(-lim, Math.min(lim, rel))
-          const d = Math.hypot(n.x - hub.x, n.y - hub.y)
-          n.x = hub.x + d * Math.cos(fixed)
-          n.y = hub.y + d * Math.sin(fixed)
-        }
-      }
-      /**
-       * 限制在画布内 + 限制在花簇半径内。
-       *
-       * maxReach 是从中心出发的最大允许距离 ——
-       * 由画布短边的一半减去边距算出，
-       * 这样无论瓣指向哪个方向都不会撞到边框。
-       */
-      /**
-       * 限制在花簇半径内 + 限制在画布内。
-       *
-       * 边距留得比较大（标签要挂在节点旁边，
-       * 贴边的话标签会被裁掉）。
-       */
-      const m = n.kind === 'hub' ? 52 : 44
-      const dx = n.x - cx
-      const dy = n.y - cy
-      const dist = Math.hypot(dx, dy)
-      if (dist > maxReach) {
-        n.x = cx + (dx / dist) * maxReach
-        n.y = cy + (dy / dist) * maxReach
-      }
-      n.x = Math.min(w - m, Math.max(m, n.x))
-      n.y = Math.min(h - m, Math.max(m, n.y))
-    }
-  }
+  })
 
   nodes.value = ns
   links.value = ls
@@ -382,8 +327,13 @@ function layoutLabels() {
       }
       if (y > cssH.value - 4) y = cssH.value - 4
       if (y < 10) y = 10
-      placed.push({ x1, x2, y })
-      node.lx = node.x
+      /** 枢纽名也可能超宽，水平收敛进画布 */
+      let lx = node.x
+      const half = w / 2
+      if (lx - half < 4) lx = 4 + half
+      if (lx + half > cssW.value - 4) lx = cssW.value - 4 - half
+      placed.push({ x1: lx - half, x2: lx + half, y })
+      node.lx = lx
       node.ly = y
       node.anchor = 'middle'
       continue
@@ -394,6 +344,38 @@ function layoutLabels() {
     const rightX = cx + node.r + 4
     const leftX = cx - node.r - 4
     const baseY = cy + 3.4
+
+    /**
+     * 晶格里的技术项：标签统一挂在节点**正下方居中**。
+     *
+     * 晶格间距 GAP 已经保证上下两行至少隔开 GAP 像素，
+     * 而标签高度只有 12px —— 所以正下方永远放得下，
+     * 不需要左右翻来翻去地避让（那样反而会横跨到隔壁格子）。
+     */
+    if (node.anchor === 'middle') {
+      /**
+       * 标签整体必须落在画布内。
+       *
+       * 居中锚点下，标签左右各占 w/2。
+       * 靠边的节点如果直接居中，一半标签会跑到画布外被裁掉，
+       * 所以这里把标签整体**平移**回可视区（不移动节点本身，
+       * 节点位置是布局算出来的，不该被标签反向影响）。
+       */
+      let lx = cx
+      const half = w / 2
+      if (lx - half < 4) lx = 4 + half
+      if (lx + half > cssW.value - 4) lx = cssW.value - 4 - half
+
+      /** 默认挂在节点下方；下方放不下就翻到上方 */
+      let y = cy + node.r + 9
+      if (y > cssH.value - 4) y = cy - node.r - 4
+
+      placed.push({ x1: lx - half, x2: lx + half, y })
+      node.lx = lx
+      node.ly = y
+      node.anchor = 'middle'
+      continue
+    }
 
     let chosen: { x1: number; x2: number; y: number; anchor: 'start' | 'end' } | null = null
 
