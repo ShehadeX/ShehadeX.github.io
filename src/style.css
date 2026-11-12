@@ -60,6 +60,9 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* 全局启用 GPU 合成层，滚动与过渡动画走合成器而非主线程 */
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   h1,
@@ -344,6 +347,131 @@
    */
   .fade-up {
     animation: fade-up 420ms ease-out both;
+  }
+
+  /* ============================================================
+     GPU 加速
+     ------------------------------------------------------------
+     只对 transform / opacity / filter 做合成层提升：
+     - translateZ(0) + will-change 让元素进入独立合成层，
+       位移与透明度变化由 GPU 处理，不再触发主线程 layout / paint。
+     - 避免对大面积元素使用 blur()：blur 是重绘操作，
+       在低性能设备上会把整帧拉垮，所以光晕用静态径向渐变而非动态模糊。
+     ============================================================ */
+
+  .gpu {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* 悬浮/悬停时提升到独立合成层 */
+  .gpu-hover {
+    will-change: transform, opacity;
+    transition:
+      transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 200ms ease-out;
+  }
+
+  .gpu-hover:hover {
+    transform: translate3d(0, -4px, 0);
+  }
+
+  /* 滚动驱动的视差：只动 transform，纯合成层操作 */
+  .parallax {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* 悬浮时缓慢漂移的暖橙光晕 */
+  .drift {
+    animation: drift 18s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  /* 呼吸点 */
+  .pulse-dot {
+    animation: pulse-dot 2.6s ease-in-out infinite;
+  }
+
+  /*
+   * marker / squiggle 的入场动画挂在伪元素上，
+   * 避免与元素自身的 .rise 争抢 animation 属性（后者会覆盖前者）。
+   */
+  .marker-reveal::after {
+    animation: marker-reveal 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .squiggle-reveal::after {
+    animation: squiggle-reveal 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* 逐字上浮（用于 hero 大标题） */
+  .rise {
+    animation: rise 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .rise-1 { animation-delay: 40ms; }
+  .rise-2 { animation-delay: 120ms; }
+  .rise-3 { animation-delay: 200ms; }
+  .rise-4 { animation-delay: 280ms; }
+  .rise-5 { animation-delay: 360ms; }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes marker-reveal {
+  from {
+    opacity: 0;
+    transform: scaleX(0) rotate(-0.6deg);
+    transform-origin: left center;
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1) rotate(-0.6deg);
+    transform-origin: left center;
+  }
+}
+
+@keyframes squiggle-reveal {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(24px, -18px, 0) scale(1.06);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(217, 119, 87, 0.5);
+  }
+  50% {
+    opacity: 0.75;
+    box-shadow: 0 0 0 5px rgba(217, 119, 87, 0);
   }
 }
 

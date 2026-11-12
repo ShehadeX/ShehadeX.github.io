@@ -358,8 +358,8 @@ export const projects: Project[] = [
     domain: 'MEDICAL SOFTWARE',
     summary:
       '依据 WS/T 888—2026 构建大模型驱动的轻量化老年综合评估系统，把量表引擎、评分规则与多条件汇总拆成可扩展的独立模块。',
-    cover: asset('/img/cga/02.webp'),
-    coverCaption: 'CGA-Smart 评估工作台与风险提示',
+    cover: asset('/img/cga/cover.webp'),
+    coverCaption: 'CGA-Smart 老年综合评估系统 · 广东工业大学 × 广东省人民医院 联合研发',
     tags: ['Vue 3', 'Vite', 'TypeScript', 'Element Plus', 'Pinia', 'ECharts', 'LLM'],
     stack: ['Vue 3', 'Vite 5', 'TypeScript', 'Element Plus', 'Pinia', 'ECharts', 'Spring Boot'],
     period: '2026.06 – 至今',
@@ -467,6 +467,12 @@ export const projects: Project[] = [
         ],
         media: [
           {
+            src: asset('/img/cga/voice.webp'),
+            caption: '语音伴侣交互',
+            note: '评估过程中可由语音伴侣播报题目与引导作答，AIS 等量表的对话记录与评估结论挂在同一条时间线上，现场人员不用一边看屏幕一边翻纸质量表。',
+            story: '这是临床现场最直接的诉求：老人听力与视力都下降，评估员要同时读题、记录、计时。语音伴侣把「读题」这件事从评估员身上拿走，让他能把注意力放在判断上。实现上要注意打断与超时兜底——现场环境噪声大，识别失败时必须能退回手动确认，否则一次误识别就会让整场评估失去可信度。',
+          },
+          {
             src: asset('/img/cga/11.webp'),
             caption: '系统管理',
             note: '量表定义、用户权限与评估记录统一管理，为后续对接 HIS 预留了稳定的数据出口。',
@@ -486,6 +492,8 @@ export const projects: Project[] = [
       },
     ],
     gallery: [
+      { src: asset('/img/cga/cover.webp'), caption: 'CGA-Smart 老年综合评估系统首页' },
+      { src: asset('/img/cga/voice.webp'), caption: '语音伴侣交互' },
       { src: asset('/img/cga/01.webp'), caption: '系统登录与角色入口' },
       { src: asset('/img/cga/02.webp'), caption: '评估工作台与风险提示' },
       { src: asset('/img/cga/04.webp'), caption: '量表管理' },
@@ -504,9 +512,8 @@ export const projects: Project[] = [
     domain: 'NEURO / SIGNAL',
     summary:
       '把 MoCA 14 个评估环节数字化，适配多家医院的采集设备，在 20ms 级完成事件打标，把认知测评与脑电信号采集锁进同一条时间轴。',
-    cover: asset('/img/moca/moca-01.webp'),
-    coverCaption: 'MoCA 认知评估系统 · 首页',
-    coverRatio: '2474 / 1590',
+    cover: asset('/img/moca/cover.webp'),
+    coverCaption: 'MoCA 高质量 EEG 数据采集系统 · 统一刺激与作答，同步标注行为与 EEG 信号',
     tags: ['实验范式', '串口通信', '脑电事件标记', 'Python', '实时打标', '电子化量表'],
     stack: ['串口设备通信', '实时事件打标', '实验范式设计', '数字化量表', 'Python', 'Electron / 桌面端'],
     period: '2025.10 – 至今',
@@ -537,6 +544,12 @@ export const projects: Project[] = [
           '电子化本身也不是目的。过去量表靠纸质判定，耗时耗力，且无法在毫秒级精度上人工打标；把它电子化只是把「慢且不准」的记录方式换成「快且准」的记录方式，真正的目标始终是让行为事件与脑电信号落在同一条时间轴上。',
         ],
         media: [
+          {
+            src: asset('/img/moca/cover.webp'),
+            caption: 'MoCA 高质量 EEG 数据采集系统',
+            note: 'MoCA 任务统一刺激与作答，同步标注患者行为与 EEG 信号，让认知任务与脑电采集落在同一条时间轴上。',
+            story: '这是整套系统要解决的核心命题：两条时间轴对齐。评估走临床节奏，采集走设备节奏，一旦事件靠人工事后补录，信号段与行为事件就无法可靠对应——数据采到了，却用不了。',
+          },
           {
             src: asset('/img/moca/moca-01.webp'),
             caption: '系统首页',
@@ -709,6 +722,7 @@ export const projects: Project[] = [
       },
     ],
     gallery: [
+      { src: asset('/img/moca/cover.webp'), caption: 'MoCA 高质量 EEG 数据采集系统' },
       { src: asset('/img/moca/moca-01.webp'), caption: '系统首页' },
       { src: asset('/img/moca/moca-02.webp'), caption: '视空间连线测验' },
       { src: asset('/img/moca/moca-04.webp'), caption: '立方体复制' },

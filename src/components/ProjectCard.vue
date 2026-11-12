@@ -7,7 +7,7 @@ defineProps<{ project: Project; index: number }>()
 
 <template>
   <article
-    class="group relative overflow-hidden rounded-[15px] border border-ink/12 bg-base transition-colors duration-150 hover:border-ink/25"
+    class="gpu-hover group relative overflow-hidden rounded-[15px] border border-ink/12 bg-base transition-colors duration-150 hover:border-ink/25"
   >
     <!-- cover -->
     <RouterLink
@@ -20,7 +20,7 @@ defineProps<{ project: Project; index: number }>()
         :ratio="project.coverRatio || '16 / 10'"
         :fit="project.coverRatio ? 'contain' : 'cover'"
         :class="project.coverRatio ? '' : 'max-h-[300px]'"
-        class="transition-transform duration-[420ms] ease-out group-hover:scale-[1.02]"
+        class="gpu transition-transform duration-[420ms] ease-out group-hover:scale-[1.02]"
       />
       <!-- CASE 徽章压在图片左上角 -->
       <span

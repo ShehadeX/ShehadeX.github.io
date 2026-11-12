@@ -2,6 +2,7 @@
 import { projects } from '@/data/projects'
 import ProjectCard from '@/components/ProjectCard.vue'
 import { asset } from '@/utils/asset'
+import ParallaxBackdrop from '@/components/ParallaxBackdrop.vue'
 import { computed, ref } from 'vue'
 
 const projectFilters = [
@@ -140,33 +141,35 @@ const research = [
       <div class="pointer-events-none absolute inset-0 noise opacity-40" />
       <!-- Claude 风格暖橙光晕 -->
       <div
-        class="pointer-events-none absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full opacity-[0.16] blur-3xl"
+        class="drift gpu pointer-events-none absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full opacity-[0.16] blur-3xl"
         style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 68%)"
       />
       <div
-        class="pointer-events-none absolute right-0 top-1/3 h-[380px] w-[380px] rounded-full opacity-[0.10] blur-3xl"
-        style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 70%)"
+        class="drift gpu pointer-events-none absolute right-0 top-1/3 h-[380px] w-[380px] rounded-full opacity-[0.10] blur-3xl"
+        style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 70%); animation-delay: -9s"
       />
 
       <div class="relative mx-auto max-w-[1400px] px-5 pb-16 pt-10 sm:px-8 sm:pb-24 sm:pt-16">
         <!-- intro + avatar -->
-        <div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] lg:items-start lg:gap-14">
+        <div
+          class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(340px,440px)] lg:items-stretch lg:gap-14"
+        >
           <!-- prose intro -->
-          <div>
-            <p class="font-mono text-[11px] tracking-[0.14em] text-ink-faint">
+          <div class="flex flex-col">
+            <p class="font-mono text-[11px] tracking-[0.14em] text-ink-faint rise rise-1">
               AI ENGINEERING / AGENT / DEPLOYMENT
             </p>
 
             <h1 class="mt-5 text-[42px] leading-[1.06] sm:text-[62px]">
-              <span class="display">I'm </span>
-              <span class="marker text-claude">肖致浩</span>
-              <span class="display"> Shehade</span>
+              <span class="display rise rise-2">I'm </span>
+              <span class="marker marker-reveal text-claude rise rise-2">肖致浩</span>
+              <span class="display rise rise-2"> Shehade</span>
             </h1>
 
             <p class="mt-7 text-[23px] leading-[1.5] text-ink sm:text-[27px]">
-              我用 AI 与软件系统
+              <span class="rise rise-3">我用 AI 与软件系统</span>
               <br class="hidden sm:block" />
-              <span class="squiggle">解决真实问题。</span>
+              <span class="squiggle squiggle-reveal rise rise-4">解决真实问题。</span>
             </p>
 
             <p class="mt-6 max-w-[52ch] text-[15px] leading-[1.85] text-ink-muted">
@@ -179,7 +182,47 @@ const research = [
               方向是机器学习、Agent 开发与前沿部署——把业务需求拆成可追踪的流程，用模型与工程把流程真正跑起来。
             </p>
 
-            <div class="mt-9 flex flex-wrap items-center gap-3">
+            <!-- 三个关键点：置于左栏，与右侧头像/profile 栏底部对齐 -->
+            <div
+              class="mt-8 grid gap-x-7 gap-y-6 border-t border-ink/12 pt-7 sm:grid-cols-3"
+            >
+              <div>
+                <p class="display tnum text-[40px] leading-none text-ink">5</p>
+                <p class="mt-2 text-[14.5px] font-semibold text-ink">
+                  交付的<span class="marker">生产级系统</span>
+                </p>
+                <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
+                  招投标、老年评估、脑电打标、防返贫 Agent、用药小程序
+                </p>
+              </div>
+              <div>
+                <p class="display tnum text-[40px] leading-none text-ink">3</p>
+                <p class="mt-2 text-[14.5px] font-semibold text-ink">段实习</p>
+                <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
+                  中国科学院先进院 · 中国电信数智 · 广电计量
+                </p>
+                <div class="mt-3 flex items-center gap-2.5">
+                  <img
+                    v-for="l in internships"
+                    :key="l.src"
+                    :src="l.src"
+                    :alt="l.name"
+                    class="h-7 w-auto max-w-[54px] shrink-0 object-contain object-left"
+                  />
+                </div>
+              </div>
+              <div>
+                <p class="display tnum text-[40px] leading-none text-ink">ICLR</p>
+                <p class="mt-2 text-[14.5px] font-semibold text-ink">
+                  2027 论文 · <span class="marker">第二作者</span>
+                </p>
+                <p class="mt-1.5 text-[12.5px] leading-relaxed text-ink-muted">
+                  跨架构 EEG 解码诊断基准，当前 Rebuttal 阶段
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-8 flex flex-wrap items-center gap-3 lg:mt-auto lg:pt-8">
               <a
                 href="mailto:2912698300@qq.com"
                 class="inline-flex h-10 items-center rounded-[3px] bg-claude px-5 font-mono text-[12px] text-base text-white transition-colors duration-150 hover:bg-claude-deep"
@@ -206,14 +249,14 @@ const research = [
           </div>
 
           <!-- avatar -->
-          <div class="relative lg:justify-self-end">
+          <div class="relative flex flex-col lg:justify-self-end lg:justify-between">
             <!-- 橙色手绘感光晕 -->
             <div
-              class="pointer-events-none absolute -inset-6 -z-10 rounded-[28px] opacity-[0.18] blur-2xl"
+              class="drift gpu pointer-events-none absolute -inset-6 -z-10 rounded-[28px] opacity-[0.18] blur-2xl"
               style="background: radial-gradient(circle at 62% 38%, #d97757 0%, rgba(217,119,87,0) 62%)"
             />
             <div
-              class="overflow-hidden rounded-[15px] border border-ink/15 bg-raised shadow-[0_18px_48px_-24px_rgba(32,31,29,0.45)]"
+              class="gpu overflow-hidden rounded-[15px] border border-ink/15 bg-raised shadow-[0_18px_48px_-24px_rgba(32,31,29,0.45)]"
             >
               <img
                 :src="asset('/img/profile/avatar.webp')"
@@ -232,7 +275,7 @@ const research = [
             </div>
 
             <!-- profile 字段 -->
-            <dl class="mt-5 divide-y divide-ink/10 border-y border-ink/12">
+            <dl class="mt-5 divide-y divide-ink/10 border-y border-ink/12 lg:mt-8">
               <div class="flex items-baseline gap-4 py-3">
                 <dt class="w-16 shrink-0 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-faint">
                   focus
@@ -250,7 +293,7 @@ const research = [
                   status
                 </dt>
                 <dd class="flex items-center gap-2 text-[13.5px] text-ink">
-                  <span class="h-1.5 w-1.5 rounded-full bg-claude" />
+                  <span class="pulse-dot h-1.5 w-1.5 rounded-full bg-claude" />
                   开放实习与校招机会
                 </dd>
               </div>
@@ -264,62 +307,65 @@ const research = [
           </div>
         </div>
 
-        <!-- 三个关键点：整幅通栏，视觉配重 -->
-        <div class="mt-14 grid gap-x-8 gap-y-9 border-t border-ink/12 pt-10 sm:mt-16 sm:grid-cols-3">
-          <div>
-            <p class="display tnum text-[46px] leading-none text-ink">5</p>
-            <p class="mt-2.5 text-[15px] font-semibold text-ink">
-              交付的<span class="marker">生产级系统</span>
-            </p>
-            <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
-              招投标、老年评估、脑电打标、防返贫 Agent、用药小程序
-            </p>
+        <!-- 开发哲学 -->
+        <div class="mt-16 border-t border-ink/12 pt-10 sm:mt-20 sm:pt-12">
+          <div class="flex items-baseline gap-4">
+            <span class="claude-num">PHL</span>
+            <span class="eyebrow">Development Philosophy</span>
+            <span class="rule flex-1" />
           </div>
-          <div>
-            <p class="display tnum text-[46px] leading-none text-ink">3</p>
-            <p class="mt-2.5 text-[15px] font-semibold text-ink">段实习</p>
-            <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
-              中国科学院先进院 · 中国电信数智 · 广电计量
-            </p>
-            <div class="mt-3 flex items-center gap-3">
-              <img
-                v-for="l in internships"
-                :key="l.src"
-                :src="l.src"
-                :alt="l.name"
-                class="h-9 w-auto max-w-[72px] shrink-0 object-contain object-left"
-              />
-            </div>
-          </div>
-          <div>
-            <p class="display tnum text-[46px] leading-none text-ink">ICLR</p>
-            <p class="mt-2.5 text-[15px] font-semibold text-ink">
-              2027 论文 · <span class="marker">第二作者</span>
-            </p>
-            <p class="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
-              跨架构 EEG 解码诊断基准，当前 Rebuttal 阶段
-            </p>
-          </div>
-        </div>
 
-        <!-- headline -->
-        <div class="mt-16 grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:items-end lg:gap-16">
-          <h2 class="max-w-[16ch] text-[40px] leading-[1.08] sm:text-[56px] lg:text-[60px]">
-            <span class="display">AI Engineering.<br /></span>
-            <span class="display">Software Systems.<br /></span>
-            <span class="display text-ink-muted">Research.</span>
-          </h2>
+          <div class="mt-10 grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
+            <h2 class="max-w-[14ch] text-[38px] leading-[1.1] sm:text-[48px] lg:text-[52px]">
+              <span class="display">用<span class="marker">第一性原理</span></span><br />
+              <span class="display">拆解问题，</span><br />
+              <span class="display text-ink-muted">做 AI 时代的原住民。</span>
+            </h2>
 
-          <div class="lg:pb-2">
-            <p class="max-w-[52ch] text-[15px] leading-relaxed text-ink-body sm:text-[16px]">
-              从业务问题出发，设计并实现 AI 驱动的软件系统，探索深度学习与智能体的实际应用。
-            </p>
+            <div class="space-y-8">
+              <div class="flex gap-5">
+                <span class="claude-num shrink-0 pt-1.5">01</span>
+                <div>
+                  <p class="text-[18px] font-semibold text-ink">先问问题，再选工具</p>
+                  <p class="mt-2 text-[14.5px] leading-[1.85] text-ink-muted">
+                    拿到需求先拆到不能再拆的最小单元：输入是什么、来源在哪、谁做判断、失败怎么回退。
+                    工具是最后一步，而不是第一步——不是为了用模型而用模型，是为了消除某个具体环节的人力成本。
+                  </p>
+                </div>
+              </div>
 
-            <div class="mt-6 flex flex-wrap gap-2">
-              <span class="tag">AI Agent</span>
-              <span class="tag">Full-stack</span>
-              <span class="tag">Deep Learning</span>
-              <span class="tag">Deployment</span>
+              <div class="flex gap-5">
+                <span class="claude-num shrink-0 pt-1.5">02</span>
+                <div>
+                  <p class="text-[18px] font-semibold text-ink">
+                    把边界写进<span class="squiggle">系统</span>，而不是写进文档
+                  </p>
+                  <p class="mt-2 text-[14.5px] leading-[1.85] text-ink-muted">
+                    模型能做什么、不能做什么，失败如何恢复、人工在哪个点拍板，都应该是代码与流程里的硬约束。
+                    一个能被追溯、被打断、被接管的产品，才是能上线的产品。
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex gap-5">
+                <span class="claude-num shrink-0 pt-1.5">03</span>
+                <div>
+                  <p class="text-[18px] font-semibold text-ink">
+                    以 AI 原住民的方式交付
+                  </p>
+                  <p class="mt-2 text-[14.5px] leading-[1.85] text-ink-muted">
+                    从第一天就把模型当成稳定的工程依赖：结构化输出、工具调用、检索增强、可回放的评测与观测。
+                    不是把 AI 贴到旧系统上，而是让系统从架构上就以模型能力为原生积木。
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-2 pt-1">
+                <span class="tag">First Principles</span>
+                <span class="tag">AI-native</span>
+                <span class="tag">Engineering Discipline</span>
+                <span class="tag">End-to-End Ownership</span>
+              </div>
             </div>
           </div>
         </div>
@@ -425,7 +471,7 @@ const research = [
           <div
             v-for="(c, i) in capabilities"
             :key="c.key"
-            class="flex flex-col bg-base p-6 transition-colors duration-150 hover:bg-raised sm:p-7"
+            class="gpu-hover flex flex-col bg-base p-6 transition-colors duration-150 hover:bg-raised sm:p-7"
           >
             <span class="claude-num">0{{ i + 1 }}</span>
             <h3 class="display mt-3 text-[25px] leading-tight">{{ c.key }}</h3>
@@ -439,7 +485,13 @@ const research = [
     </section>
 
     <!-- ============ 03 PROJECTS ============ -->
-    <section id="projects" class="scroll-mt-20 border-b border-ink/10">
+    <section id="projects" class="relative scroll-mt-20 border-b border-ink/10">
+      <ParallaxBackdrop>
+        <div
+          class="pointer-events-none absolute right-[8%] top-[10%] h-[360px] w-[360px] rounded-full opacity-[0.07] blur-3xl"
+          style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 70%)"
+        />
+      </ParallaxBackdrop>
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
           <span class="claude-num">03</span>
@@ -480,7 +532,13 @@ const research = [
     </section>
 
     <!-- ============ 04 RESEARCH & EXPERIENCE ============ -->
-    <section id="research" class="scroll-mt-20 border-b border-ink/10">
+    <section id="research" class="relative scroll-mt-20 border-b border-ink/10">
+      <ParallaxBackdrop>
+        <div
+          class="pointer-events-none absolute left-[4%] bottom-[12%] h-[320px] w-[320px] rounded-full opacity-[0.06] blur-3xl"
+          style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 70%)"
+        />
+      </ParallaxBackdrop>
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
           <span class="claude-num">04</span>
@@ -496,7 +554,7 @@ const research = [
               <div
                 v-for="(t, i) in timeline"
                 :key="t.org"
-                class="relative border-t border-ink/12 pb-9 pl-8 pt-6 last:pb-0"
+                class="gpu-hover relative border-t border-ink/12 pb-9 pl-8 pt-6 last:pb-0"
               >
                 <span
                   class="absolute left-0 top-[30px] h-2 w-2 rounded-[1px] bg-ink/45"
@@ -511,7 +569,7 @@ const research = [
                 </p>
                 <div class="mt-3 flex items-start gap-4">
                   <div
-                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[3px] border border-ink/12 bg-base"
+                    class="gpu flex h-12 w-12 shrink-0 items-center justify-center rounded-[3px] border border-ink/12 bg-base"
                   >
                     <img
                       v-if="t.logo"
@@ -551,7 +609,7 @@ const research = [
                 v-for="r in research"
                 :key="r.title"
                 :to="r.to"
-                class="group block overflow-hidden rounded-[15px] border border-ink/12 bg-base p-5 transition-colors duration-150 hover:border-ink/25 hover:bg-raised/50"
+                class="gpu-hover group block overflow-hidden rounded-[15px] border border-ink/12 bg-base p-5 transition-colors duration-150 hover:border-ink/25 hover:bg-raised/50"
               >
                 <div class="flex items-start justify-between gap-4">
                   <h3 class="text-[16px] leading-snug">{{ r.title }}</h3>
