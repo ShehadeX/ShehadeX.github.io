@@ -7,12 +7,7 @@ import StackOverview from '@/components/StackOverview.vue'
 import GallerySection from '@/components/GallerySection.vue'
 import WeChatModal from '@/components/WeChatModal.vue'
 import DeliveryFlow from '@/components/DeliveryFlow.vue'
-import {
-  projectFiltersEn,
-  capabilitiesEn,
-  timelineEn,
-  researchEn,
-} from '@/data/home.en'
+import { projectFiltersEn, timelineEn, researchEn } from '@/data/home.en'
 import { useLocalizedProjects } from '@/composables/useLocalizedProjects'
 import { t, lang } from '@/composables/useI18n'
 import { computed, ref } from 'vue'
@@ -31,28 +26,6 @@ const zhOnly = {
     { key: 'NEURO / SIGNAL', label: 'Neuro / Signal' },
     { key: 'AI AGENT', label: 'Agent' },
     { key: 'HEALTHCARE', label: 'Healthcare' },
-  ],
-  capabilities: [
-    {
-      key: 'AI Agent',
-      desc: 'ReactAgent / LangGraph / Spring AI Agent Framework，工具注册、模型选工具、上下文总结与证据绑定推理输出。',
-      items: ['Agent 编排', 'MCP Tools', 'RAG', '多模态 VL'],
-    },
-    {
-      key: 'Full-stack',
-      desc: 'Vue 3 + TypeScript 前端，Flask / Spring Boot 后端，MySQL / SQLite 持久化，Docker 与 ECS 部署运维。',
-      items: ['Vue 3', 'Spring Boot', 'Flask', 'Docker'],
-    },
-    {
-      key: 'Deep Learning',
-      desc: '脑电信号采集与事件打标、认知评估范式设计，实验室真实数据上的信号处理与模型解码。',
-      items: ['脑电打标', '实验范式', '信号处理', '模型解码'],
-    },
-    {
-      key: 'Deployment',
-      desc: '本地端到端成稿与模型服务部署，量化模型本地化，敏感数据不出内网，兼顾成本与响应性能。',
-      items: ['量化部署', '性能调优', '成本控制', '内网合规'],
-    },
   ],
   timeline: [
     {
@@ -138,7 +111,6 @@ const zhOnly = {
 
 const isEn = computed(() => lang.value === 'en')
 const projectFilters = computed(() => (isEn.value ? projectFiltersEn : zhOnly.projectFilters))
-const capabilities = computed(() => (isEn.value ? capabilitiesEn : zhOnly.capabilities))
 const timeline = computed(() => (isEn.value ? timelineEn : zhOnly.timeline))
 const research = computed(() => (isEn.value ? researchEn : zhOnly.research))
 
@@ -579,37 +551,7 @@ const internships = [
       </div>
     </section>
 
-    <!-- ============ 02 CAPABILITIES ============ -->
-    <section id="capabilities" class="scroll-mt-20 border-b border-ink/10">
-      <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
-        <div class="flex items-baseline gap-4">
-          <span class="claude-num">02</span>
-          <span class="eyebrow">{{ t('cap.eyebrow') }}</span>
-          <span class="rule flex-1" />
-        </div>
-
-        <h2 class="mt-8 max-w-[18ch] break-keep text-[30px] leading-[1.2] sm:text-[38px]">
-          {{ t('cap.title') }}
-        </h2>
-
-        <div class="mt-10 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-2 lg:grid-cols-4">
-          <div
-            v-for="(c, i) in capabilities"
-            :key="c.key"
-            class="gpu-hover reveal flex flex-col bg-base p-6 transition-colors duration-150 hover:bg-raised sm:p-7"
-          >
-            <span class="claude-num">0{{ i + 1 }}</span>
-            <h3 class="display mt-3 text-[25px] leading-tight">{{ c.key }}</h3>
-            <p class="mt-3 flex-1 text-[13.5px] leading-[1.8] text-ink-muted">{{ c.desc }}</p>
-            <div class="mt-5 flex flex-wrap gap-1.5">
-              <span v-for="t in c.items" :key="t" class="tag">{{ t }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ============ 03 PROJECTS ============ -->
+    <!-- ============ 02 PROJECTS ============ -->
     <section id="projects" class="relative scroll-mt-20 border-b border-ink/10">
       <ParallaxBackdrop>
         <div
@@ -619,7 +561,7 @@ const internships = [
       </ParallaxBackdrop>
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
-          <span class="claude-num">03</span>
+          <span class="claude-num">02</span>
           <span class="eyebrow">{{ t('proj.eyebrow') }}</span>
           <span class="rule flex-1" />
         </div>
@@ -656,7 +598,7 @@ const internships = [
       </div>
     </section>
 
-    <!-- ============ 04 RESEARCH & EXPERIENCE ============ -->
+    <!-- ============ 03 RESEARCH & EXPERIENCE ============ -->
     <section id="research" class="relative scroll-mt-20 border-b border-ink/10">
       <ParallaxBackdrop>
         <div
@@ -666,7 +608,7 @@ const internships = [
       </ParallaxBackdrop>
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
-          <span class="claude-num">04</span>
+          <span class="claude-num">03</span>
           <span class="eyebrow">{{ t('res.eyebrow') }}</span>
           <span class="rule flex-1" />
         </div>
@@ -753,14 +695,14 @@ const internships = [
       </div>
     </section>
 
-    <!-- ============ 05 GALLERY ============ -->
+    <!-- ============ 04 GALLERY ============ -->
     <GallerySection />
 
-    <!-- ============ 06 CONTACT ============ -->
+    <!-- ============ 05 CONTACT ============ -->
     <section id="contact" class="scroll-mt-20">
       <div class="mx-auto max-w-[1400px] px-5 py-16 sm:px-8 sm:py-24">
         <div class="flex items-baseline gap-4">
-          <span class="claude-num">06</span>
+          <span class="claude-num">05</span>
           <span class="eyebrow">{{ t('contact.eyebrow') }}</span>
           <span class="rule flex-1" />
         </div>

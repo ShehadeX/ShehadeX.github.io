@@ -127,8 +127,6 @@ const zh: Dict = {
   'about.p1':
     '我的工作方式有两条固定的线。第一条是把模糊需求拆成可追踪的输入、来源、确认与输出；第二条是对模型输出保持边界意识——先定义模型可以做范围、证据要求、失败恢复方式与人工决策点，再谈它能带来多少提效。',
 
-  'cap.eyebrow': '能力矩阵',
-  'cap.title': '按 AI 开发流程组织的能力矩阵',
 
   'proj.eyebrow': '精选项目',
   'proj.title': '精选项目，每项都有可核查的工程证据',
@@ -241,8 +239,6 @@ const en: Dict = {
   'about.p1':
     'Two fixed lines run through how I work. First, I decompose ambiguous requirements into traceable inputs, sources, confirmations and outputs. Second, I keep boundaries around model output — defining what the model may do, what evidence it needs, how it recovers, and where humans decide, before talking about how much efficiency it buys.',
 
-  'cap.eyebrow': 'My Capabilities',
-  'cap.title': 'A capability matrix organised by the AI delivery pipeline',
 
   'proj.eyebrow': 'Selected Projects',
   'proj.title': 'Selected work, each backed by checkable engineering evidence',

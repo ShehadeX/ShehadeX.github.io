@@ -14,29 +14,6 @@ export const projectFiltersEn = [
   { key: 'HEALTHCARE', label: 'Healthcare' },
 ]
 
-export const capabilitiesEn = [
-  {
-    key: 'AI Agent',
-    desc: 'ReactAgent / LangGraph / Spring AI agent framework — tool registration, model tool selection, context summarisation and evidence-bound reasoning output.',
-    items: ['Agent Orchestration', 'MCP Tools', 'RAG', 'Multimodal VL'],
-  },
-  {
-    key: 'Full-stack',
-    desc: 'Vue 3 + TypeScript front end, Flask / Spring Boot back end, MySQL / SQLite persistence, with Docker and ECS deployment and operations.',
-    items: ['Vue 3', 'Spring Boot', 'Flask', 'Docker'],
-  },
-  {
-    key: 'Deep Learning',
-    desc: 'EEG acquisition and event tagging, experimental paradigm design, and signal processing and model decoding on real laboratory data.',
-    items: ['EEG Tagging', 'Paradigm Design', 'Signal Processing', 'Model Decoding'],
-  },
-  {
-    key: 'Deployment',
-    desc: 'End-to-end local drafting and model service deployment, quantised models running on-premise so sensitive data never leaves the intranet, balancing cost against latency.',
-    items: ['Quantised Deployment', 'Performance Tuning', 'Cost Control', 'Intranet Compliance'],
-  },
-]
-
 export const timelineEn = [
   {
     period: '2026.07.16 – present',

@@ -31,6 +31,7 @@ const intro = computed(() =>
   <section id="gallery" class="border-b border-ink/10">
     <div class="mx-auto max-w-[1400px] px-5 py-12 sm:px-8 sm:py-16">
       <div class="flex items-baseline gap-4">
+        <span class="claude-num">04</span>
         <span class="eyebrow">{{ eyebrow }}</span>
         <span class="rule flex-1" />
         <span class="font-mono text-[10.5px] text-ink-faint">
