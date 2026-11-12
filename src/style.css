@@ -415,6 +415,40 @@
   .rise-3 { animation-delay: 200ms; }
   .rise-4 { animation-delay: 280ms; }
   .rise-5 { animation-delay: 360ms; }
+
+  /*
+   * 滚动揭示（渐进增强）。
+   *
+   * 只用 animation-timeline: view() 走浏览器原生滚动时间线，
+   * 不写 IntersectionObserver —— 之前 IO 在嵌入式 webview 里不投递回调，
+   * 会让元素永久停在透明态。
+   *
+   * 不支持该特性的浏览器走默认态（完全可见），因此是纯增强，不会退化出空白页。
+   */
+  .reveal {
+    /* 默认可见：没有滚动时间线的浏览器直接看到内容 */
+  }
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .reveal {
+        animation: reveal-view both linear;
+        animation-timeline: view();
+        animation-range: entry 0% entry 55%;
+      }
+    }
+  }
+}
+
+@keyframes reveal-view {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 @keyframes rise {

@@ -44,6 +44,10 @@ const pipeline = `flowchart LR
     <section class="border-b border-ink/10">
       <div class="relative overflow-hidden">
         <div class="pointer-events-none absolute inset-0 grid-lines opacity-70" />
+        <div
+          class="drift gpu pointer-events-none absolute -left-32 -top-32 h-[460px] w-[460px] rounded-full opacity-[0.14] blur-3xl"
+          style="background: radial-gradient(circle, #d97757 0%, rgba(217,119,87,0) 68%)"
+        />
         <div class="relative mx-auto max-w-[1400px] px-5 pb-14 pt-10 sm:px-8 sm:pb-20">
           <RouterLink
             to="/#research"
@@ -57,7 +61,7 @@ const pipeline = `flowchart LR
             <span class="tag">{{ p.status }}</span>
           </div>
 
-          <h1 class="mt-6 max-w-[18ch] text-[38px] leading-[1.08] sm:text-[52px]">
+          <h1 class="display mt-6 max-w-[20ch] text-[38px] leading-[1.08] sm:text-[52px]">
             {{ p.title }}<span class="text-ink-muted">.</span>
           </h1>
           <p class="mt-3 text-[19px] leading-snug text-ink-muted sm:text-[22px]">
@@ -66,6 +70,7 @@ const pipeline = `flowchart LR
 
           <div class="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 font-mono text-[12px] text-ink-faint">
             <span>{{ p.authors }}</span>
+            <span class="hidden h-3 w-px bg-ink/20 sm:block" />
             <span class="hidden h-3 w-px bg-ink/20 sm:block" />
             <a
               :href="p.pdf"
@@ -90,9 +95,9 @@ const pipeline = `flowchart LR
           <span class="rule flex-1" />
         </div>
         <div class="mt-8 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 lg:grid-cols-3">
-          <div v-for="c in p.contributions" :key="c.no" class="bg-base p-6 sm:p-8">
-            <span class="font-mono text-[11px] text-ink-faint">{{ c.no }}</span>
-            <h2 class="mt-3 text-[18px] leading-snug">{{ c.title }}</h2>
+          <div v-for="c in p.contributions" :key="c.no" class="gpu-hover reveal bg-base p-6 sm:p-8">
+            <span class="claude-num">{{ c.no }}</span>
+            <h2 class="display mt-3 text-[19px] leading-snug">{{ c.title }}</h2>
             <p class="mt-3 text-[14px] leading-relaxed text-ink-muted">{{ c.desc }}</p>
           </div>
         </div>
@@ -134,7 +139,7 @@ const pipeline = `flowchart LR
                 :key="m"
                 class="flex items-center gap-2.5 font-mono text-[14px] text-ink"
               >
-                <span class="h-1.5 w-1.5 rounded-[1px] bg-accent" />
+                <span class="h-1.5 w-1.5 rounded-[1px] bg-claude" />
                 {{ m }}
               </li>
             </ul>
@@ -145,7 +150,7 @@ const pipeline = `flowchart LR
 
           <div>
             <p class="eyebrow">Tasks</p>
-            <div class="mt-4 overflow-hidden rounded-[3px] bg-ink/12">
+            <div class="reveal mt-4 overflow-hidden rounded-[3px] bg-ink/12">
               <div
                 v-for="t in p.tasks"
                 :key="t.name"
@@ -178,9 +183,9 @@ const pipeline = `flowchart LR
         </p>
 
         <div class="mt-8 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-2">
-          <div v-for="pr in p.protocols" :key="pr.id" class="bg-base p-6">
+          <div v-for="pr in p.protocols" :key="pr.id" class="gpu-hover reveal bg-base p-6">
             <div class="flex items-center gap-3">
-              <span class="rounded-[3px] bg-raised px-1.5 py-0.5 font-mono text-[11px] text-ink-strong">
+              <span class="rounded-[3px] bg-claude/15 px-1.5 py-0.5 font-mono text-[11px] text-claude-deep">
                 {{ pr.id }}
               </span>
               <span class="text-[16px] font-semibold">{{ pr.name }}</span>
@@ -214,8 +219,8 @@ const pipeline = `flowchart LR
         </div>
 
         <div class="mt-8 grid gap-px overflow-hidden rounded-[15px] bg-ink/12 sm:grid-cols-2">
-          <div v-for="f in p.findings" :key="f.label" class="bg-base p-6 sm:p-8">
-            <p class="tnum text-[34px] font-bold leading-none text-ink sm:text-[40px]">
+          <div v-for="f in p.findings" :key="f.label" class="gpu-hover reveal bg-base p-6 sm:p-8">
+            <p class="display tnum text-[34px] font-bold leading-none text-ink sm:text-[40px]">
               {{ f.metric }}
             </p>
             <p class="mt-3 text-[14px] font-medium text-ink-strong">{{ f.label }}</p>
@@ -223,8 +228,8 @@ const pipeline = `flowchart LR
           </div>
         </div>
 
-        <div class="card-raised mt-8 p-6 sm:p-8">
-          <p class="eyebrow">Common Preference</p>
+        <div class="card-raised gpu mt-8 p-6 sm:p-8">
+          <p class="claude-num">Common Preference</p>
           <p class="mt-3 max-w-[76ch] text-[15px] leading-[1.85] text-ink-body">
             五个模型共享同一个偏好：<span class="text-ink">预测主要依赖信号中的粗结构，
             而对生理学所指的细结构响应微弱</span>。
@@ -274,7 +279,7 @@ const pipeline = `flowchart LR
                 :key="r"
                 class="relative pl-4 text-[13px] leading-relaxed text-ink-body"
               >
-                <span class="absolute left-0 top-[8px] h-[3px] w-[3px] rounded-[1px] bg-accent" />
+                <span class="absolute left-0 top-[8px] h-[3px] w-[3px] rounded-[1px] bg-claude" />
                 {{ r }}
               </li>
             </ul>

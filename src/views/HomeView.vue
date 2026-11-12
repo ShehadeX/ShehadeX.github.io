@@ -471,7 +471,7 @@ const research = [
           <div
             v-for="(c, i) in capabilities"
             :key="c.key"
-            class="gpu-hover flex flex-col bg-base p-6 transition-colors duration-150 hover:bg-raised sm:p-7"
+            class="gpu-hover reveal flex flex-col bg-base p-6 transition-colors duration-150 hover:bg-raised sm:p-7"
           >
             <span class="claude-num">0{{ i + 1 }}</span>
             <h3 class="display mt-3 text-[25px] leading-tight">{{ c.key }}</h3>
@@ -554,7 +554,7 @@ const research = [
               <div
                 v-for="(t, i) in timeline"
                 :key="t.org"
-                class="gpu-hover relative border-t border-ink/12 pb-9 pl-8 pt-6 last:pb-0"
+                class="gpu-hover reveal relative border-t border-ink/12 pb-9 pl-8 pt-6 last:pb-0"
               >
                 <span
                   class="absolute left-0 top-[30px] h-2 w-2 rounded-[1px] bg-ink/45"
@@ -609,7 +609,7 @@ const research = [
                 v-for="r in research"
                 :key="r.title"
                 :to="r.to"
-                class="gpu-hover group block overflow-hidden rounded-[15px] border border-ink/12 bg-base p-5 transition-colors duration-150 hover:border-ink/25 hover:bg-raised/50"
+                class="gpu-hover reveal group block overflow-hidden rounded-[15px] border border-ink/12 bg-base p-5 transition-colors duration-150 hover:border-ink/25 hover:bg-raised/50"
               >
                 <div class="flex items-start justify-between gap-4">
                   <h3 class="text-[16px] leading-snug">{{ r.title }}</h3>

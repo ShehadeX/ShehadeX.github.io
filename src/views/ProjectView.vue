@@ -20,39 +20,42 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
       <div class="mx-auto max-w-[1400px] px-5 pb-12 pt-8 sm:px-8 sm:pb-16">
         <RouterLink
           to="/#projects"
-          class="inline-flex items-center gap-2 font-mono text-[12px] text-ink-faint transition-colors duration-150 hover:text-ink"
+          class="inline-flex items-center gap-2 font-mono text-[12px] text-ink-faint transition-colors duration-150 hover:text-claude-deep"
         >
           ← 返回项目列表
         </RouterLink>
 
         <div class="mt-8 flex flex-wrap items-baseline gap-x-4 gap-y-2">
+          <span class="claude-num">{{ project.case }}</span>
           <span class="font-mono text-[11px] tracking-[0.12em] text-ink-faint">
-            {{ project.case }} / {{ project.domain }}
+            {{ project.domain }}
           </span>
           <span class="rule hidden flex-1 sm:block" />
         </div>
 
-        <h1 class="mt-5 text-[40px] leading-[1.08] sm:text-[52px]">{{ project.title }}</h1>
-        <p class="mt-2 text-[17px] text-ink-muted">{{ project.subtitle }}</p>
+        <h1 class="display mt-5 text-[44px] leading-[1.05] sm:text-[58px]">
+          {{ project.title }}
+        </h1>
+        <p class="mt-2 text-[18px] text-ink-muted">{{ project.subtitle }}</p>
         <p class="mt-6 max-w-[62ch] text-[15px] leading-[1.8] text-ink-body">
           {{ project.summary }}
         </p>
 
         <!-- meta grid -->
         <dl class="mt-10 grid gap-px overflow-hidden rounded-[3px] bg-ink/12 sm:grid-cols-4">
-          <div class="bg-base p-4">
+          <div class="gpu-hover bg-base p-4">
             <dt class="eyebrow">Period</dt>
             <dd class="mt-1.5 font-mono text-[13px] text-ink">{{ project.period }}</dd>
           </div>
-          <div class="bg-base p-4">
+          <div class="gpu-hover bg-base p-4">
             <dt class="eyebrow">Role</dt>
             <dd class="mt-1.5 font-mono text-[13px] text-ink">{{ project.role }}</dd>
           </div>
-          <div class="bg-base p-4">
+          <div class="gpu-hover bg-base p-4">
             <dt class="eyebrow">Organization</dt>
             <dd class="mt-1.5 font-mono text-[13px] text-ink">{{ project.org }}</dd>
           </div>
-          <div class="bg-base p-4">
+          <div class="gpu-hover bg-base p-4">
             <dt class="eyebrow">Stack</dt>
             <dd class="mt-1.5 font-mono text-[13px] leading-relaxed text-ink">
               {{ project.stack.slice(0, 3).join(' / ') }}
@@ -65,10 +68,10 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
           <div
             v-for="f in project.facts"
             :key="f.label"
-            class="bg-raised p-4"
+            class="gpu-hover bg-raised p-4"
           >
             <dt class="eyebrow">{{ f.label }}</dt>
-            <dd class="tnum mt-1.5 text-[19px] font-semibold text-ink">{{ f.value }}</dd>
+            <dd class="display tnum mt-1.5 text-[21px] font-semibold text-ink">{{ f.value }}</dd>
           </div>
         </dl>
       </div>
@@ -78,7 +81,7 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
     <section class="border-b border-ink/10">
       <div class="mx-auto max-w-[1400px] px-5 py-10 sm:px-8">
         <figure
-          class="mx-auto overflow-hidden rounded-[15px] border border-ink/12 bg-raised"
+          class="gpu mx-auto overflow-hidden rounded-[15px] border border-ink/12 bg-raised"
           :class="project.coverRatio ? 'max-w-[420px]' : ''"
         >
           <LazyImage
@@ -128,9 +131,11 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
                 <li v-for="s in project.sections" :key="s.id">
                   <a
                     :href="`#${s.id}`"
-                    class="flex gap-2.5 text-[13px] text-ink-muted transition-colors duration-150 hover:text-ink"
+                    class="group flex gap-2.5 text-[13px] text-ink-muted transition-colors duration-150 hover:text-ink"
                   >
-                    <span class="font-mono text-[11px] text-ink-faint">{{ s.no }}</span>
+                    <span class="claude-num transition-colors duration-150 group-hover:text-claude-deep">
+                      {{ s.no }}
+                    </span>
                     <span>{{ s.title.split('—')[0].trim() }}</span>
                   </a>
                 </li>
@@ -142,8 +147,8 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
           <div class="space-y-16">
             <div v-for="s in project.sections" :key="s.id" :id="s.id" class="scroll-mt-24">
               <div class="flex items-baseline gap-3">
-                <span class="font-mono text-[11px] text-ink-faint">{{ s.no }}</span>
-                <h2 class="text-[21px] leading-snug">{{ s.title }}</h2>
+                <span class="claude-num">{{ s.no }}</span>
+                <h2 class="display text-[24px] leading-snug">{{ s.title }}</h2>
               </div>
 
               <div class="mt-3 space-y-3">
@@ -157,7 +162,7 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
                 <figure
                   v-for="m in s.media"
                   :key="m.src"
-                  class="overflow-hidden rounded-[15px] border border-ink/12 bg-base"
+                  class="reveal gpu overflow-hidden rounded-[15px] border border-ink/12 bg-base"
                 >
                   <LazyImage
                     :src="m.src"
@@ -168,9 +173,7 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
 
                   <figcaption class="border-t border-ink/10 px-5 py-4 sm:px-6 sm:py-5">
                     <div class="flex items-baseline gap-2.5">
-                      <span class="font-mono text-[10px] tracking-[0.12em] text-ink-faint">
-                        FIG.
-                      </span>
+                      <span class="claude-num">FIG.</span>
                       <span class="text-[14px] font-semibold text-ink">{{ m.caption }}</span>
                     </div>
 
@@ -183,9 +186,9 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
 
                     <div
                       v-if="m.story"
-                      class="mt-4 border-l-2 border-ink/15 pl-4"
+                      class="mt-4 border-l-2 border-claude/50 pl-4"
                     >
-                      <p class="eyebrow">Behind this screen</p>
+                      <p class="claude-num">Behind this screen</p>
                       <p class="mt-2 text-[13.5px] leading-[1.8] text-ink-muted">
                         {{ m.story }}
                       </p>
@@ -231,7 +234,7 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
           <figure
             v-for="g in project.gallery"
             :key="g.src"
-            class="overflow-hidden rounded-[15px] border border-ink/12 bg-raised"
+            class="gpu-hover reveal overflow-hidden rounded-[15px] border border-ink/12 bg-raised"
           >
             <LazyImage
               :src="g.src"
@@ -252,12 +255,12 @@ const next = computed(() => projects[(idx.value + 1) % projects.length])
       <div class="mx-auto max-w-[1400px] px-5 py-14 sm:px-8">
         <RouterLink
           :to="`/project/${next.slug}`"
-          class="group block rounded-[15px] border border-ink/12 p-6 transition-colors duration-150 hover:bg-raised sm:p-8"
+          class="gpu-hover group block rounded-[15px] border border-ink/12 p-6 transition-colors duration-150 hover:border-ink/25 hover:bg-raised sm:p-8"
         >
-          <p class="eyebrow">Next Case</p>
+          <p class="claude-num">Next Case</p>
           <div class="mt-3 flex items-baseline justify-between gap-4">
-            <h2 class="text-[24px] leading-tight sm:text-[28px]">{{ next.title }}</h2>
-            <span class="font-mono text-[13px] text-ink-faint transition-transform duration-150 group-hover:translate-x-0.5">
+            <h2 class="display text-[26px] leading-tight sm:text-[30px]">{{ next.title }}</h2>
+            <span class="font-mono text-[13px] text-claude-deep transition-transform duration-150 group-hover:translate-x-1">
               →
             </span>
           </div>
