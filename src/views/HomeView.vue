@@ -555,46 +555,55 @@ const internships = [
 
             <!-- 技术栈领域概览 -->
             <StackOverview />
+
+            <!--
+              完整技术栈清单（常驻展开，不折叠）。
+
+              这不只是排版选择，而是右侧图谱能「锁定」的前提：
+              sticky 的可移动行程 = 父容器高 − 元素高。
+              如果清单折叠，左栏只有 ~850px，图谱高 ~760px，
+              行程仅 95px，等于没锁，滚动两下图谱就滑走了。
+              清单常驻展开后左栏约 1800px，行程 ~1000px，
+              整段 About 滚动过程中图谱都稳稳停在视口里。
+            -->
+            <div class="mt-6 overflow-hidden rounded-[15px] border border-ink/12 bg-base">
+              <div class="flex items-center gap-3 border-b border-ink/10 bg-raised px-5 py-3.5">
+                <span class="eyebrow">{{ t('stack.inventory') }}</span>
+                <span class="font-mono text-[11px] text-ink-faint">
+                  {{ allStackItems.length }} {{ isEn ? 'technologies' : '项技术' }} ·
+                  {{ stackCategories.length }} {{ isEn ? 'domains' : '个领域' }}
+                </span>
+              </div>
+              <div>
+                <div v-for="c in stackCats" :key="c.id" class="border-b border-ink/8 bg-base p-5 last:border-b-0">
+                  <div class="flex items-baseline gap-2.5">
+                    <span class="claude-num">{{ String(c.items.length).padStart(2, '0') }}</span>
+                    <h3 class="text-[15px] font-semibold text-ink">{{ c.name }}</h3>
+                    <span class="ml-auto font-mono text-[10.5px] text-ink-faint">{{ c.caption }}</span>
+                  </div>
+                  <ul class="mt-3 space-y-1.5">
+                    <li v-for="it in c.items" :key="it.id" class="text-[12.5px] leading-relaxed">
+                      <span class="text-ink">{{ it.name }}</span>
+                      <span class="text-ink-faint"> — {{ it.note }}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- 右：技术栈图谱 -->
-          <div>
+          <!--
+            右：技术栈图谱（锁定）
+            lg:sticky 让图谱在滚动中固定在视口内，
+            与左侧描述「一起停在同一个位置」，
+            不再出现左栏滑走、右栏还在原地的异步滑动。
+            画布高度已按视口高度收敛，所以锁定后整张图完整可见。
+          -->
+          <div class="lg:sticky lg:top-20 lg:self-start">
             <StackGraph compact />
           </div>
         </div>
 
-        <!-- 技术栈清单：可展开的完整列表 -->
-        <details class="group mt-8 overflow-hidden rounded-[15px] border border-ink/12 bg-base">
-          <summary
-            class="flex cursor-pointer items-center gap-3 border-b border-ink/10 bg-raised px-5 py-3.5 transition-colors duration-150 hover:bg-raised/70"
-          >
-            <span class="eyebrow">{{ t('stack.inventory') }}</span>
-            <span class="font-mono text-[11px] text-ink-faint">
-              {{ allStackItems.length }} {{ isEn ? 'technologies' : '项技术' }} ·
-              {{ stackCategories.length }} {{ isEn ? 'domains' : '个领域' }}
-            </span>
-            <span
-              class="ml-auto font-mono text-[11px] text-ink-muted transition-transform duration-200 group-open:rotate-90"
-            >
-              ▸
-            </span>
-          </summary>
-          <div class="grid gap-px bg-ink/10 sm:grid-cols-2 lg:grid-cols-3">
-            <div v-for="c in stackCats" :key="c.id" class="bg-base p-5">
-              <div class="flex items-baseline gap-2.5">
-                <span class="claude-num">{{ String(c.items.length).padStart(2, '0') }}</span>
-                <h3 class="text-[15px] font-semibold text-ink">{{ c.name }}</h3>
-              </div>
-              <p class="mt-1 font-mono text-[11px] text-ink-faint">{{ c.caption }}</p>
-              <ul class="mt-3.5 space-y-2">
-                <li v-for="it in c.items" :key="it.id" class="text-[13px] leading-relaxed">
-                  <span class="text-ink">{{ it.name }}</span>
-                  <span class="text-ink-faint"> — {{ it.note }}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </details>
       </div>
     </section>
 
