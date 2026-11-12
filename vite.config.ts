@@ -3,8 +3,8 @@ import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 
-// GitHub Pages 部署在子路径 /shehade.github.io/ 下；本地 dev / 其他托管可用 root。
-const base = process.env.PAGES_BASE ?? '/shehade.github.io/'
+// GitHub Pages 用户站点部署在根路径 /；其他子路径托管可用 PAGES_BASE 覆盖。
+const base = process.env.PAGES_BASE ?? '/'
 
 export default defineConfig({
   base,
