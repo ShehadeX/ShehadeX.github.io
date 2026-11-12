@@ -38,6 +38,13 @@ interface Props {
   cats: StackCategory[]
   /** 选中项目时该项目用到的技术 id；null 表示未筛选 */
   activeIds: string[] | null
+  /**
+   * 持久选中的节点 id。
+   *
+   * 来自左栏「领域概要」的点击 —— 点了左边的分类，
+   * 右边图谱上对应的枢纽节点也要同步高亮并展开放射关联。
+   */
+  selectedId?: string | null
 }
 
 const props = defineProps<Props>()
@@ -361,7 +368,6 @@ const CLAUDE = '#d97757'
 const CLAUDE_DEEP = '#b4553a'
 
 let hoveredId: string | null = null
-let egoSet: Set<string> | null = null
 let activeSet: Set<string> | null = null
 
 const nodeId = (v: string | GNode) => (typeof v === 'string' ? v : v.id)
@@ -397,7 +403,14 @@ function draw() {
   const px = (n: GNode) => (n.x ?? 0) + (offsets.get(n.id)?.x ?? 0)
   const py = (n: GNode) => (n.y ?? 0) + (offsets.get(n.id)?.y ?? 0)
 
-  const hovering = hoveredId !== null
+  /**
+   * 生效的高亮节点。
+   *
+   * 悬停优先（临时预览），否则用持久选中（来自左栏点击）。
+   */
+  const focusId = hoveredId ?? props.selectedId ?? null
+  const hovering = focusId !== null
+  const focusEgo = focusId ? buildEgo(focusId) : null
 
   // ---- 边 ----
   ctx.lineWidth = 1
@@ -405,7 +418,7 @@ function draw() {
     const a = l.source as GNode
     const b = l.target as GNode
     if (typeof a === 'string' || typeof b === 'string') continue
-    const related = hovering && egoSet!.has(a.id) && egoSet!.has(b.id)
+    const related = hovering && focusEgo!.has(a.id) && focusEgo!.has(b.id)
     const dim =
       (hovering && !related) ||
       (activeSet && !activeSet.has(a.id) && !activeSet.has(b.id))
@@ -432,7 +445,7 @@ function draw() {
   for (const n of ns) {
     const x = px(n)
     const y = py(n)
-    const inEgo = !hovering || egoSet!.has(n.id)
+    const inEgo = !hovering || focusEgo!.has(n.id)
     const dim =
       !inEgo ||
       (activeSet
@@ -440,8 +453,8 @@ function draw() {
           ? !n.projects.some((p) => activeSet!.has(p))
           : !activeSet.has(n.id)
         : false)
-    const isHover = hoveredId === n.id
-    const isNeighbor = hovering && !isHover && egoSet!.has(n.id)
+    const isHover = focusId === n.id
+    const isNeighbor = hovering && !isHover && focusEgo!.has(n.id)
 
     ctx.globalAlpha = dim ? 0.14 : 1
 
@@ -488,7 +501,7 @@ function draw() {
   ctx.beginPath()
   for (const n of ns) {
     if (narrow && n.kind === 'item') continue
-    if (hovering && !egoSet!.has(n.id)) continue
+    if (hovering && !focusEgo!.has(n.id)) continue
     const nx = px(n)
     const ny = py(n)
     const lx = n.lx + (offsets.get(n.id)?.x ?? 0)
@@ -508,10 +521,10 @@ function draw() {
 
   for (const n of ns) {
     if (narrow && n.kind === 'item') continue
-    if (hovering && !egoSet!.has(n.id)) continue
+    if (hovering && !focusEgo!.has(n.id)) continue
     const off = offsets.get(n.id)
     const hot = hoveredId === n.id
-    const neighbor = hovering && !hot && egoSet!.has(n.id)
+    const neighbor = hovering && !hot && focusEgo!.has(n.id)
     ctx.textAlign = n.anchor === 'middle' ? 'center' : n.anchor
     ctx.fillStyle = hot || neighbor ? CLAUDE_DEEP : LABEL
     ctx.fillText(n.name, n.lx + (off?.x ?? 0), n.ly + (off?.y ?? 0))
@@ -554,7 +567,6 @@ const onPointerMove = (evt: PointerEvent | MouseEvent) => {
 
   if (hoverChanged) {
     hoveredId = hid
-    egoSet = hid ? buildEgo(hid) : null
     if (hov) {
       emit('hover', {
         id: hov.id,
@@ -609,7 +621,6 @@ const onPointerLeave = () => {
   offsets.clear()
   if (hoveredId) {
     hoveredId = null
-    egoSet = null
     emit('hover', null)
   }
   draw()
@@ -695,6 +706,17 @@ watch(
     draw()
   },
   { immediate: true },
+)
+
+/**
+ * 持久选中变化 → 重绘。
+ *
+ * 左栏点了某个领域，右边图谱上对应的枢纽节点要立刻高亮并展开放射关联。
+ * 这里只重绘一帧，不启动任何动画循环。
+ */
+watch(
+  () => props.selectedId,
+  () => draw(),
 )
 </script>
 

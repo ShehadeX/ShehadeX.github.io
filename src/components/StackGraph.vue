@@ -31,11 +31,21 @@ const projects_ = computed(() => (isEn.value ? stackProjectsEn : stackProjects))
 
 const {
   selectedProject,
+  selectedNode,
   hoveredNode,
   focusedNode: focused,
   setProject,
   toggleNode,
 } = useStackSelection()
+
+/**
+ * 传给画布的持久选中 id。
+ *
+ * 只有「点击选中」算持久选择（悬停是临时预览），
+ * 所以这里取 selectedNode 而非 focused —— 否则鼠标一移开，
+ * 左栏点选的高亮就会跟着消失。
+ */
+const selectedId = computed(() => selectedNode.value?.id ?? null)
 
 /** 选中项目时该项目用到的技术 id 集合，传给画布做高亮 */
 const activeIds = computed<string[] | null>(() => {
@@ -102,13 +112,25 @@ const toggleProject = (slug: string) => {
       这里保持纯图谱，右栏高度恒定，sticky 锁定不受影响。
     -->
     <div v-if="compact" class="relative">
-      <StackCanvas :cats="cats" :active-ids="activeIds" @hover="hoveredNode = $event" @select="toggleNode($event)" />
+      <StackCanvas
+        :cats="cats"
+        :active-ids="activeIds"
+        :selected-id="selectedId"
+        @hover="hoveredNode = $event"
+        @select="toggleNode($event)"
+      />
     </div>
 
     <!-- 宽屏模式：图谱 + 右侧独立详情栏 -->
     <div v-else class="grid gap-0 xl:grid-cols-[minmax(0,1.75fr)_minmax(0,1fr)]">
       <div class="border-b border-ink/10 lg:border-b-0 lg:border-r">
-        <StackCanvas :cats="cats" :active-ids="activeIds" @hover="hoveredNode = $event" @select="toggleNode($event)" />
+        <StackCanvas
+        :cats="cats"
+        :active-ids="activeIds"
+        :selected-id="selectedId"
+        @hover="hoveredNode = $event"
+        @select="toggleNode($event)"
+      />
       </div>
 
       <div :class="hasPanelContent ? 'p-5 sm:p-6' : ''">

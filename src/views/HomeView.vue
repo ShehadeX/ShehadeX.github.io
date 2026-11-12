@@ -521,7 +521,7 @@ const internships = [
           <span class="rule flex-1" />
         </div>
 
-        <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)] lg:gap-10">
+        <div class="mt-8 grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10">
           <!--
             左：描述（压缩）
             不用 sticky —— sticky 会让左栏独立吸附滚动，

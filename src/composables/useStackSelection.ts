@@ -59,6 +59,33 @@ export function useStackSelection() {
     selectedNode.value = selectedNode.value?.id === node.id ? null : node
   }
 
+  /**
+   * 按分类 id 选中对应的枢纽节点。
+   *
+   * 用于左栏的领域概要列表：点一下左边的分类名，
+   * 右边图谱上那个枢纽就同步高亮，两边始终指向同一个东西。
+   */
+  const selectCategory = (
+    id: string,
+    name: string,
+    projects: string[],
+  ) => {
+    if (selectedNode.value?.id === id) {
+      selectedNode.value = null
+      return
+    }
+    selectedNode.value = {
+      id,
+      name,
+      kind: 'hub',
+      category: id,
+      categoryName: name,
+      note: '',
+      projects,
+      count: projects.length,
+    }
+  }
+
   const clearAll = () => {
     selectedProject.value = null
     selectedNode.value = null
@@ -71,6 +98,7 @@ export function useStackSelection() {
     focusedNode,
     setProject,
     toggleNode,
+    selectCategory,
     clearAll,
   }
 }
