@@ -279,6 +279,10 @@
   .squiggle {
     position: relative;
     display: inline-block;
+    /* 关键：inline-block 的宽度由内容决定，
+       伪元素的 right:0 因此只覆盖文字本身，不会延伸到容器右侧 */
+    width: fit-content;
+    max-width: 100%;
   }
 
   .squiggle::after {
@@ -292,6 +296,16 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 12' preserveAspectRatio='none'%3E%3Cpath d='M2 8 C 14 2, 26 2, 38 7 C 50 12, 62 11, 74 6 C 86 1, 98 2, 118 7' fill='none' stroke='%23d97757' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E");
     background-size: 100% 100%;
     pointer-events: none;
+  }
+
+  /*
+   * 块级用法（hero 副标题第二行）：宽度由父容器决定，
+   * 需要显式把伪元素收缩到文字宽度，否则波浪线会一直拉到容器右边缘。
+   * 这里用 inline-flex 让 span 自身按内容收缩，同时保留 block 级换行行为。
+   */
+  .squiggle-inline {
+    display: inline-block;
+    width: fit-content;
   }
 
   /* 章节序号：橙色，等宽 */
