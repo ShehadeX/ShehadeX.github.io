@@ -117,13 +117,7 @@ const allPortrait = computed(() => {
   })
 })
 
-/** 当前帧是否需要 contain（竖屏素材） */
-const isPortrait = computed(() => {
-  const r = current.value?.ratio
-  if (!r) return allPortrait.value
-  const [w, h] = r.split('/').map((v) => parseFloat(v.trim()))
-  return Number.isFinite(w) && Number.isFinite(h) && h > w
-})
+
 </script>
 
 <template>
@@ -153,13 +147,17 @@ const isPortrait = computed(() => {
             竖屏素材用 contain 完整显示（不裁切手机界面），
             并给底衬一点背景色，避免大片空白看起来像图裂了。
           -->
+          <!--
+            统一用 contain：系统截图的关键信息经常分布在左右两侧，
+            cover 会直接裁掉，等于把内容丢了。
+          -->
           <LazyImage
             :src="item.src"
             :alt="item.caption"
             :ratio="ratio"
-            :fit="isPortrait ? 'contain' : 'cover'"
+            fit="contain"
             fill
-            :class="isPortrait ? 'bg-raised/45' : 'bg-raised'"
+            class="bg-raised/50"
           />
         </div>
       </div>

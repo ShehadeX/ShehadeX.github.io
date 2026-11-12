@@ -23,12 +23,28 @@ export interface EnMedia {
   ratio?: string
 }
 
+export interface EnSubsection {
+  id: string
+  /** 细分编号，如 "2.1" */
+  no: string
+  title: string
+  body?: string[]
+  media?: EnMedia[]
+}
+
 export interface EnSection {
   id: string
   no: string
   title: string
   body: string[]
   media?: EnMedia[]
+  /**
+   * 细分问题。
+   *
+   * 一个 section 往往对应不止一个问题（例如「Solution」下面会有多个独立问题），
+   * 目录只列一级会丢失信息，所以这里支持二级细分。
+   */
+  subsections?: EnSubsection[]
 }
 
 export interface EnProject {
@@ -96,20 +112,51 @@ export const projectsEn: Record<string, EnProject> = {
           'BidOS models the authoring process as six stages with explicit inputs and artefacts: import → triage → deep analysis → outline → chapter preparation → export. Every artefact carries a source tag that later stages can reference directly instead of asking the model to guess again.',
           'Human decision points are explicit: outlines and chapters require confirmation before advancing. The model may propose, but it cannot make the business call.',
         ],
-        media: [
+        subsections: [
           {
-            src: '/img/bidos/02.webp',
-            caption: 'Deep requirement analysis',
-            note: 'Requirements are decomposed into checkable items, each bound to a specific source passage; the analysis itself is an editable structured artefact.',
-            story:
-              'This screen is the shift from reading documents to reading requirements. Previously the model wrote an essay and reviewers had to read it through; once itemised, a writer can confirm, edit or reject each requirement, and the analysis becomes a collaborative checklist rather than a paragraph.',
+            id: 'solution-requirements',
+            no: '2.1',
+            title: 'From reading documents to reading requirements',
+            body: [
+              'The old approach asked the model to write a tender analysis that reviewers had to read through to judge. Once itemised, the analysis screen breaks requirements into checkable entries, each bound to a specific source passage, and the result itself becomes an editable structured artefact.',
+              'A writer can confirm, edit or reject each requirement — the analysis stops being a paragraph and becomes a collaborative checklist.',
+            ],
+            media: [
+              {
+                src: '/img/bidos/02.webp',
+                caption: 'Deep requirement analysis',
+                note: 'Requirements are decomposed into checkable items, each bound to a specific source passage; the analysis itself is an editable structured artefact.',
+                story:
+                  'This screen is the shift from reading documents to reading requirements. Previously the model wrote an essay and reviewers had to read it through; once itemised, a writer can confirm, edit or reject each requirement, and the analysis becomes a collaborative checklist rather than a paragraph.',
+              },
+            ],
           },
           {
-            src: '/img/bidos/03.webp',
-            caption: 'Outline bound to the knowledge base',
-            note: 'Generated outlines bind bidirectionally to knowledge-base categories, so chapter writing recalls the right credentials, track record and legal clauses instead of searching the whole corpus.',
-            story:
-              'The knowledge base was the largest investment in this project. We analysed 23 historical human-written drafts into a material graph with two-level taxonomy. Retrieval is now targeted by project context, so every cited fact comes from the correct category rather than from luck.',
+            id: 'solution-knowledge',
+            no: '2.2',
+            title: 'Retrieval must be targeted, not lucky',
+            body: [
+              'The knowledge base was the largest investment in this project: 23 historical human-written drafts analysed into a material graph with a two-level taxonomy.',
+              'Generated outlines bind bidirectionally to knowledge-base categories, so chapter writing recalls the right credentials, track record and legal clauses instead of searching the whole corpus.',
+            ],
+            media: [
+              {
+                src: '/img/bidos/03.webp',
+                caption: 'Outline bound to the knowledge base',
+                note: 'Generated outlines bind bidirectionally to knowledge-base categories, so chapter writing recalls the right credentials, track record and legal clauses instead of searching the whole corpus.',
+                story:
+                  'The knowledge base was the largest investment in this project. We analysed 23 historical human-written drafts into a material graph with two-level taxonomy. Retrieval is now targeted by project context, so every cited fact comes from the correct category rather than from luck.',
+              },
+            ],
+          },
+          {
+            id: 'solution-human',
+            no: '2.3',
+            title: 'Division of labour: the model proposes, people decide',
+            body: [
+              'Outlines and chapters must be confirmed before the next stage begins. The model may produce a structured proposal, but it cannot make the business call.',
+              'This is a deliberate trade-off: final responsibility in a tender rests with the writer, so any "fully automatic" claim would push compliance risk onto the system.',
+            ],
           },
         ],
       },
