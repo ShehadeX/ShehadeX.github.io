@@ -494,8 +494,18 @@ const internships = [
           <span class="rule flex-1" />
         </div>
 
+        <!--
+          About 两栏：**固定高度**，不让内容撑开。
+
+          左栏的「技术选型」面板在悬停时会展开 10+ 项技术，
+          如果用 min-height，左栏会突然变高，把右栏一起拉长，
+          画布随之重新测量 → 节点跳动。
+
+          所以这里用固定高度 + 内部滚动：
+          左栏内容超出就在面板内部滚，右栏画布高度恒定。
+        -->
         <div
-          class="mt-8 grid items-stretch gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10"
+          class="mt-8 grid items-stretch gap-8 lg:h-[760px] lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-10"
         >
           <!--
             左：描述（压缩）
@@ -503,7 +513,7 @@ const internships = [
             与右侧图谱产生「异步滑动」的割裂感。
             两栏保持普通文档流，随页面同步滚动。
           -->
-          <div>
+          <div class="flex min-h-0 flex-col lg:overflow-y-auto lg:pr-1">
             <h2 class="max-w-[20ch] break-keep text-[24px] leading-[1.2] sm:text-[30px]">
               {{ t('about.title') }}
             </h2>

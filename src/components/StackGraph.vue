@@ -108,15 +108,16 @@ const toggleProject = (slug: string) => {
 
     <!--
       紧凑模式（首页 About 区）：只显示节点，不挂任何详情浮层。
-      节点详情统一搬到左栏的技术选型面板里展示，
-      这里保持纯图谱，右栏高度恒定，sticky 锁定不受影响。
+      节点详情统一搬到左栏的技术选型面板里展示。
+
+      画布高度是**固定常量**（见 StackCanvas 的 FIXED_H），
+      不依赖父容器高度 —— 左栏内容怎么变都不会影响这里。
     -->
-    <div v-if="compact" class="relative flex-1">
+    <div v-if="compact" class="relative flex flex-1 items-center justify-center overflow-hidden">
       <StackCanvas
         :cats="cats"
         :active-ids="activeIds"
         :selected-id="selectedId"
-        fill
         @hover="hoveredNode = $event"
         @select="toggleNode($event)"
       />

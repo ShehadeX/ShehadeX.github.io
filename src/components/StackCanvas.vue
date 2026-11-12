@@ -29,12 +29,13 @@ interface Props {
   /** 选中项目时该项目用到的技术 id；null 表示未筛选 */
   activeIds: string[] | null
   /**
-   * 填满父容器高度。
+   * 画布高度（px）。
    *
-   * 右侧图谱在首页是与左栏视觉对齐的（底部同一高度），
-   * 所以画布不能自己按视口算高度 —— 要跟着卡片容器一起拉伸。
+   * 固定值 —— 不做任何动态计算。
+   * 父容器（卡片）用 flex 把它撑到与左栏等高，
+   * 画布本身留白居中即可，节点布局不受容器影响。
    */
-  fill?: boolean
+  height?: number
   /**
    * 持久选中的节点 id。
    *
@@ -77,12 +78,9 @@ interface GNode {
   note: string
   projects: string[]
   count: number
-  /** 最终静态坐标 */
+  /** 静态坐标 */
   x: number
   y: number
-  /** 入场动画的锚点（起点为画布中心） */
-  ax: number
-  ay: number
   /** 标签绘制信息（避让后回填） */
   lx: number
   ly: number
@@ -97,12 +95,6 @@ interface GLink {
 const nodes = shallowRef<GNode[]>([])
 const links = shallowRef<GLink[]>([])
 
-/** 确定性伪随机：布局每次加载完全一致 */
-const seeded = (i: number) => {
-  const x = Math.sin(i * 127.1 + 311.7) * 43758.5453
-  return x - Math.floor(x)
-}
-
 /* ------------------------------------------------------------------ */
 /*  画布                                                              */
 /* ------------------------------------------------------------------ */
@@ -110,8 +102,17 @@ const seeded = (i: number) => {
 const wrapEl = ref<HTMLDivElement | null>(null)
 const canvasEl = ref<HTMLCanvasElement | null>(null)
 
+/**
+ * 固定画布高度。
+ *
+ * About 区的两栏都是 760px 高，
+ * 卡片头（项目筛选条）约占 48px，
+ * 所以画布区约 700px —— 与左栏底部对齐。
+ */
+const FIXED_H = 700
+
 const cssW = ref(900)
-const cssH = ref(620)
+const cssH = ref(FIXED_H)
 
 /** 窄屏：标签放不下，只显示分类名 */
 const isNarrow = computed(() => cssW.value < 560)
@@ -123,10 +124,21 @@ let ctx: CanvasRenderingContext2D | null = null
 /* ------------------------------------------------------------------ */
 
 /**
- * 静态布局：枢纽沿圆周排布，技术项按扇区分布在各自枢纽周围。
+ * 静态布局：**玫瑰式（rose / pinwheel）**。
  *
- * 完全确定性 —— 不含任何随机数种子以外的自由度，
- * 同样的输入永远得到同样的输出。刷新页面图谱不会跳动。
+ * 结构：
+ *   - 6 个枢纽排在椭圆环上，彼此等角分布
+ *   - 每个领域的技术项在**该枢纽的扇形里**，呈同心弧排列
+ *     （内圈 → 中圈 → 外圈），扇形沿"背离中心"的方向张开
+ *   - 同一圈内的项按角位置均匀铺开，弧向间距恒定 —— 不重叠、不拥挤
+ *
+ * 关键改进（相比之前的随机半径 + 自由松弛）：
+ *   1. **无随机**。位置完全由 (领域序号, 项序号) 决定，
+ *      每次渲染结果一模一样，不会跳动。
+ *   2. **有秩序**。同一领域的技术在视觉上是一个紧凑的花簇，
+ *      一眼能看出"这个领域有哪些技术"。
+ *   3. **不越界**。松弛时限制每个项的角度必须在自己的扇形内，
+ *      所以不会跑到隔壁领域的地盘上。
  */
 function buildLayout() {
   const w = cssW.value
@@ -139,24 +151,24 @@ function buildLayout() {
   const ls: GLink[] = []
 
   const nCat = Math.max(1, props.cats.length)
-  /** 枢纽所在圆环的半径 */
-  const hubRing = base * 0.33
-  /** 每个扇区张开的角度 */
-  const wedge = (Math.PI / nCat) * 0.94
+  /** 每个领域占的角度 */
+  const sector = (Math.PI * 2) / nCat
+  /** 扇形张角（留一点间隙，视觉上分得开） */
+  const wedge = sector * 0.88
+  /** 枢纽椭圆环的半径 */
+  const rx = w * 0.27
+  const ry = h * 0.25
 
-  let k = 0
   props.cats.forEach((cat, ci) => {
-    const a = -Math.PI / 2 + (ci * Math.PI * 2) / nCat
-    const hx = cx + hubRing * Math.cos(a)
-    const hy = cy + hubRing * Math.sin(a)
+    const a = -Math.PI / 2 + ci * sector
+    const hx = cx + rx * Math.cos(a)
+    const hy = cy + ry * Math.sin(a)
 
     ns.push({
       id: cat.id,
       name: cat.name,
       x: hx,
       y: hy,
-      ax: cx,
-      ay: cy,
       r: 9,
       kind: 'hub',
       category: cat.id,
@@ -169,20 +181,40 @@ function buildLayout() {
       anchor: 'middle',
     })
 
-    const items = cat.items
+    /**
+     * 技术项排布。
+     *
+     * 按「被项目用得最多」排序 → 用得多的放内圈（更靠近枢纽），
+     * 这与放射关联的语义一致：枢纽附近是这个领域的核心。
+     */
+    const items = [...cat.items].sort(
+      (p, q) => q.projects.length - p.projects.length || p.name.localeCompare(q.name),
+    )
+    const n = items.length
+
+    /** 需要几圈来放 n 个项（每圈最多 6 个，保证弧向间距足够） */
+    const RINGS = Math.max(1, Math.ceil(n / 5))
+    const perRing = Math.ceil(n / RINGS)
+
     items.forEach((it, j) => {
-      k++
-      // 在扇区内均匀铺开，再叠一点确定性抖动避免死板
-      const frac = items.length > 1 ? (j + 0.5) / items.length : 0.5
-      const ang = a - wedge + frac * wedge * 2 + (seeded(k) - 0.5) * 0.16
-      const rad = base * (0.11 + seeded(k + 999) * 0.26)
+      const ring = Math.min(RINGS - 1, Math.floor(j / perRing))
+      const inRing = j - ring * perRing
+      const inRingCount = Math.min(perRing, n - ring * perRing)
+
+      /** 该项在扇形内的角位置 */
+      const t = (inRing + 0.5) / inRingCount
+      const spread = (t - 0.5) * wedge
+      /** 绝对角 = 枢纽方向 + 扇形内偏移 */
+      const ang = a + spread
+
+      /** 圈半径：离枢纽的距离，越外圈越远 */
+      const ringR = base * (0.2 + ring * 0.09)
+
       ns.push({
         id: it.id,
         name: it.name,
-        x: cx + rad * Math.cos(ang),
-        y: cy + rad * Math.sin(ang),
-        ax: cx,
-        ay: cy,
+        x: hx + ringR * Math.cos(ang),
+        y: hy + ringR * Math.sin(ang),
         r: 3.4 + it.projects.length * 1.1,
         kind: 'item',
         category: cat.id,
@@ -199,13 +231,20 @@ function buildLayout() {
   })
 
   /**
-   * 静态松弛：一次性把重叠的节点推开。
+   * 静态松弛：把重叠推开，但**不许离开自己的扇形**。
    *
-   * 这不是物理模拟 —— 是有限次迭代的确定性求解，
-   * 算完就结束，页面静止时不会再跑。
+   * 这不是物理模拟 —— 有限次迭代的确定性求解，算完即止。
+   * 每次推开后立刻把角度夹回扇形范围内，
+   * 所以技术项永远留在自己领域的那一瓣里。
    */
-  const ITER = 260
-  const anchors = ns.map((n) => ({ x: n.x, y: n.y }))
+  const ITER = 140
+  const hubByCat = new Map<string, { x: number; y: number; a: number }>()
+  props.cats.forEach((cat, ci) => {
+    const a = -Math.PI / 2 + ci * sector
+    const h = ns.find((n) => n.id === cat.id)!
+    hubByCat.set(cat.id, { x: h.x, y: h.y, a })
+  })
+
   for (let step = 0; step < ITER; step++) {
     for (let i = 0; i < ns.length; i++) {
       for (let j = i + 1; j < ns.length; j++) {
@@ -214,7 +253,7 @@ function buildLayout() {
         const dx = b.x - a.x
         const dy = b.y - a.y
         const d = Math.hypot(dx, dy)
-        const min = a.r + b.r + 16
+        const min = a.r + b.r + 14
         if (d >= min || d < 0.001) continue
         const push = (min - d) / 2
         const ux = dx / d
@@ -225,13 +264,25 @@ function buildLayout() {
         b.y += uy * push
       }
     }
-    // 拉回锚点 + 限制在画布内
-    for (let i = 0; i < ns.length; i++) {
-      const n = ns[i]!
-      const a = anchors[i]!
-      n.x += (a.x - n.x) * 0.035
-      n.y += (a.y - n.y) * 0.035
-      const m = n.kind === 'hub' ? 46 : 34
+
+    // 夹回扇形 + 限制在画布内
+    for (const n of ns) {
+      if (n.kind === 'item') {
+        const hub = hubByCat.get(n.category)!
+        const ang = Math.atan2(n.y - hub.y, n.x - hub.x)
+        let rel = ang - hub.a
+        // 归一化到 [-π, π]
+        while (rel > Math.PI) rel -= Math.PI * 2
+        while (rel < -Math.PI) rel += Math.PI * 2
+        const lim = wedge / 2
+        if (rel > lim || rel < -lim) {
+          const fixed = hub.a + Math.max(-lim, Math.min(lim, rel))
+          const d = Math.hypot(n.x - hub.x, n.y - hub.y)
+          n.x = hub.x + d * Math.cos(fixed)
+          n.y = hub.y + d * Math.sin(fixed)
+        }
+      }
+      const m = n.kind === 'hub' ? 46 : 30
       n.x = Math.min(w - m, Math.max(m, n.x))
       n.y = Math.min(h - m, Math.max(m, n.y))
     }
@@ -723,29 +774,21 @@ function measure() {
   if (w < 10) return
 
   /**
-   * 画布高度上限受视口高度约束。
+   * 画布高度：**固定常量**，不读父容器、不看视口。
    *
-   * 如果画布比视口还高，锁定后图谱就得内部滚动 ——
-   * 那正是之前那种异步滑动。所以这里把高度压到视口内。
-   */
-  const vh = window.innerHeight
-  const maxH = Math.max(420, vh - 190)
-  const desired =
-    w < 560
-      ? Math.round(Math.max(520, Math.min(720, w * 1.5)))
-      : Math.round(Math.max(560, Math.min(820, w * 0.92)))
-  let targetH = Math.round(Math.min(desired, maxH))
-
-  /**
-   * 填满模式：画布高度 = 容器可用高度。
+   * 之前高度是动态算出来的（读父容器 clientHeight / 视口高度），
+   * 这带来一个连锁反应：
+   *   左栏内容变高 → 父容器变高 → 画布重测 → 重新布局 → 节点跳动
    *
-   * 容器被 flex 拉成和左栏等高，取它的 clientHeight，
-   * 两栏底部就齐平了。
+   * 而且 ResizeObserver 会在布局稳定后再触发一次，
+   * 动态高度下这条链路会反复触发。
+   *
+   * 改成固定高度后：
+   *   - 画布尺寸永远不变，节点位置永远不变
+   *   - 只有宽度变化（窗口缩放）才重新布局
+   *   - 左栏随便怎么变都不影响右栏
    */
-  if (props.fill) {
-    const hostH = el.clientHeight
-    if (hostH > 120) targetH = hostH
-  }
+  const targetH = props.height ?? FIXED_H
 
   /**
    * 设备像素比上限 1.5。
@@ -837,18 +880,13 @@ watch(
 <template>
   <!--
     外层 wrapEl 是画布的测量基准。
-    fill 模式下它取父容器高度（父容器由 flex 拉成与左栏等高），
-    画布绝对定位铺满，避免「画布决定容器高度、容器又决定画布高度」的循环。
+    画布高度是固定常量，容器高度与之无关 ——
+    所以这里不需要绝对定位，也不存在"容器决定画布、画布决定容器"的循环。
   -->
-  <div
-    ref="wrapEl"
-    class="relative w-full overflow-hidden"
-    :class="fill ? 'h-full' : ''"
-  >
+  <div ref="wrapEl" class="relative flex w-full items-center justify-center overflow-hidden">
     <canvas
       ref="canvasEl"
-      class="block w-full touch-none select-none"
-      :class="fill ? 'absolute inset-0' : ''"
+      class="block touch-none select-none"
       role="img"
       aria-label="技术栈关系图谱"
       @pointermove="onPointerMove"

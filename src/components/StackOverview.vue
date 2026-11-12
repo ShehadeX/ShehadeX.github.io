@@ -67,12 +67,24 @@ const isCategoryActive = (id: string) => focusedNode.value?.category === id
 
 <template>
   <!--
-    固定最小高度：概要态与选中态内容长度差别很大，
-    不锁定的话左栏会在 hover 时突然变高/变矮，
-    右侧图谱跟着拉伸 → 抖动。
-    锁定后左栏高度恒定，右栏画布按它填满，两栏底部永远齐平。
+    技术选型面板。
+
+    高度策略：**不设 min-height**，而是 `flex-1` 撑满左栏剩余空间，
+    内容超出时**在面板内部滚动**。
+
+    为什么不用 min-h：
+      概要态只有几行，选中态会展开 10+ 项技术，
+      min-height 只能保证"不低于"—— 选中态一变高，
+      左栏就被撑高 → 右栏画布重新测量 → 节点跳动。
+
+    为什么不用固定 height：
+      面板本身没有独立的滚动条（是左栏整体在滚），
+      固定高度反而会在小屏上截断内容。
+
+    flex-1 + overflow-auto 让它吃掉左栏所有剩余高度，
+    自身内容再长也不会影响外层布局 → 右栏画布高度恒定。
   -->
-  <div class="mt-5 min-h-[420px] border-t border-ink/10 pt-4">
+  <div class="mt-5 flex min-h-0 flex-1 flex-col border-t border-ink/10 pt-4">
     <!-- 头部 -->
     <div class="flex items-baseline gap-2.5">
       <span class="eyebrow">{{ isEn ? 'Tech Stack' : '技术选型' }}</span>
@@ -91,7 +103,7 @@ const isCategoryActive = (id: string) => focusedNode.value?.category === id
       </span>
     </div>
 
-    <div class="mt-3.5">
+    <div class="mt-3.5 min-h-0 flex-1 overflow-y-auto lg:pr-1">
       <!-- 选中了某个分类节点 / 该分类下的技术节点 -->
       <div v-if="activeCategory">
         <div class="flex items-baseline gap-2.5">
