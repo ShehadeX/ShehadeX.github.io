@@ -476,6 +476,211 @@ export const galleries: GalleryEntry[] = [
       },
     ],
   },
+  /* ---------------------------------------------------------------- */
+  /*  多元发展 —— 国际化视野与课外                                      */
+  /* ---------------------------------------------------------------- */
+  {
+    slug: 'multi',
+    title: '多元发展',
+    subtitle: '国际化视野与项目之外的成长',
+    category: '拓展',
+    cover: '/img/gallery/multi-ma-liu-jia-hai-xia-de-ri-chu.webp',
+    coverRatio: ratio(2000, 1500),
+    intro:
+      '技术之外的那些部分：一次中美联合课题、一段在新加坡的暑期、一门辅修的无人机课。这张照片画廊记录的是项目表格装不下的东西 —— 我在课堂之外、实验室之外长大的那些部分。',
+    photos: [
+      {
+        src: '/img/gallery/multi-zhong-mei-ping-ping-qiu-guan-jun.webp',
+        caption: '中美交流 · 我们是乒乓球冠军',
+        note: '中美学生交流活动，乒乓球友谊赛上我们拿下了冠军。',
+        story:
+          '赛前没人练过多久，纯粹靠业余爱好打下来的。但那种「明明都不太会打却都拼得很凶」的气氛，是实验室里很难遇到的东西 —— 在那里，聪明是默认的，在这里，赢球靠的是不放弃。',
+        place: '国内 · 中美交流营',
+        date: '2025-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/multi-jie-ying-zheng-shu.webp',
+        caption: '结营证书',
+        note: '中美交流项目的结营证书。',
+        story:
+          '证书本身没什么特别，但拿到它的时候才真切地意识到：这是我第一次以「学生」而不是「开发者」的身份参与一件事 —— 不需要我写任何代码。',
+        place: '国内',
+        date: '2025-07',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-shi-yan-shi-nei-jing.webp',
+        caption: '实验室外景',
+        note: '交流期间的实验室参观。',
+        story:
+          '参观别人的实验室是最能看出差距的时刻。他们的设备、流程、记录规范都和我在深圳待的地方不一样 —— 那种「原来还能这么规范」的感觉，是这次交流最实际的收获。',
+        place: '国内',
+        date: '2025-07',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-yu-yu-wei-shi-he-ying.webp',
+        caption: '与鱼尾狮合影',
+        note: '新加坡河畔的经典打卡点。',
+        story:
+          '第一次到新加坡。这张照片旁边就是那座狮身鱼尾像 —— 当时觉得它有点夸张，后来看多了反而喜欢上了这种「把传说做成实物」的做法。',
+        place: '新加坡 · 河畔',
+        date: '2025-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/multi-ma-liu-jia-hai-xia-de-ri-chu.webp',
+        caption: '马六甲海峡的日出',
+        note: '从新加坡过境马六甲时看到的清晨。',
+        story:
+          '早上五点大巴就出发了，车上大半人都在睡。我一直看着窗外 —— 海峡上零星几艘船，天一点点亮起来。那一刻忽然理解了为什么马六甲是这么重要的一个地方。',
+        place: '马来西亚 · 马六甲',
+        date: '2025-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/multi-hao-hua-da-ba-che-piao.webp',
+        caption: '豪华大巴车票',
+        note: '新加坡到马六甲的跨境大巴票。',
+        story:
+          '票根留下来了。这种细节后来在整理相册时经常冒出来 —— 它们比照片更能说明「我确实走过那段路」。',
+        place: '新加坡 → 马六甲',
+        date: '2025-07',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-jiao-tang.webp',
+        caption: '新加坡圣公会教堂',
+        note: '殖民时期留下的教堂建筑，绿树与彩色玻璃窗。',
+        story:
+          '新加坡的很多建筑都带着殖民时期的痕迹，但它们没有被当成历史包袱，而是变成了这个城市风景的一部分。技术之外，这种「怎么对待旧东西」的思路挺启发我的。',
+        place: '新加坡',
+        date: '2025-07',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-jiao-tang-nei-jing.webp',
+        caption: '教堂内景',
+        note: '教堂内部的彩色玻璃窗。',
+        story:
+          '光从彩窗打进来的时候，颜色落在石板地上。我在那儿站了很久，什么也没想 —— 这在项目密集的那两年里是很奢侈的事。',
+        place: '新加坡',
+        date: '2025-07',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-xin-jia-po-qing-zhen-si.webp',
+        caption: '新加坡清真寺',
+        note: '苏丹回教堂，洋葱顶与藤蔓纹样。',
+        story:
+          '东南亚的宗教建筑几乎都有这种繁复的植物纹样。国内的清真寺我只在书上见过 —— 亲自站在下面，那种尺度感完全不一样。',
+        place: '新加坡',
+        date: '2025-07',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-lai-fu-shi-hua-yuan.webp',
+        caption: '来福士花园',
+        note: '新加坡的空中花园与城市天际线。',
+        story:
+          '在顶层看了整个新加坡。一个多世纪前这里是一片沼泽，现在能俯瞰整个港城 —— 这种变化速度，是我做工程时不太会去想的事。',
+        place: '新加坡 · 乌节路',
+        date: '2025-07',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-bo-wu-guan-wai-jing.webp',
+        caption: '国家博物馆外景',
+        note: '新加坡国家博物馆，白色殖民风格建筑。',
+        story: '去博物馆是为了看一场关于马来半岛的展。看完之后才明白这个国家的位置有多尴尬 —— 夹在几条巨大的文明之间。',
+        place: '新加坡',
+        date: '2025-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/multi-guo-jia-bo-wu-guan-li-de-li-shi-ji-lu.webp',
+        caption: '博物馆里的历史记录',
+        note: '馆内关于新加坡建国历程的展陈。',
+        story:
+          '展陈把一个多元移民国家的形成过程讲得很清楚 —— 语言、宗教、族群，全在一栋楼里交错。那一刻我想到自己在做的东西：防返贫 Agent 要解决的也是「不同来源的数据怎么对得上」。',
+        place: '新加坡 · 国家博物馆',
+        date: '2025-07',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-zai-xin-jia-po-bo-wu-guan-liu-yan.webp',
+        caption: '在新加坡国家博物馆留言',
+        note: '在馆内的留言墙上写下的字。',
+        story:
+          '留言墙是博物馆给访客留的。我当时写了什么现在也看不太清了，只记得犹豫了很久 —— 在一个全是陌生语言的地方写字，比说话更需要勇气。',
+        place: '新加坡 · 国家博物馆',
+        date: '2025-07',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-shu-dong.webp',
+        caption: '树洞',
+        note: '校园里的网红树洞装置。',
+        story:
+          '国内高校里这种装置不多见，有种「把情绪可视化」的意味。写留言的人大概不会想太多，但树洞本身的存在就是一种允许。',
+        place: '国内 · 校园',
+        date: '2025-09',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/multi-dao-you-de-ying-guo-shen-shi.webp',
+        caption: '导游的英国绅士',
+        note: '行程中的导游，标准的英式幽默与礼节。',
+        story:
+          '导游全程拿相机拍我们，自己却几乎不出现在照片里。有一张是他拍的 —— 后来我发现自己在后面所有照片里找他。这是这趟行程里最微妙的一课：记录者与被记录者的位置。',
+        place: '新加坡',
+        date: '2025-07',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/multi-hu-lian-wang-da-sai.webp',
+        caption: '互联网+ 大赛',
+        note: '参加互联网+ 大赛的现场。',
+        story:
+          '比赛那几天在打磨路演。评委的问题比评委的评分更让我在意 —— 有个问题当场就把我问住了，那天晚上改到两点。',
+        place: '国内',
+        date: '2025-08',
+        ratio: ratio(2000, 1500),
+      },
+      {
+        src: '/img/gallery/multi-fu-xiu-de-wu-ren-ji-ke-cheng.webp',
+        caption: '辅修的无人机专业课',
+        note: '辅修专业的课堂，飞行原理与实操。',
+        story:
+          '这是我这几年做过的最不「有用」的一门课。飞控、空气动力、姿态估计 —— 和我的 EEG 解码研究八竿子打不着。但学完之后再看待无人机俯拍的脑电实验机位，忽然能理解一些以前只是照着做的参数为什么是那样。',
+        place: '国内 · 校园',
+        date: '2025-10',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-cheng-guo-kt-ban.webp',
+        caption: '成果 KT 版',
+        note: '团队成果展示的 KT 版面。',
+        story:
+          '把一段时间的成果排成一面墙。排版的过程其实是一次强制总结 —— 哪些真的做出来了、哪些只是想过，能一眼看出来。',
+        place: '国内',
+        date: '2025-11',
+        ratio: ratio(1500, 2000),
+      },
+      {
+        src: '/img/gallery/multi-sheng-li-hui-shi.webp',
+        caption: '胜利会师',
+        note: '与合作伙伴的会师合影。',
+        story:
+          '照片里每个人都在笑，但只有我们知道前一周是怎么熬过来的。这种「共同熬过某件事」的关系，比任何履历上的描述都牢。',
+        place: '国内',
+        date: '2025-12',
+        ratio: ratio(1475, 2000),
+      },
+    ],
+  },
+
 ]
 
 export const getGallery = (slug: string) => galleries.find((g) => g.slug === slug)
