@@ -208,17 +208,7 @@ const internships = [
             <p class="mt-6 text-[20px] leading-[1.42] text-ink sm:text-[24px]">
               <span class="flex flex-nowrap items-center gap-2 whitespace-nowrap">
                 <span class="rise rise-3">{{ t('hero.tagline') }}</span>
-                <span class="rise rise-3 inline-flex shrink-0 items-center gap-1.5">
-                  <img
-                    src="/img/social/robot.png"
-                    alt=""
-                    width="32"
-                    height="32"
-                    class="h-[1.1em] w-[1.1em] shrink-0 object-contain"
-                    aria-hidden="true"
-                  />
-                  <span class="marker marker-reveal text-claude">{{ t('hero.tagline.native') }}</span>
-                </span>
+                <span class="rise rise-3 shrink-0">{{ t('hero.tagline.native') }}</span>
                 <span class="rise rise-3">{{ t('hero.tagline2') }}</span>
               </span>
               <span class="mt-1 block">
