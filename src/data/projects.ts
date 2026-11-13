@@ -550,7 +550,7 @@ export const projects: Project[] = [
         '系统完成上线与本地部署，已在广东省人民医院老年康复科与广州港麓湖一号康颐养医院完成测试并落地使用。',
     },
     facts: [
-      { label: '内置量表', value: '9 套' },
+      { label: '内置量表', value: '21 套' },
       { label: '执行标准', value: 'WS/T 888—2026' },
       { label: '落地场景', value: '2 家医疗机构' },
       { label: '角色模型', value: '管理员 / 评估员' },
@@ -662,7 +662,7 @@ export const projects: Project[] = [
         title: 'Results — 上线状态与验证范围',
         body: [
           '系统已完成上线与本地部署，在广东省人民医院老年康复科与广州港麓湖一号康颐养医院完成测试。',
-          '已接入量表包括 MMSE、GDS-15、MORSE、GAD-7、EAT-10、FRAIL、Fried、MNA-SF、AIS 九套，覆盖认知、情绪、跌倒、焦虑、吞咽、衰弱、营养与睡眠八个维度。',
+          '系统内置 21 套量表，覆盖认知、情绪、跌倒、焦虑、吞咽、衰弱、营养与睡眠八个维度，包括 MMSE、GDS-15、MORSE、GAD-7、EAT-10、FRAIL、Fried、MNA-SF、AIS 等。',
           '标准侧：依据 WS/T 888—2026，在该标准正式实施前的短时间内完成系统上线，并通过校企合作把开发与运营成本压到最低，为后续推广留出空间。',
         ],
       },

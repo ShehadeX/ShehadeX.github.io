@@ -379,7 +379,7 @@ export const projectsEn: Record<string, EnProject> = {
         'The system is deployed and live, tested and in use at the geriatric rehabilitation department of Guangdong Provincial People’s Hospital and at Guangzhou Konglushan No.1 Wellness Hospital.',
     },
     facts: [
-      { label: 'Scales built in', value: '9' },
+      { label: 'Scales built in', value: '21' },
       { label: 'Standard', value: 'WS/T 888—2026' },
       { label: 'Deployment sites', value: '2 hospitals' },
       { label: 'Roles', value: 'Admin / Assessor' },
@@ -390,7 +390,7 @@ export const projectsEn: Record<string, EnProject> = {
         no: '01',
         title: 'Problem — the real constraints of clinical flow',
         body: [
-          'CGA (Comprehensive Geriatric Assessment) is not a form; it is a combination of scales. MMSE, GDS-15, MORSE, GAD-7, EAT-10, FRAIL, Fried, MNA-SF and AIS each carry their own question types, scoring and interpretation rules.',
+          'CGA (Comprehensive Geriatric Assessment) is not a form; it is a combination of scales — 21 in total. MMSE, GDS-15, MORSE, GAD-7, EAT-10, FRAIL, Fried, MNA-SF and AIS each carry their own question types, scoring and interpretation rules.',
           'The pain in a hospital is concrete: adding a new scale means changing code, and assessment results cannot easily be aggregated horizontally into the conclusion the rehabilitation department actually needs.',
           'Cost is equally concrete: paper-based determination means patients travel to the ward or staff visit at home, costing RMB 20–50 per scale and hundreds to thousands per full assessment — and clinical judgement depends on subjective physician assessment, which cannot scale.',
         ],
@@ -498,7 +498,7 @@ export const projectsEn: Record<string, EnProject> = {
         title: 'Results — deployment status and validation scope',
         body: [
           'The system is live and locally deployed, tested at the geriatric rehabilitation department of Guangdong Provincial People’s Hospital and at Guangzhou Konglushan No.1 Wellness Hospital.',
-          'Nine scales are integrated — MMSE, GDS-15, MORSE, GAD-7, EAT-10, FRAIL, Fried, MNA-SF and AIS — covering cognition, mood, fall risk, anxiety, swallowing, frailty, nutrition and sleep.',
+          'Twenty-one scales are built in, covering cognition, mood, fall risk, anxiety, swallowing, frailty, nutrition and sleep — including MMSE, GDS-15, MORSE, GAD-7, EAT-10, FRAIL, Fried, MNA-SF and AIS.',
           'On the standards side the system went live within a short window before WS/T 888—2026 took formal effect, and university-industry collaboration pushed development and operating cost down to leave room for wider rollout.',
         ],
       },
