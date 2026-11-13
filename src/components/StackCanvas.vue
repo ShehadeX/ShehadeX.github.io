@@ -157,9 +157,9 @@ function buildLayout() {
    * 在 520~1200px 宽度范围内，配合下面的自适应收缩，
    * 节点与标签都不会越界、不会重叠。
    */
-  const BASE_HUB = 60
-  const BASE_STEP = 46
-  const BASE_LAT = 40
+  const BASE_HUB = 52
+  const BASE_STEP = 38
+  const BASE_LAT = 34
 
   /**
    * 自适应收缩。
@@ -174,9 +174,9 @@ function buildLayout() {
   for (let attempt = 0; attempt < 30; attempt++) {
     const placed = placeDendrite(hubR, step, lat)
     if (fitsInCanvas(placed, w, h)) break
-    hubR = Math.max(30, Math.round(hubR * 0.94))
-    step = Math.max(28, Math.round(step * 0.94))
-    lat = Math.max(20, Math.round(lat * 0.94))
+    hubR = Math.max(28, Math.round(hubR * 0.94))
+    step = Math.max(24, Math.round(step * 0.94))
+    lat = Math.max(18, Math.round(lat * 0.94))
   }
 
   const placed = placeDendrite(hubR, step, lat)
@@ -331,7 +331,8 @@ function placeDendrite(hubR: number, step: number, lat: number): Dendrite {
  * 宁可多收缩一点，也不要让任何东西被裁掉。
  */
 function fitsInCanvas(d: Dendrite, w: number, h: number): boolean {
-  const PAD = 12
+  /** 余量：节点圆点 + 标签引导线都要留出空间，不能贴边 */
+  const PAD = 14
   for (const n of d.nodes) {
     if (n.x < PAD || n.x > w - PAD || n.y < PAD || n.y > h - PAD) return false
   }
