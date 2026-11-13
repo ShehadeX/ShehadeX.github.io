@@ -68,10 +68,14 @@ const pos = ref(0)
 /**
  * 用户是否手动操作过。
  *
- * 一旦点过就永久停止自动播放 —— 用户既然想自己控制，
- * 就不该再被自动轮播抢走节奏。
+ * 点过之后暂停自动播放，让用户自己掌控节奏；
+ * 但 **10 秒后自动恢复** —— 避免「点了一下之后轮播就死了」，
+ * 也避免用户离开后画面长期停在原地。
  */
 const userPaused = ref(false)
+
+/** 手动操作后自动恢复的延迟（ms） */
+const RESUME_DELAY = 10_000
 
 /** 鼠标悬停中（临时暂停） */
 const hovering = ref(false)
@@ -204,6 +208,8 @@ const dwellFor = (i: number) => 3400 + jitter(i) * 2800
 let rafId: number | null = null
 /** 等待阶段的定时器 */
 let waitTimer: number | null = null
+/** 手动操作后自动恢复的定时器 */
+let resumeTimer: number | null = null
 
 /** 滑动阶段：逐帧插值 */
 const rafTick = (now: number) => {
@@ -276,6 +282,39 @@ const glideTo = (to: number, dur: number) => {
   if (rafId === null) rafId = requestAnimationFrame(rafTick)
 }
 
+/**
+ * 恢复自动播放。
+ *
+ * 10 秒倒计时结束、或用户点「继续播放」时调用。
+ */
+const resumeAuto = () => {
+  if (resumeTimer !== null) {
+    clearTimeout(resumeTimer)
+    resumeTimer = null
+  }
+  userPaused.value = false
+  scheduleNext()
+}
+
+/**
+ * 手动操作后：暂停并启动 10 秒恢复倒计时。
+ *
+ * 每次操作都重置计时器 —— 用户连续操作时不该中途被抢走节奏。
+ */
+const pauseTemporarily = () => {
+  userPaused.value = true
+  if (waitTimer !== null) {
+    clearTimeout(waitTimer)
+    waitTimer = null
+  }
+  if (resumeTimer !== null) clearTimeout(resumeTimer)
+  resumeTimer = window.setTimeout(() => {
+    resumeTimer = null
+    userPaused.value = false
+    scheduleNext()
+  }, RESUME_DELAY)
+}
+
 /** 前进/后退一格 */
 const step = (dir: number) => {
   const n = total.value
@@ -284,17 +323,17 @@ const step = (dir: number) => {
 }
 
 const prev = () => {
-  userPaused.value = true
+  pauseTemporarily()
   step(-1)
 }
 const next = () => {
-  userPaused.value = true
+  pauseTemporarily()
   step(1)
 }
 
 /** 点击侧卡 → 把它滑到中心 */
 const jumpTo = (idx: number) => {
-  userPaused.value = true
+  pauseTemporarily()
   glideTo(idx, 620)
 }
 
@@ -329,6 +368,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (rafId !== null) cancelAnimationFrame(rafId)
   if (waitTimer !== null) clearTimeout(waitTimer)
+  if (resumeTimer !== null) clearTimeout(resumeTimer)
   io?.disconnect()
 })
 </script>
@@ -436,13 +476,25 @@ onBeforeUnmount(() => {
             :style="{ width: `${((focusIdx + 1) / total) * 100}%` }"
           />
         </div>
-        <span
+        <!--
+          暂停状态提示。
+          手动操作后暂停，10 秒后自动恢复；也可以点这里立即恢复。
+        -->
+        <button
           v-if="userPaused"
-          class="font-mono text-[10px] text-ink-faint"
-          title="自动播放已暂停"
+          type="button"
+          class="group flex items-center gap-1.5 font-mono text-[10px] text-ink-faint transition-colors duration-150 hover:text-claude"
+          title="已暂停，10 秒后自动播放（点击立即恢复）"
+          @click="resumeAuto"
         >
-          PAUSED
-        </span>
+          <span
+            class="flex size-3.5 items-center justify-center rounded-full border border-current transition-colors duration-150 group-hover:border-claude"
+            aria-hidden="true"
+          >
+            <span class="ml-px block size-1.5 bg-current transition-colors duration-150 group-hover:bg-claude" />
+          </span>
+          <span class="tracking-[0.1em]">10s 后自动播放</span>
+        </button>
       </div>
 
       <button
