@@ -158,6 +158,18 @@ export const stackCategories: StackCategory[] = [
         note: '前后端解耦的标准契约，也是产品能独立部署的前提。',
         projects: ['bidos', 'cga-smart', 'fupan'],
       },
+      {
+        id: 'redis',
+        name: 'Redis',
+        note: '缓存与任务队列：模型推理结果按会话缓存避免重复算力，长耗时任务丢进队列异步消化。',
+        projects: ['bidos', 'fupan'],
+      },
+      {
+        id: 'websocket',
+        name: 'WebSocket',
+        note: '长连接实时推送：BidOS 六阶段的处理进度、MoCA 设备采集状态都靠它推到前端，不靠轮询。',
+        projects: ['bidos', 'moca'],
+      },
     ],
   },
   {
@@ -370,6 +382,18 @@ export const stackCategories: StackCategory[] = [
         name: 'Postman',
         note: '接口联调与集合回归，把接口用例沉淀成可复跑的集合，交付前跑一遍就是一轮冒烟测试。',
         projects: ['bidos'],
+      },
+      {
+        id: 'compose',
+        name: 'Docker Compose',
+        note: '本地一键拉起完整依赖栈（后端 + 数据库 + 向量库 + 模型服务），新环境搭起来不用手敲十条命令。',
+        projects: ['bidos', 'fupan'],
+      },
+      {
+        id: 'monitor',
+        name: 'Prometheus / Grafana',
+        note: '服务指标采集与告警看板：接口耗时、队列堆积、模型调用失败率都能落到图上，异常自动推送到值班群。',
+        projects: ['bidos', 'portfolio'],
       },
     ],
   },
