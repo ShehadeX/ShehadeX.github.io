@@ -8,7 +8,7 @@ import { t } from '@/composables/useI18n'
  * 项目卡片（首页精选区）。
  *
  * 布局：左侧描述 + 右侧项目截图轮播。
- * 左侧 = 标题 / 副标题 / 摘要 / 标签 / BEFORE-BUILT-AFTURE / 周期 / 详情链接；
+ * 左侧 = 标题 / 副标题 / 摘要 / BEFORE-BUILT-AFTURE / 周期 / 详情链接；
  * 右侧 = 只有轮播图，自动定时左右滑动，悬停暂停，可手动翻页。
  */
 
@@ -57,10 +57,6 @@ const ratio = computed(() => {
             {{ project.summary }}
           </p>
         </RouterLink>
-
-        <div class="mt-4 flex flex-wrap gap-1.5">
-          <span v-for="tag in project.tags" :key="tag" class="tag">{{ tag }}</span>
-        </div>
 
         <!-- BEFORE / BUILT / AFTER -->
         <dl class="mt-5 grid gap-4 border-t border-ink/10 pt-4 sm:grid-cols-3">

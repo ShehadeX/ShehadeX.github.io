@@ -67,7 +67,6 @@ export interface Project {
   coverCaption: string
   /** 封面比例，默认 16 / 10；手机竖屏截图用 736 / 1600 */
   coverRatio?: string
-  tags: string[]
   stack: string[]
   period: string
   role: string
@@ -243,7 +242,6 @@ export const projects: Project[] = [
       '把材料导入、初判、深度分析、目录生成、章节准备、编制导出拆成六阶段 AI 工作流，来源、人工确认与交付边界全部纳入系统流程。',
     cover: asset('/img/bidos/cover-bidos.webp'),
     coverCaption: 'BidOS 招投标智能编制系统 · 六阶段工作台主界面',
-    tags: ['Vue 3', 'Flask', 'Python', 'SQLite', 'LLM', 'Workflow'],
     stack: ['Vue 3', 'Flask / Python', 'SQLite', '文件系统产物', '模型适配层'],
     period: '2026.07 – 2026.12',
     role: '产品设计与全栈开发（实习）',
@@ -539,7 +537,6 @@ export const projects: Project[] = [
       '依据 WS/T 888—2026 构建大模型驱动的轻量化老年综合评估系统，把量表引擎、评分规则与多条件汇总拆成可扩展的独立模块。',
     cover: asset('/img/cga/cover.webp'),
     coverCaption: 'CGA-Smart 老年综合评估系统 · 广东工业大学 × 广东省人民医院 联合研发',
-    tags: ['Vue 3', 'Vite', 'TypeScript', 'Element Plus', 'Pinia', 'ECharts', 'LLM'],
     stack: ['Vue 3', 'Vite 5', 'TypeScript', 'Element Plus', 'Pinia', 'ECharts', 'Spring Boot'],
     period: '2026.06 – 至今',
     role: '全栈开发（实习，独立完成全链路）',
@@ -786,7 +783,6 @@ export const projects: Project[] = [
       '把 MoCA 14 个评估环节数字化，适配多家医院的采集设备，在 20ms 级完成事件打标，把认知测评与脑电信号采集锁进同一条时间轴。',
     cover: asset('/img/moca/cover.webp'),
     coverCaption: 'MoCA 高质量 EEG 数据采集系统 · 统一刺激与作答，同步标注行为与 EEG 信号',
-    tags: ['实验范式', '串口通信', '脑电事件标记', 'Python', '实时打标', '电子化量表'],
     stack: ['串口设备通信', '实时事件打标', '实验范式设计', '数字化量表', 'Python', 'Electron / 桌面端'],
     period: '2025.10 – 至今',
     role: '组长 & 开发者（科研软件开发实习生）',
@@ -1314,7 +1310,6 @@ export const projects: Project[] = [
       '基于 Spring AI 与本地化部署的 Qwen 量化模型，构建带证据推理输出的防返贫风险识别智能体，Agent 与 MCP Tools 结构化插入业务链路。',
     cover: asset('/img/fupanpolymed/fupan-01.webp'),
     coverCaption: '防返贫智能体对话与风险识别',
-    tags: ['Spring AI', 'ReactAgent', 'Qwen', 'LangGraph', 'MCP', '本地部署'],
     stack: ['Spring AI / Spring AI Alibaba', 'ReactAgent', 'OpenAI-compatible 适配', 'vLLM / Qwen 本地部署', 'Next.js', 'LangGraph'],
     period: '2026.07.06 – 2026.07.31',
     role: 'AI 应用研发实习生',
@@ -1490,7 +1485,6 @@ export const projects: Project[] = [
     cover: asset('/img/fupanpolymed/polymed-03.webp'),
     coverCaption: 'PolyMed 智能用药小程序 · 患者端',
     coverRatio: '736 / 1600',
-    tags: ['RAG', '多模态', 'Agent', '微信小程序', '医患协同'],
     stack: ['RAG 用药知识库', 'VL 多模态识别', 'Agent 微服务', '微信小程序', '语音交互'],
     period: '2025.10 – 至今',
     role: '软件开发（团队协作）',
