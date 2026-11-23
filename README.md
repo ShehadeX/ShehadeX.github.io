@@ -1,6 +1,10 @@
 # 肖致浩 · AI Engineering Desk
 
-个人技术作品集网站。终端风格的首页 + 五个项目的独立案例详情页 + ICLR 论文页。
+**简体中文** · [English](README.en.md)
+
+个人技术作品集网站，包含中英文首页、九个项目详情页、研究介绍和图集。
+
+**[查看项目展示](https://shehadex.github.io/#projects)**
 
 **线上地址：**
 
@@ -78,7 +82,8 @@ bash scripts/screenshot-sections.sh /tmp/pf-shots  # 首页分区
 ```
 src/
 ├─ data/
-│  ├─ projects.ts          # 五个项目内容（正文 / 架构图 Mermaid / 图集 / 事实卡）
+│  ├─ projects.ts          # 五个完整案例（正文 / 架构图 / 图集 / 事实卡）
+│  ├─ projectBriefs.ts     # 双语简版项目介绍
 │  └─ research.ts          # ICLR 论文内容（贡献 / 协议 / 关键发现 / 局限 / AI 声明）
 ├─ components/
 │  ├─ SiteHeader.vue       # 顶部导航
@@ -109,8 +114,7 @@ deploy/
 
 ## 内容维护
 
-新增项目只需编辑 `src/data/projects.ts`：追加一个 `Project` 对象即可，
-首页卡片与详情页会自动生成。架构图用 Mermaid 源码内联在同文件的 `diagrams` 字段。
+完整案例的内容在 `src/data/projects.ts`，英文文案在 `src/data/projects.en.ts`。架构图在中文数据的 `diagrams` 字段。简版双语介绍位于 `src/data/projectBriefs.ts`。新增项目时，在 `scripts/postbuild-pages.mjs` 补充对应路径，确保 GitHub Pages 支持直接访问。
 论文页内容集中在 `src/data/research.ts`。
 
 ## 说明
