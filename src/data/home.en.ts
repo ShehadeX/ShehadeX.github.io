@@ -12,6 +12,8 @@ export const projectFiltersEn = [
   { key: 'NEURO / SIGNAL', label: 'Neuro / Signal' },
   { key: 'AI AGENT', label: 'Agent' },
   { key: 'HEALTHCARE', label: 'Healthcare' },
+  { key: 'research', label: 'Research Projects' },
+  { key: 'web', label: 'Web' },
 ]
 
 export const timelineEn = [
@@ -81,7 +83,7 @@ export const researchEn = [
     accent: false,
   },
   {
-    title: 'Open Source & Engineering Practice',
+    title: 'Geriatric Assessment Engineering',
     desc: 'Built a geriatric assessment platform on the yudao microservice system, consolidating the scale engine and multi-module AI capability into the engineering trunk.',
     tag: 'Engineering',
     to: '/project/cga-smart',

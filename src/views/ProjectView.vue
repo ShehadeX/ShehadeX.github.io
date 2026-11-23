@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { useLocalizedProjects } from '@/composables/useLocalizedProjects'
 import { lang } from '@/composables/useI18n'
+import { projectBriefs } from '@/data/projectBriefs'
 import BeforeBuiltAfter from '@/components/BeforeBuiltAfter.vue'
 import CaseToc from '@/components/CaseToc.vue'
 import CaseGallery from '@/components/CaseGallery.vue'
@@ -13,6 +14,10 @@ const route = useRoute()
 const { all: projects, bySlug } = useLocalizedProjects()
 
 const project = computed(() => bySlug(route.params.slug as string))
+const brief = computed(() => {
+  const entry = projectBriefs.find((item) => item.slug === route.params.slug)
+  return entry ? { ...entry, ...entry.copy[lang.value] } : undefined
+})
 
 const idx = computed(() => projects.value.findIndex((p) => p.slug === route.params.slug))
 const next = computed(() => projects.value[(idx.value + 1) % projects.value.length])
@@ -351,8 +356,41 @@ const tocItems = computed(() =>
     </section>
   </div>
 
+  <article v-else-if="brief" class="mx-auto max-w-[980px] px-5 pb-20 pt-8 sm:px-8 sm:pb-28">
+    <RouterLink
+      to="/#projects"
+      class="inline-flex items-center gap-2 font-mono text-[12px] text-ink-faint transition-colors hover:text-claude-deep"
+    >
+      ← {{ isEn ? 'Back to projects' : '返回项目列表' }}
+    </RouterLink>
+
+    <header class="mt-10 border-b border-ink/12 pb-9">
+      <h1 class="display text-[42px] leading-[1.08] sm:text-[58px]">{{ brief.title }}</h1>
+      <p class="mt-3 text-[18px] text-ink-muted">{{ brief.subtitle }}</p>
+      <p class="mt-5 max-w-[62ch] text-[15px] leading-[1.8] text-ink-body">{{ brief.summary }}</p>
+      <ul class="mt-6 flex flex-wrap gap-2" :aria-label="isEn ? 'Technologies' : '相关技术'">
+        <li
+          v-for="technology in brief.stack"
+          :key="technology"
+          class="rounded-[3px] border border-ink/12 px-2.5 py-1 font-mono text-[11px] text-ink-muted"
+        >
+          {{ technology }}
+        </li>
+      </ul>
+    </header>
+
+    <section class="mt-7">
+      <h2 class="display text-[25px]">{{ isEn ? 'Project highlights' : '项目要点' }}</h2>
+      <ul class="mt-4 list-disc space-y-3 pl-5 text-[15px] leading-[1.8] text-ink-body marker:text-claude">
+        <li v-for="highlight in brief.highlights" :key="highlight">{{ highlight }}</li>
+      </ul>
+    </section>
+  </article>
+
   <div v-else class="mx-auto max-w-[1400px] px-5 py-24 sm:px-8">
-    <p class="font-mono text-[13px] text-ink-muted">404 — 该项目不存在</p>
-    <RouterLink to="/" class="ul mt-3 inline-block font-mono text-[13px]">← 返回首页</RouterLink>
+    <p class="font-mono text-[13px] text-ink-muted">{{ isEn ? 'Project not found' : '该项目不存在' }}</p>
+    <RouterLink to="/#projects" class="ul mt-3 inline-block font-mono text-[13px]">
+      ← {{ isEn ? 'Back to projects' : '返回项目列表' }}
+    </RouterLink>
   </div>
 </template>

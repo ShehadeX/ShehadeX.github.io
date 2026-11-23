@@ -8,6 +8,7 @@ import GallerySection from '@/components/GallerySection.vue'
 import WeChatModal from '@/components/WeChatModal.vue'
 import DeliveryFlow from '@/components/DeliveryFlow.vue'
 import { projectFiltersEn, timelineEn, researchEn } from '@/data/home.en'
+import { projectBriefs } from '@/data/projectBriefs'
 import { useLocalizedProjects } from '@/composables/useLocalizedProjects'
 import { t, lang } from '@/composables/useI18n'
 import { computed, ref } from 'vue'
@@ -26,6 +27,8 @@ const zhOnly = {
     { key: 'NEURO / SIGNAL', label: 'Neuro / Signal' },
     { key: 'AI AGENT', label: 'Agent' },
     { key: 'HEALTHCARE', label: 'Healthcare' },
+    { key: 'research', label: '研究项目' },
+    { key: 'web', label: '网站' },
   ],
   timeline: [
     {
@@ -93,7 +96,7 @@ const zhOnly = {
       accent: false,
     },
     {
-      title: '开源与工程实践',
+      title: '老年综合评估工程实践',
       desc: '基于芋道（yudao）微服务体系搭建老年综合评估平台，沉淀量表引擎与多模块 AI 能力到工程主干。',
       tag: 'Engineering',
       to: '/project/cga-smart',
@@ -120,6 +123,12 @@ const filteredProjects = computed(() =>
   activeFilter.value === 'all'
     ? projects.value
     : projects.value.filter((p: { domain: string }) => p.domain === activeFilter.value),
+)
+
+const filteredBriefs = computed(() =>
+  projectBriefs
+    .filter((project) => activeFilter.value === 'all' || project.domain === activeFilter.value)
+    .map((project) => ({ ...project, ...project.copy[lang.value] })),
 )
 
 /* 项目小图标：五个已交付系统的品牌标识 */
@@ -591,18 +600,42 @@ const internships = [
                 ? 'bg-overlay text-base'
                 : 'border border-ink/15 text-ink-muted hover:bg-raised hover:text-ink'
             "
+            :aria-pressed="activeFilter === f.key"
             @click="activeFilter = f.key"
           >
             {{ f.label }}
           </button>
           <span class="ml-auto font-mono text-[11px] text-ink-faint">
-            {{ filteredProjects.length }} / {{ projects.length }} cases
+            {{ filteredProjects.length + filteredBriefs.length }} / {{ projects.length + projectBriefs.length }}
+            {{ isEn ? 'projects' : '个项目' }}
           </span>
         </div>
 
-        <div class="mt-10 space-y-8">
+        <div v-if="filteredProjects.length" class="mt-10 space-y-8">
           <div v-for="(p, i) in filteredProjects" :key="p.slug" class="fade-up">
             <ProjectCard :project="p" :index="i" />
+          </div>
+        </div>
+
+        <div v-if="filteredBriefs.length" class="mt-10">
+          <p v-if="filteredProjects.length" class="display mb-5 text-[24px]">
+            {{ isEn ? 'Research and portfolio projects' : '研究与作品集项目' }}
+          </p>
+          <div class="grid gap-4 md:grid-cols-2">
+            <RouterLink
+              v-for="brief in filteredBriefs"
+              :key="brief.slug"
+              :to="{ name: 'project', params: { slug: brief.slug } }"
+              class="group flex flex-col rounded-[15px] border border-ink/12 bg-base p-5 transition-colors hover:border-ink/25 hover:bg-raised focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent sm:p-6"
+            >
+              <h3 class="display text-[23px] leading-tight">{{ brief.title }}</h3>
+              <p class="mt-2 text-[14px] text-ink-muted">{{ brief.subtitle }}</p>
+              <p class="mt-3 flex-1 text-[13.5px] leading-[1.75] text-ink-body">{{ brief.summary }}</p>
+              <span class="mt-5 flex items-center justify-between gap-3 border-t border-ink/10 pt-3 text-[11px] text-ink-muted">
+                <span>{{ brief.stack.join(' · ') }}</span>
+                <span class="shrink-0 text-claude-deep" aria-hidden="true">→</span>
+              </span>
+            </RouterLink>
           </div>
         </div>
       </div>

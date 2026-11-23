@@ -19,6 +19,10 @@ const routes = [
   'project/moca',
   'project/fupan',
   'project/polymed',
+  'project/education-technology',
+  'project/eeg-research',
+  'project/aurora-x4',
+  'project/engineering-portfolio',
 ]
 
 for (const route of routes) {
